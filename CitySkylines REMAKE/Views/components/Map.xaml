@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             
              xmlns:views="clr-namespace:CitySkylines_REMAKE.Views"
              xmlns:vm="clr-namespace:CitySkylines_REMAKE.ViewModels"
              xmlns:local="clr-namespace:CitySkylines_REMAKE.Views.components"
@@ -13,19 +12,32 @@
         <vm:MapVM/>
     </UserControl.DataContext>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="500"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <ScrollViewer 
+        x:Name="MapScrollViewer"
+        HorizontalScrollBarVisibility="Hidden"
+        VerticalScrollBarVisibility="Hidden"
+        PreviewMouseWheel="MapScrollViewer_PreviewMouseWheel"
+        MouseDown="MapScrollViewer_MouseDown"
+        MouseMove="MapScrollViewer_MouseMove"
+        MouseUp="MapScrollViewer_MouseUp"
+        Background="LightGray">
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="500"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid x:Name="MapGrid" 
+              Width="1000" 
+              Height="1000" 
+              RenderTransformOrigin="0.5,0.5">
 
-        <views:MapView DataContext="{Binding MapVM}" Grid.Row="1" Grid.Column="1" BorderThickness="2" BorderBrush="Black"/>
-    </Grid>
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="ScaleTransform"/>
+                    <TranslateTransform x:Name="TranslateTransform"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
+
+            <views:MapView DataContext="{Binding MapVM}" 
+                           Grid.Row="1" Grid.Column="1" 
+                           BorderThickness="2" BorderBrush="Black"/>
+
+        </Grid>
+    </ScrollViewer>
 </UserControl>
