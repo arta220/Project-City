@@ -12,9 +12,9 @@ namespace CitySkylines_REMAKE.ViewModels
         public int Height => _simulation.MapModel.Height;
         public ObservableCollection<TileVM> Tiles { get; set; }
 
-        public MapVM()
+        public MapVM(Simulation simulation)
         {
-            _simulation = new Simulation();
+            _simulation = simulation;
             Tiles = new();
             InitializeTiles();
         }

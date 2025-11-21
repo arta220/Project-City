@@ -6,9 +6,9 @@ namespace CitySkylines_REMAKE.ViewModels
     {
         public MapVM MapVM { get; }
 
-        public MainVM()
+        public MainVM(MapVM mapVM)
         {
-            MapVM = new MapVM();
+            MapVM = mapVM;
         }
     }
 }

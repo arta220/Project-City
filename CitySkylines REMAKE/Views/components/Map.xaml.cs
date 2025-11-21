@@ -6,9 +6,6 @@ using System.Windows.Media;
 
 namespace CitySkylines_REMAKE.Views.components
 {
-    /// <summary>
-    /// Логика взаимодействия для Map.xaml
-    /// </summary>
     public partial class Map : UserControl
     {
         // Поля для логики перетаскивания

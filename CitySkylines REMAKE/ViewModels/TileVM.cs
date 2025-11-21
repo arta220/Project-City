@@ -1,6 +1,5 @@
-﻿
-using CitySkylines_REMAKE.Models;
-using CitySkylines_REMAKE.Models.Enums;
+﻿using CitySkylines_REMAKE.Models.Enums;
+using CitySkylines_REMAKE.Models.Map;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Media;

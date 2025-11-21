@@ -1,30 +1,23 @@
 ﻿using CitySkylines_REMAKE.Models.Enums;
+using CitySkylines_REMAKE.Models.Map;
+using CitySkylines_REMAKE.Services.MapGenerator;
 
 namespace CitySkylines_REMAKE.Models
 {
     public class Simulation
     {
+        private readonly IMapGenerator _mapGenerator;
         private const int DEFAULT_MAP_SIZE = 25;
         public MapModel MapModel { get; private set; }
-        public Simulation()
+        public Simulation(IMapGenerator mapGenerator)
         {
+            _mapGenerator = mapGenerator;
             InitializeSimulation();
         }
         
         private void InitializeSimulation()
         {
-            MapModel = new(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
-            InitializeMapTiles();
-        }
-        private void InitializeMapTiles()
-        {
-            for (int x = 0; x < MapModel.Width; x++)
-            {
-                for (int y = 0; y < MapModel.Height; y++)
-                {
-                    MapModel[x, y] = new TileModel(TerrainType.Plain);
-                }
-            }
+            MapModel = _mapGenerator.GenerateMap(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
         }
     }
 }

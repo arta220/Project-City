@@ -1,6 +1,6 @@
 ﻿using System.Printing;
 
-namespace CitySkylines_REMAKE.Models
+namespace CitySkylines_REMAKE.Models.Map
 {
     public class MapModel
     {
