@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         
+        xmlns:views="clr-namespace:CitySkylines_REMAKE.Views"
         xmlns:components="clr-namespace:CitySkylines_REMAKE.Views.components"
         xmlns:local="clr-namespace:CitySkylines_REMAKE"
         mc:Ignorable="d"
@@ -17,8 +18,9 @@
 
         <components:Header Grid.Row="0"/>
 
-        <components:Map Grid.Row="1"/>
-        
+        <views:MapView DataContext="{Binding MapVM}" Grid.Row="1" Grid.Column="1" BorderThickness="2" BorderBrush="Black"/>
+
+
         <components:Legend Grid.Row="1"/>
 
         <components:BuildingsPanel Grid.Row="2"/>

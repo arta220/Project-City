@@ -1,4 +1,6 @@
-﻿namespace CitySkylines_REMAKE.Models
+﻿using CitySkylines_REMAKE.Models.Enums;
+
+namespace CitySkylines_REMAKE.Models
 {
     public class Simulation
     {
@@ -20,7 +22,7 @@
             {
                 for (int y = 0; y < MapModel.Height; y++)
                 {
-                    MapModel[x, y] = new TileModel();
+                    MapModel[x, y] = new TileModel(TerrainType.Plain);
                 }
             }
         }

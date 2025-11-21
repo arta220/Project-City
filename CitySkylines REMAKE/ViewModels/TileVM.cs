@@ -1,6 +1,9 @@
-﻿using CitySkylines_REMAKE.Models;
+﻿
+using CitySkylines_REMAKE.Models;
+using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Windows.Media;
 
 namespace CitySkylines_REMAKE.ViewModels
 {
@@ -14,6 +17,8 @@ namespace CitySkylines_REMAKE.ViewModels
 
         [ObservableProperty]
         public int _y;
+
+        public TerrainType TerrainType => _tileModel.Terrain;
 
         public TileVM(TileModel tileModel)
         {
