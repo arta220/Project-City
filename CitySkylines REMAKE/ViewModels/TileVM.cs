@@ -9,6 +9,12 @@ namespace CitySkylines_REMAKE.ViewModels
         public event Action<TileVM> TileClicked;
         private readonly TileModel _tileModel;
 
+        [ObservableProperty]
+        public int _x;
+
+        [ObservableProperty]
+        public int _y;
+
         public TileVM(TileModel tileModel)
         {
             _tileModel = tileModel;

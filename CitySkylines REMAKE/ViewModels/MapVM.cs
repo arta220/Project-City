@@ -6,15 +6,15 @@ namespace CitySkylines_REMAKE.ViewModels
 {
     public partial class MapVM : ObservableObject
     {
-        private readonly MapModel _mapModel;
+        private readonly Simulation _simulation;
 
-        public int Width => _mapModel.Width;
-        public int Height => _mapModel.Height;
+        public int Width => _simulation.MapModel.Width;
+        public int Height => _simulation.MapModel.Height;
         public ObservableCollection<TileVM> Tiles { get; set; }
 
         public MapVM()
         {
-            _mapModel = new MapModel(25, 25);
+            _simulation = new Simulation();
             Tiles = new();
             InitializeTiles();
         }
@@ -25,7 +25,7 @@ namespace CitySkylines_REMAKE.ViewModels
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    var tileVM = new TileVM(_mapModel[x, y]);
+                    var tileVM = new TileVM(_simulation.MapModel[x, y]);
                     Tiles.Add(tileVM);
                 }
             }
