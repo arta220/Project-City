@@ -1,8 +1,7 @@
 ﻿<Application x:Class="CitySkylines_REMAKE.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:CitySkylines_REMAKE"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:CitySkylines_REMAKE">
     <Application.Resources>
          
     </Application.Resources>
