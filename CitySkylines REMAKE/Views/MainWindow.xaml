@@ -23,6 +23,8 @@
 
         <components:Legend Grid.Row="1"/>
 
+        <components:ControlGuide Grid.Row="1"/>
+
         <components:BuildingsPanel Grid.Row="2"/>
     </Grid>
 </Window>
