@@ -1,10 +1,9 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace CitySkylines_REMAKE.Views.components
+namespace CitySimulatorWPF.Views.components
 {
     public partial class Map : UserControl
     {

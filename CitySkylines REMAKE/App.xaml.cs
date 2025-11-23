@@ -1,12 +1,12 @@
-﻿using CitySkylines_REMAKE.Models;
-using CitySkylines_REMAKE.Services.CitizensSimulation;
-using CitySkylines_REMAKE.Services.Interfaces;
-using CitySkylines_REMAKE.Services.MapGenerator;
-using CitySkylines_REMAKE.Services.PlaceBuilding;
-using CitySkylines_REMAKE.ViewModels;
-using CitySkylines_REMAKE.Views;
+﻿using Services.Interfaces;
+using Services.CitizensSimulation;
+using Services.MapGenerator;
+using Services.PlaceBuilding;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
+using CitySimulatorWPF.Views;
+using Services;
+using CitySimulatorWPF.ViewModels;
 
 namespace CitySkylines_REMAKE
 {

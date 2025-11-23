@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace CitySkylines_REMAKE.ViewModels
+namespace CitySimulatorWPF.ViewModels
 {
     public partial class MainVM : ObservableObject
     {

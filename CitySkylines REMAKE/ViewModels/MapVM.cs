@@ -1,8 +1,8 @@
-﻿using CitySkylines_REMAKE.Models;
+﻿using Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 
-namespace CitySkylines_REMAKE.ViewModels
+namespace CitySimulatorWPF.ViewModels
 {
     public partial class MapVM : ObservableObject
     {

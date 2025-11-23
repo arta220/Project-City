@@ -1,7 +1,7 @@
-﻿using CitySkylines_REMAKE.ViewModels;
-using System.Windows;
+﻿using System.Windows;
+using CitySimulatorWPF.ViewModels;
 
-namespace CitySkylines_REMAKE.Views;
+namespace CitySimulatorWPF.Views;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
