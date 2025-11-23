@@ -3,6 +3,7 @@ using CitySkylines_REMAKE.Models.Map;
 
 namespace Core.Models.Base
 {
+    // урезанный класс из предыдущего проекта
     public abstract class Building : GameObject
     {
         public int Floors { get; set; }

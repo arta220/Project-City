@@ -15,6 +15,7 @@ namespace CitySkylines_REMAKE.Models
             InitializeSimulation();
         }
         
+        // создание карты
         private void InitializeSimulation()
         {
             MapModel = _mapGenerator.GenerateMap(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);

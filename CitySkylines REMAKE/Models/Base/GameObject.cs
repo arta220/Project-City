@@ -1,5 +1,7 @@
 ﻿namespace Core.Models.Base
 {
+    // класс для определения общих параметров объекта:
+    // активность, ID, поозиция
     public abstract class GameObject
     {
        
@@ -17,7 +19,7 @@
 
         public GameObject()
         {
-            Id = _nextId++;
+            Id = _nextId++; 
         }
         public (int X, int Y) Position
         {
