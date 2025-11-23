@@ -1,5 +1,6 @@
 ﻿using CitySkylines_REMAKE.Models.Enums;
 using CitySkylines_REMAKE.Models.Map;
+using CitySkylines_REMAKE.Services.Interfaces;
 
 namespace CitySkylines_REMAKE.Services.MapGenerator
 {

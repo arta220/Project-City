@@ -1,6 +1,6 @@
 ﻿using CitySkylines_REMAKE.Models.Map;
 
-namespace CitySkylines_REMAKE.Services.MapGenerator
+namespace CitySkylines_REMAKE.Services.Interfaces
 {
     public interface IMapGenerator
     {

@@ -1,6 +1,5 @@
 ﻿using CitySkylines_REMAKE.Models.Map;
-using CitySkylines_REMAKE.Services.MapGenerator;
-using CitySkylines_REMAKE.Services.PlaceBuilding;
+using CitySkylines_REMAKE.Services.Interfaces;
 using Core.Models.Base;
 
 namespace CitySkylines_REMAKE.Models

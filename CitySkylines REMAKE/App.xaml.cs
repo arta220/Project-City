@@ -1,4 +1,6 @@
 ﻿using CitySkylines_REMAKE.Models;
+using CitySkylines_REMAKE.Services.CitizensSimulation;
+using CitySkylines_REMAKE.Services.Interfaces;
 using CitySkylines_REMAKE.Services.MapGenerator;
 using CitySkylines_REMAKE.Services.PlaceBuilding;
 using CitySkylines_REMAKE.ViewModels;
@@ -27,8 +29,19 @@ namespace CitySkylines_REMAKE
 
         private void ConfigureServices(IServiceCollection services)
         {
+
+            // Симуляция жителей
+            services.AddSingleton<EducationService>();
+            services.AddSingleton<JobService>();
+            services.AddSingleton<MovementService>();
+            services.AddSingleton<PopulationService>();
+            services.AddSingleton<CitizenController>();
+            services.AddSingleton<CitizenSimulationService>();
+
+            // Размещение зданий
             services.AddSingleton<ConstructionValidator>();
             services.AddSingleton<IBuildingPlacementService, BuildingPlacementService>();
+
             services.AddSingleton<IMapGenerator, MapGenerator>();
 
             services.AddTransient<MainVM>();

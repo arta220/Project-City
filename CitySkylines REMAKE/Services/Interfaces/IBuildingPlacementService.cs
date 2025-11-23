@@ -1,7 +1,7 @@
 ﻿using CitySkylines_REMAKE.Models.Map;
 using Core.Models.Base;
 
-namespace CitySkylines_REMAKE.Services.PlaceBuilding
+namespace CitySkylines_REMAKE.Services.Interfaces
 {
     public interface IBuildingPlacementService
     {

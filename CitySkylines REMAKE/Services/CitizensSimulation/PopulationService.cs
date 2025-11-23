@@ -1,0 +1,18 @@
+﻿using CitySkylines_REMAKE.Models.Citizens;
+using CitySkylines_REMAKE.Services.Interfaces;
+
+namespace CitySkylines_REMAKE.Services.CitizensSimulation
+{
+    public class PopulationService : IPopulationService
+    {
+        public void AgeCitizen(Citizen citizen)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TryReproduce(Citizen mom, Citizen dad)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

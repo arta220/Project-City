@@ -5,6 +5,7 @@ namespace Core.Models.Base
 {
     public abstract class Building
     {
+        public Position Position { get; set; } // Относительная позиция (левый верхний угол здания)
         public int Floors { get; set; }
         public float Condition { get; set; } = 100f;
         public int Width { get; set; }
