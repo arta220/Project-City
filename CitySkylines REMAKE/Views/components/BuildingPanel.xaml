@@ -1,0 +1,80 @@
+<UserControl x:Class="CitySimulatorWPF.Views.components.BuildingPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CitySimulatorWPF.Views.components"
+             xmlns:converters="clr-namespace:CitySimulatorWPF.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converters:EqualityConverter x:Key="EqualityConverter"/>
+
+        <Style x:Key="BaseCategoryStyle" TargetType="Button">
+            <Setter Property="Background" Value="#CCCCCC" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="15, 5" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="CategoryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseCategoryStyle}">
+            <Setter Property="Background" Value="#CCCCCC" /> <!-- Серый по умолчанию -->
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource EqualityConverter}">
+                            <Binding Path="Content" RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="DataContext.SelectedCategory.Name" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="White" /> <!-- Белый для выбранной -->
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="#DEDEDE">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#CCCCCC" x:Name="CategoryPanel">
+            <Button Content="Жилые"
+                    Command="{Binding SelectCategoryCommand}"
+                    CommandParameter="Жилые"
+                    Style="{StaticResource CategoryButtonStyle}"/>
+
+            <Button Content="Коммерческие"
+                    Command="{Binding SelectCategoryCommand}"
+                    CommandParameter="Коммерческие"
+                    Style="{StaticResource CategoryButtonStyle}"/>
+
+            <Button Content="Промышленные"
+                    Command="{Binding SelectCategoryCommand}"
+                    CommandParameter="Промышленные"
+                    Style="{StaticResource CategoryButtonStyle}"/>
+        </StackPanel>
+
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedCategory.Buildings}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Margin="5,10" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Gray" BorderThickness="1" Width="100" Height="100" Margin="5,0" Background="White" CornerRadius="5" Cursor="Hand">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Image Source="{Binding IconPath}" Width="64" Height="64" Margin="5"/>
+                            <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

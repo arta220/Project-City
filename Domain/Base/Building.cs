@@ -10,6 +10,10 @@ namespace Domain.Base
         public int Width { get; set; }
         public int Height { get; set; }
         public int MaxOccupancy { get; set; }
+        
+        // штуки для UI 
+        public string Name { get; set; } // название постройки
+        public string IconPath { get; set; } // путь до иконки
 
         public Building(
             int Floors = 1,
