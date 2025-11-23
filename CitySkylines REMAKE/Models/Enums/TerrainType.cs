@@ -1,9 +1,10 @@
 ﻿namespace CitySkylines_REMAKE.Models.Enums
 {
-    public enum TerrainType
+    // хз пока какую классификацию построек вывести, с учетом парков, магазинов и производств
+    public enum BuildingType
     {
-        Water,
-        Plain,
-        Mountain,
+        Factory,
+        Shop,
+        Park
     }
 }
