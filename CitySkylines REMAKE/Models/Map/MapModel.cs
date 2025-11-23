@@ -1,11 +1,13 @@
-﻿using System.Printing;
+﻿using Core.Models.Base;
 
 namespace CitySkylines_REMAKE.Models.Map
 {
     public class MapModel
     {
+
         public int Width { get; init; }
         public int Height { get; init; }
+
         private TileModel[,] _tiles;
 
         public MapModel(int width, int height)
@@ -28,5 +30,36 @@ namespace CitySkylines_REMAKE.Models.Map
                 _tiles[x, y] = value;
             }
         }
+
+        public TileModel this[Position position]
+        {
+            get => _tiles[position.X, position.Y];
+            set => _tiles[position.X, position.Y] = value;
+        }
+
+        public bool TrySetBuilding(Building building, Area area)
+        {
+            foreach (var pos in area.GetAllPositions())
+                _tiles[pos.X, pos.Y].Building = building;
+
+            return true;
+        }
+
+        public bool TryRemoveBuilding(Area area)
+        {
+            foreach (var pos in area.GetAllPositions())
+                _tiles[pos.X, pos.Y].Building = null;
+
+            return true;
+        }
+
+        public bool IsAreaInBounds(Area area)
+        {
+            return IsPositionInBounds(area.Position) &&
+                   IsPositionInBounds(new Position(area.Right - 1, area.Bottom - 1));
+        }
+
+        public bool IsPositionInBounds(Position position) => position.X < Width && position.Y < Height &&
+                                                             position.X >= 0 && position.Y >= 0;
     }
 }
