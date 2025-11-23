@@ -1,5 +1,6 @@
 ﻿using CitySkylines_REMAKE.Models;
 using CitySkylines_REMAKE.Services.MapGenerator;
+using CitySkylines_REMAKE.Services.PlaceBuilding;
 using CitySkylines_REMAKE.ViewModels;
 using CitySkylines_REMAKE.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,8 @@ namespace CitySkylines_REMAKE
 
         private void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<ConstructionValidator>();
+            services.AddSingleton<IBuildingPlacementService, BuildingPlacementService>();
             services.AddSingleton<IMapGenerator, MapGenerator>();
 
             services.AddTransient<MainVM>();

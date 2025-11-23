@@ -1,21 +1,13 @@
 ﻿using Core.Models.Base;
-using System.Printing;
 
 namespace CitySkylines_REMAKE.Models.Map
 {
-    // контейнер для тайлов карты
     public class MapModel
     {
-        // сетка, дублирующая размеры карты
-        // если здание есть - содержит ссылку на него
-        // если здания нет - null
-        public Building[,] _buildingsGrid;
 
-        // ширина/высота карты
         public int Width { get; init; }
         public int Height { get; init; }
 
-        // сама карта тайлов
         private TileModel[,] _tiles;
 
         public MapModel(int width, int height)
@@ -25,8 +17,6 @@ namespace CitySkylines_REMAKE.Models.Map
             _tiles = new TileModel[Width, Height];
         }
 
-
-        // крутая штука
         public TileModel this[int x, int y]
         {
             get
@@ -40,15 +30,36 @@ namespace CitySkylines_REMAKE.Models.Map
                 _tiles[x, y] = value;
             }
         }
-        
-        // метод, возвращающий тип здания на тайле
-        // 
-        public Building GetBuildingAt(int x, int y)
+
+        public TileModel this[Position position]
         {
-            if (x >= 0 && x < Width &&
-                y >= 0 && y < Height)
-                return _buildingsGrid[x, y];
-            return null;
+            get => _tiles[position.X, position.Y];
+            set => _tiles[position.X, position.Y] = value;
         }
+
+        public bool TrySetBuilding(Building building, Area area)
+        {
+            foreach (var pos in area.GetAllPositions())
+                _tiles[pos.X, pos.Y].Building = building;
+
+            return true;
+        }
+
+        public bool TryRemoveBuilding(Area area)
+        {
+            foreach (var pos in area.GetAllPositions())
+                _tiles[pos.X, pos.Y].Building = null;
+
+            return true;
+        }
+
+        public bool IsAreaInBounds(Area area)
+        {
+            return IsPositionInBounds(area.Position) &&
+                   IsPositionInBounds(new Position(area.Right - 1, area.Bottom - 1));
+        }
+
+        public bool IsPositionInBounds(Position position) => position.X < Width && position.Y < Height &&
+                                                             position.X >= 0 && position.Y >= 0;
     }
 }
