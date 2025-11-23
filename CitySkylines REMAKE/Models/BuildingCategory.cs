@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Domain.Base;
 
 namespace CitySimulatorWPF.Models
 {

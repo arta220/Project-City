@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Domain.Buildings;
 
 namespace CitySimulatorWPF.Models
 {
@@ -14,18 +15,17 @@ namespace CitySimulatorWPF.Models
 
         private static void Initialize()
         {
-            // Пример данных
             var residentialCategory = new BuildingCategory { Name = "Жилые" };
-            residentialCategory.Buildings.Add(new Building { Name = "Маленький дом", IconPath = "/Resources/Icons/small_house.png" });
-            residentialCategory.Buildings.Add(new Building { Name = "Многоквартирный дом", IconPath = "/Resources/Icons/apartment.png" });
+            residentialCategory.Buildings.Add(new ResidentialBuilding("Маленький дом", "", width: 2, height: 2));
+            residentialCategory.Buildings.Add(new ResidentialBuilding("Многоквартирный дом", "", floors: 5, width: 4, height: 4));
 
             var commercialCategory = new BuildingCategory { Name = "Коммерческие" };
-            commercialCategory.Buildings.Add(new Building { Name = "Магазин", IconPath = "/Resources/Icons/shop.png" });
-            commercialCategory.Buildings.Add(new Building { Name = "Офис", IconPath = "/Resources/Icons/office.png" });
+            commercialCategory.Buildings.Add(new CommercialBuilding("Магазин", "", width: 3, height: 2));
+            commercialCategory.Buildings.Add(new CommercialBuilding("Офис", "", floors: 10, width: 3, height: 3));
 
             var industrialCategory = new BuildingCategory { Name = "Промышленные" };
-            industrialCategory.Buildings.Add(new Building { Name = "Завод", IconPath = "/Resources/Icons/factory.png" });
-            industrialCategory.Buildings.Add(new Building { Name = "Склад", IconPath = "/Resources/Icons/warehouse.png" });
+            industrialCategory.Buildings.Add(new IndustrialBuilding("Завод", "", width: 5, height: 5));
+            industrialCategory.Buildings.Add(new IndustrialBuilding("Склад", "", width: 4, height: 6));
 
             Categories.Add(residentialCategory);
             Categories.Add(commercialCategory);

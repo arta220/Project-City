@@ -1,4 +1,4 @@
-﻿using Domain.Map;
+using Domain.Map;
 
 namespace Domain.Base
 {
@@ -26,7 +26,7 @@ namespace Domain.Base
             this.Height = Height;
         }
 
-
+        public abstract Building Clone();
 
     }
 }

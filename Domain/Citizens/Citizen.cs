@@ -1,6 +1,6 @@
-﻿using Domain.Citizens.States;
+﻿using Domain.Buildings;
+using Domain.Citizens.States;
 using Domain.Map;
-using Domain.ResidentialBuildings;
 
 namespace Domain.Citizens
 {
