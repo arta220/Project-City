@@ -5,9 +5,9 @@ namespace Services.Interfaces
 {
     public interface IMapObjectPlacementService
     {
-        public bool CanPlace(MapModel map, MapObject mapObject, Area area);
-        public bool TryPlace(MapModel map, MapObject mapObject, Area area);
-        public void RemoveBuilding(MapModel map, Area area);
+        public bool CanPlace(MapModel map, MapObject mapObject, Placement area);
+        public bool TryPlace(MapModel map, MapObject mapObject, Placement area);
+        public void RemoveBuilding(MapModel map, Placement area);
 
     }
 }

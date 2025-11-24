@@ -22,12 +22,12 @@ namespace Services
             MapModel = _mapGenerator.GenerateMap(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
         }
 
-        public bool TryPlaceBuilding(Building building, Area area)
+        public bool TryPlaceBuilding(Building building, Placement area)
         {
             return _buildingPlacementService.TryPlace(MapModel, building, area);
         }
 
-        public bool CanPlaceBuilding(Building building, Area area)
+        public bool CanPlaceBuilding(Building building, Placement area)
         {
             return _buildingPlacementService.CanPlace(MapModel, building, area);
         }

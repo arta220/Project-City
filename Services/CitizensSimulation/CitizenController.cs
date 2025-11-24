@@ -36,7 +36,7 @@ namespace Services.CitizensSimulation
                     break;
 
                 case CitizenState.GoingHome:
-                    _movement.Move(citizen, citizen.Home.Position);
+                    _movement.Move(citizen, new Position(0, 0)); // Пока нет реализации дома жителя, нет зданий
                     break;
             }
 

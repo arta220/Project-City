@@ -36,7 +36,7 @@ namespace Domain.Map
             set => _tiles[position.X, position.Y] = value;
         }
 
-        public bool TrySetMapObject(MapObject mapObject, Area area)
+        public bool TrySetMapObject(MapObject mapObject, Placement area)
         {
             foreach (var pos in area.GetAllPositions())
                 _tiles[pos.X, pos.Y].MapObject = mapObject;
@@ -44,7 +44,7 @@ namespace Domain.Map
             return true;
         }
 
-        public bool TryRemoveMapObject(Area area)
+        public bool TryRemoveMapObject(Placement area)
         {
             foreach (var pos in area.GetAllPositions())
                 _tiles[pos.X, pos.Y].MapObject = null;
@@ -52,7 +52,7 @@ namespace Domain.Map
             return true;
         }
 
-        public bool IsAreaInBounds(Area area)
+        public bool IsAreaInBounds(Placement area)
         {
             return IsPositionInBounds(area.Position) &&
                    IsPositionInBounds(new Position(area.Right - 1, area.Bottom - 1));

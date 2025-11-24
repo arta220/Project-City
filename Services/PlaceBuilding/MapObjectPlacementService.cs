@@ -13,7 +13,7 @@ namespace Services.PlaceBuilding
             _validator = validator;
         }
 
-        public bool CanPlace(MapModel map, MapObject mapObject, Area area)
+        public bool CanPlace(MapModel map, MapObject mapObject, Placement area)
         {
             if (!map.IsAreaInBounds(area))
                 return false;
@@ -27,7 +27,7 @@ namespace Services.PlaceBuilding
             return true;
         }
 
-        public bool TryPlace(MapModel map, MapObject mapObject, Area area)
+        public bool TryPlace(MapModel map, MapObject mapObject, Placement area)
         {
             if (!CanPlace(map, mapObject, area))
                 return false;
@@ -35,7 +35,7 @@ namespace Services.PlaceBuilding
             return map.TrySetMapObject(mapObject, area);
         }
 
-        public void RemoveBuilding(MapModel map, Area area)
+        public void RemoveBuilding(MapModel map, Placement area)
         {
             throw new NotImplementedException();
         }

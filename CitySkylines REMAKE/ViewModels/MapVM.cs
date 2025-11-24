@@ -51,9 +51,9 @@ namespace CitySimulatorWPF.ViewModels
                     if (SelectedBuilding != null)
                     {
                         var building = SelectedBuilding.Model;
-                        var area = new Area(tile.X, tile.Y, building.Area.Width, building.Area.Height);
+                        var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
 
-                        if (_simulation.TryPlaceBuilding(building, area))
+                        if (_simulation.TryPlaceBuilding(building, placement))
                         {
                             // Ура
                         }
