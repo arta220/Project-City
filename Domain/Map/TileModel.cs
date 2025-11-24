@@ -7,18 +7,12 @@ namespace Domain.Map
     {
         public Position Position { get; set; }
         public TerrainType Terrain { get; set; }
-        public Building Building { get; set; }
+        public MapObject MapObject { get; set; }
         public float Height { get; set; }
 
-        public bool CanPlace(Building building)
+        public bool CanPlace(MapObject mapObject)
         {
-            if (Building != null)
-                return false;
-
-            if (Terrain != TerrainType.Plain)
-                return false;
-
-            return true;
+            return MapObject == null;
         }
     }
 }
