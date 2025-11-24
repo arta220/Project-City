@@ -6,11 +6,11 @@ namespace Services
 {
     public class Simulation
     {
-        private readonly IBuildingPlacementService _buildingPlacementService;
+        private readonly IMapObjectPlacementService _buildingPlacementService;
         private readonly IMapGenerator _mapGenerator;
         private const int DEFAULT_MAP_SIZE = 25;
         public MapModel MapModel { get; private set; }
-        public Simulation(IMapGenerator mapGenerator, IBuildingPlacementService buildingPlacementService)
+        public Simulation(IMapGenerator mapGenerator, IMapObjectPlacementService buildingPlacementService)
         {
             _mapGenerator = mapGenerator;
             _buildingPlacementService = buildingPlacementService;
@@ -24,12 +24,12 @@ namespace Services
 
         public bool TryPlaceBuilding(Building building, Area area)
         {
-            return _buildingPlacementService.TryPlaceBuilding(MapModel, building, area);
+            return _buildingPlacementService.TryPlace(MapModel, building, area);
         }
 
         public bool CanPlaceBuilding(Building building, Area area)
         {
-            return _buildingPlacementService.CanPlaceBuilding(MapModel, building, area);
+            return _buildingPlacementService.CanPlace(MapModel, building, area);
         }
     }
 }

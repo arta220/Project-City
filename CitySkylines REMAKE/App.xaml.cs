@@ -40,7 +40,7 @@ namespace CitySkylines_REMAKE
 
             // Размещение зданий
             services.AddSingleton<ConstructionValidator>();
-            services.AddSingleton<IBuildingPlacementService, BuildingPlacementService>();
+            services.AddSingleton<IMapObjectPlacementService, MapObjectPlacementService>();
 
             services.AddSingleton<IMapGenerator, MapGenerator>();
 

@@ -36,18 +36,18 @@ namespace Domain.Map
             set => _tiles[position.X, position.Y] = value;
         }
 
-        public bool TrySetBuilding(Building building, Area area)
+        public bool TrySetMapObject(MapObject mapObject, Area area)
         {
             foreach (var pos in area.GetAllPositions())
-                _tiles[pos.X, pos.Y].Building = building;
+                _tiles[pos.X, pos.Y].MapObject = mapObject;
 
             return true;
         }
 
-        public bool TryRemoveBuilding(Area area)
+        public bool TryRemoveMapObject(Area area)
         {
             foreach (var pos in area.GetAllPositions())
-                _tiles[pos.X, pos.Y].Building = null;
+                _tiles[pos.X, pos.Y].MapObject = null;
 
             return true;
         }
