@@ -12,6 +12,8 @@
         public Area(int x, int y, int width, int height)
             : this(new Position(x, y), width, height) { }
 
+        public Area(int width, int height) => (Width, Height) = (width, height);
+
         public int Left => Position.X;
         public int Top => Position.Y;
         public int Right => Position.X + Width;

@@ -5,6 +5,7 @@ namespace Domain.Map
 {
     public class TileModel
     {
+        public Position Position { get; set; }
         public TerrainType Terrain { get; set; }
         public Building Building { get; set; }
         public float Height { get; set; }

@@ -21,6 +21,8 @@ public partial class TileVM : ObservableObject
     public TileVM(TileModel tileModel)
     {
         _tileModel = tileModel;
+        X = tileModel.Position.X;
+        Y = tileModel.Position.Y;
     }
 
     [RelayCommand]

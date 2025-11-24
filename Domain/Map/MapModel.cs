@@ -4,7 +4,6 @@ namespace Domain.Map
 {
     public class MapModel
     {
-
         public int Width { get; init; }
         public int Height { get; init; }
 

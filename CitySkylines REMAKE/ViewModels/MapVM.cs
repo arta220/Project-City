@@ -1,6 +1,7 @@
 ﻿using Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -17,6 +18,7 @@ namespace CitySimulatorWPF.ViewModels
             _simulation = simulation;
             Tiles = new();
             InitializeTiles();
+
         }
 
         private void InitializeTiles()
@@ -27,8 +29,15 @@ namespace CitySimulatorWPF.ViewModels
                 {
                     var tileVM = new TileVM(_simulation.MapModel[x, y]);
                     Tiles.Add(tileVM);
+
+                    tileVM.TileClicked += OnTileClicked;
                 }
             }
+        }
+
+        public void OnTileClicked(TileVM tile)
+        {
+            MessageBox.Show($"Клик по тайлу {tile.X}, {tile.Y}");
         }
     }
 }
