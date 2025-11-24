@@ -44,6 +44,7 @@ namespace CitySkylines_REMAKE
 
             services.AddSingleton<IMapGenerator, MapGenerator>();
 
+            services.AddTransient<BuildingPanelViewModel>();
             services.AddTransient<MainVM>();
             services.AddTransient<MapVM>();
 

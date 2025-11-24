@@ -1,5 +1,7 @@
-﻿using Services;
+﻿using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Map;
+using Services;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -7,6 +9,12 @@ namespace CitySimulatorWPF.ViewModels
 {
     public partial class MapVM : ObservableObject
     {
+        [ObservableProperty]
+        private BuildingVM _selectedBuilding;
+
+        [ObservableProperty]
+        private MapInteractionMode _currentMode = MapInteractionMode.None;
+
         private readonly Simulation _simulation;
 
         public int Width => _simulation.MapModel.Width;
@@ -37,7 +45,33 @@ namespace CitySimulatorWPF.ViewModels
 
         public void OnTileClicked(TileVM tile)
         {
-            MessageBox.Show($"Клик по тайлу {tile.X}, {tile.Y}");
+            switch (CurrentMode)
+            {
+                case MapInteractionMode.Build:
+                    if (SelectedBuilding != null)
+                    {
+                        var building = SelectedBuilding.Model;
+                        var area = new Area(tile.X, tile.Y, building.Area.Width, building.Area.Height);
+
+                        if (_simulation.TryPlaceBuilding(building, area))
+                        {
+                            // Ура
+                        }
+                        else
+                        {
+                            // Уведомление о невозможности постройки
+                        }
+                        CurrentMode = MapInteractionMode.None;
+                    }
+                    break;
+                case MapInteractionMode.Remove:
+                    break;
+                case MapInteractionMode.None:
+                    // Можно добавить сервис информационный, показывать информацию о клетке.
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

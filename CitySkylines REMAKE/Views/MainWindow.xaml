@@ -6,7 +6,6 @@
         
         xmlns:views="clr-namespace:CitySimulatorWPF.Views"
         xmlns:components="clr-namespace:CitySimulatorWPF.Views.components"
-        xmlns:local="clr-namespace:CitySimulatorWPF"
         mc:Ignorable="d"
         Title="CitySimulator" Height="450" Width="800" WindowState="Maximized">
     <Grid>
@@ -25,6 +24,6 @@
 
         <components:ControlGuide Grid.Row="1"/>
 
-        <components:BuildingPanel Grid.Row="2"/>
+        <components:BuildingPanel DataContext="{Binding BuildingPanelVM}" Grid.Row="2"/>
     </Grid>
 </Window>

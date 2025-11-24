@@ -8,7 +8,7 @@ namespace CitySimulatorWPF.ViewModels;
 public partial class TileVM : ObservableObject
 {
     public event Action<TileVM> TileClicked;
-    private readonly TileModel _tileModel;
+    public TileModel TileModel { get; }
 
     [ObservableProperty]
     public int _x;
@@ -16,11 +16,11 @@ public partial class TileVM : ObservableObject
     [ObservableProperty]
     public int _y;
 
-    public TerrainType TerrainType => _tileModel.Terrain;
+    public TerrainType TerrainType => TileModel.Terrain;
 
     public TileVM(TileModel tileModel)
     {
-        _tileModel = tileModel;
+        TileModel = tileModel;
         X = tileModel.Position.X;
         Y = tileModel.Position.Y;
     }

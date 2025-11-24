@@ -26,5 +26,10 @@ namespace Services
         {
             return _buildingPlacementService.TryPlaceBuilding(MapModel, building, area);
         }
+
+        public bool CanPlaceBuilding(Building building, Area area)
+        {
+            return _buildingPlacementService.CanPlaceBuilding(MapModel, building, area);
+        }
     }
 }
