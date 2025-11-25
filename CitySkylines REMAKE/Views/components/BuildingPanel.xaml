@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:CitySimulatorWPF.Views.components"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:CitySimulatorWPF.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -67,8 +68,22 @@
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="Gray" BorderThickness="1" Width="100" Height="100" Margin="5,0" Background="White" CornerRadius="5" Cursor="Hand">
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border BorderBrush="Gray" 
+                            BorderThickness="1" 
+                            Width="100" Height="100" 
+                            Margin="5,0" Background="White"
+                            CornerRadius="5" 
+                            Cursor="Hand"
+>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding DataContext.SelectBuildingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                       CommandParameter="{Binding}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+>
                             <Image Source="{Binding IconPath}" Width="64" Height="64" Margin="5"/>
                             <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
                         </StackPanel>

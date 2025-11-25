@@ -55,11 +55,12 @@ namespace CitySimulatorWPF.ViewModels
 
                         if (_simulation.TryPlaceBuilding(building, placement))
                         {
-                            // Ура
+
+                            MessageBox.Show("ЗДАНИЕ ПОСТАВЛЕНО ОТЛАДКА");
                         }
                         else
                         {
-                            // Уведомление о невозможности постройки
+                            MessageBox.Show("НЕВОЗМОЖНО ПОСТРОИТЬ ЗДАНИЕ ОТЛАДКА");
                         }
                         CurrentMode = MapInteractionMode.None;
                     }
