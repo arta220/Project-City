@@ -1,4 +1,5 @@
 ﻿using Domain.Citizens;
+using Services.SimulationClock;
 
 namespace Services.CitizensSimulation
 {
@@ -7,8 +8,11 @@ namespace Services.CitizensSimulation
         private readonly CitizenController _controller;
         private readonly List<Citizen> allCitizens = new();
 
-        public CitizenSimulationService(CitizenController controller)
+        public CitizenSimulationService(
+            CitizenController controller,
+            ISimulationClock clock)
         {
+            clock.TickOccurred += UpdateAll;
             _controller = controller;
         }
 
@@ -17,10 +21,10 @@ namespace Services.CitizensSimulation
             allCitizens.Add(citizen);
         }
 
-        public void UpdateAll()
+        public void UpdateAll(int tick)
         {
             foreach (var citizen in allCitizens)
-                _controller.UpdateCitizen(citizen);
+                _controller.UpdateCitizen(citizen, tick);
         }
     }
 

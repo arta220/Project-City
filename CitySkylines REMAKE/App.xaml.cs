@@ -7,6 +7,7 @@ using System.Windows;
 using CitySimulatorWPF.Views;
 using Services;
 using CitySimulatorWPF.ViewModels;
+using Services.SimulationClock;
 
 namespace CitySkylines_REMAKE
 {
@@ -41,6 +42,9 @@ namespace CitySkylines_REMAKE
             // Размещение зданий
             services.AddSingleton<ConstructionValidator>();
             services.AddSingleton<IMapObjectPlacementService, MapObjectPlacementService>();
+
+            // Симуляция времени
+            services.AddSingleton<ISimulationClock, SimulationClock>();
 
             services.AddSingleton<IMapGenerator, MapGenerator>();
 

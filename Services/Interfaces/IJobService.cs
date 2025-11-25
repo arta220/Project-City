@@ -6,6 +6,6 @@ namespace Services.Interfaces
     public interface IJobService
     {
         Job? FindJobFor(Citizen citizen);
-        void UpdateWork(Citizen citizen); 
+        void UpdateWork(Citizen citizen, int tick); 
     }
 }

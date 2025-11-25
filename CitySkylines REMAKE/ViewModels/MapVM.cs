@@ -53,7 +53,7 @@ namespace CitySimulatorWPF.ViewModels
                         var building = SelectedBuilding.Model;
                         var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
 
-                        if (_simulation.TryPlaceBuilding(building, placement))
+                        if (_simulation.TryPlace(building, placement))
                         {
 
                             MessageBox.Show("ЗДАНИЕ ПОСТАВЛЕНО ОТЛАДКА");

@@ -5,6 +5,6 @@ namespace Services.Interfaces
 {
     public interface ICitizenMovementService
     {
-        void Move(Citizen citizen, Position position);
+        void Move(Citizen citizen, Position position, int tick);
     }
 }
