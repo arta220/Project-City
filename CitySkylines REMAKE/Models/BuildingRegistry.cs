@@ -20,8 +20,8 @@ namespace CitySimulatorWPF.Models
         {
             var residential = new BuildingCategory { Name = "Жилые" };
 
-            residential.Buildings.Add(
-                new BuildingVM(
+            residential.Objects.Add(
+                new ObjectVM(
                     new ResidentialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -32,8 +32,8 @@ namespace CitySimulatorWPF.Models
                 )
             );
 
-            residential.Buildings.Add(
-                new BuildingVM(
+            residential.Objects.Add(
+                new ObjectVM(
                     new ResidentialBuilding(
                         floors: 5,
                         maxOccupancy: 1,
@@ -46,8 +46,8 @@ namespace CitySimulatorWPF.Models
 
             var commercial = new BuildingCategory { Name = "Коммерческие" };
 
-            commercial.Buildings.Add(
-                new BuildingVM(
+            commercial.Objects.Add(
+                new ObjectVM(
                     new CommercialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -58,8 +58,8 @@ namespace CitySimulatorWPF.Models
                 )
             );
 
-            commercial.Buildings.Add(
-                new BuildingVM(
+            commercial.Objects.Add(
+                new ObjectVM(
                     new CommercialBuilding(
                         floors: 1, 
                         maxOccupancy: 1,
@@ -72,8 +72,8 @@ namespace CitySimulatorWPF.Models
 
             var industrial = new BuildingCategory { Name = "Промышленные" };
 
-            industrial.Buildings.Add(
-                new BuildingVM(
+            industrial.Objects.Add(
+                new ObjectVM(
                     new IndustrialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -84,8 +84,8 @@ namespace CitySimulatorWPF.Models
                 )
             );
 
-            industrial.Buildings.Add(
-                new BuildingVM(
+            industrial.Objects.Add(
+                new ObjectVM(
                     new IndustrialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -96,10 +96,10 @@ namespace CitySimulatorWPF.Models
                 )
             );
             
-            var infrastructure = new BuildingCategory { Name = "Парки" };
+            var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
 
-            infrastructure.Buildings.Add(
-                new BuildingVM(
+            infrastructure.Objects.Add(
+                new ObjectVM(
                     new Park(
                         area: new Area(3, 3),
                         type: ParkType.UrbanPark
@@ -109,8 +109,8 @@ namespace CitySimulatorWPF.Models
                 )
             );
 
-            infrastructure.Buildings.Add(
-                new BuildingVM(
+            infrastructure.Objects.Add(
+                new ObjectVM(
                     new Park(
                         area: new Area(2, 2),
                         type: ParkType.Square
@@ -120,8 +120,8 @@ namespace CitySimulatorWPF.Models
                 )
             );
 
-            infrastructure.Buildings.Add(
-                new BuildingVM(
+            infrastructure.Objects.Add(
+                new ObjectVM(
                     new Park(
                         area: new Area(4, 4),
                         type: ParkType.BotanicalGarden
@@ -131,8 +131,8 @@ namespace CitySimulatorWPF.Models
                 )
             );
 
-            infrastructure.Buildings.Add(
-                new BuildingVM(
+            infrastructure.Objects.Add(
+                new ObjectVM(
                     new Park(
                         area: new Area(1, 1),
                         type: ParkType.Playground
@@ -142,8 +142,8 @@ namespace CitySimulatorWPF.Models
                 )
             );
 
-            infrastructure.Buildings.Add(
-                new BuildingVM(
+            infrastructure.Objects.Add(
+                new ObjectVM(
                     new Park(
                         area: new Area(2, 3),
                         type: ParkType.RecreationArea
@@ -153,7 +153,7 @@ namespace CitySimulatorWPF.Models
                 )
             );
             
-            infrastructure.Buildings.Add(new BuildingVM(
+            infrastructure.Objects.Add(new ObjectVM(
                 new Road(
                 area: new Area(1, 1)),
                 "Дорога",

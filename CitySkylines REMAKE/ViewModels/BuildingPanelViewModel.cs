@@ -12,9 +12,9 @@ namespace CitySimulatorWPF.ViewModels
         private BuildingCategory _selectedCategory;
 
         [ObservableProperty]
-        private BuildingVM _selectedBuilding;
+        private ObjectVM _selectedObject;
 
-        public event Action<BuildingVM> BuildingSelected;
+        public event Action<ObjectVM> BuildingSelected;
         public ObservableCollection<BuildingCategory> Categories { get; private set; } = BuildingRegistry.Categories;
 
         [RelayCommand]
@@ -24,10 +24,10 @@ namespace CitySimulatorWPF.ViewModels
         }
 
         [RelayCommand]
-        private void SelectBuilding(BuildingVM building)
+        private void SelectBuilding(ObjectVM @object)
         {
-            SelectedBuilding = building;
-            BuildingSelected?.Invoke(SelectedBuilding);
+            SelectedObject = @object;
+            BuildingSelected?.Invoke(SelectedObject);
         }
         public BuildingPanelViewModel()
         {

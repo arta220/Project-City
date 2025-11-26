@@ -10,7 +10,7 @@ namespace CitySimulatorWPF.ViewModels
     public partial class MapVM : ObservableObject
     {
         [ObservableProperty]
-        private BuildingVM _selectedBuilding;
+        private ObjectVM _selectedObject;
 
         [ObservableProperty]
         private MapInteractionMode _currentMode = MapInteractionMode.None;
@@ -48,9 +48,9 @@ namespace CitySimulatorWPF.ViewModels
             switch (CurrentMode)
             {
                 case MapInteractionMode.Build:
-                    if (SelectedBuilding != null)
+                    if (SelectedObject != null)
                     {
-                        var building = SelectedBuilding.Model;
+                        var building = SelectedObject.Model;
                         var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
 
                         if (_simulation.TryPlace(building, placement))
