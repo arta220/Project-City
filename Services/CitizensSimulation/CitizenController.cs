@@ -1,16 +1,32 @@
 ﻿using Domain.Citizens;
 using Domain.Citizens.States;
 using Domain.Map;
+using Services.BuildingRegistry;
+using Services.Interfaces;
 
 namespace Services.CitizensSimulation
 {
     public class CitizenController
     {
-        private readonly MovementService _movement;
+        private readonly IBuildingRegistry _buildingRegistry;
+        private readonly ICitizenMovementService _movement;
         private readonly JobService _jobService;
         private readonly EducationService _educationService;
         private readonly PopulationService _populationService;
 
+        public CitizenController(
+            IBuildingRegistry buildingRegistry,
+            ICitizenMovementService movementService,
+            JobService jobService,
+            EducationService educationService,
+            PopulationService populationService)
+        {
+            _buildingRegistry = buildingRegistry;
+            _movement = movementService;
+            _jobService = jobService;
+            _educationService = educationService;
+            _populationService = populationService;
+        }
         public void UpdateCitizen(Citizen citizen, int tick)
         {
             switch (citizen.State)
@@ -36,7 +52,7 @@ namespace Services.CitizensSimulation
                     break;
 
                 case CitizenState.GoingHome:
-                    _movement.Move(citizen, new Position(0, 0), tick); // Пока нет реализации дома жителя, нет зданий
+                    _movement.Move(citizen, _buildingRegistry.GetPlacement(citizen.Home).Position, tick); // Пока нет реализации дома жителя, нет зданий
                     break;
             }
 

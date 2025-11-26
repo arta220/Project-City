@@ -4,6 +4,9 @@ using Domain.Map;
 using Services.PlaceBuilding;
 using Services.SimulationClock;
 using Services.CitizensSimulation;
+using Services.BuildingRegistry;
+using Services.PathFind;
+using Domain.Citizens;
 
 namespace Services
 {
@@ -12,23 +15,37 @@ namespace Services
         private readonly IMapObjectPlacementService _mapObjectPlacementService;
         private readonly IMapGenerator _mapGenerator;
         private readonly ISimulationClock _clock;
+        private readonly IBuildingRegistry _buildingRegistry;
 
-        private readonly PlacementRepository _placementRepository = new();
+        private readonly PlacementRepository _placementRepository;
         private readonly CitizenSimulationService _citizenSimulationService;
 
-        private const int DEFAULT_MAP_SIZE = 75;
         public MapModel MapModel { get; private set; }
         public Simulation(
             IMapGenerator mapGenerator, 
             IMapObjectPlacementService buildingPlacementService,
-            ISimulationClock clock)
+            ISimulationClock clock, 
+            IPathFinder pathfinder,
+            PlacementRepository placementRepository,
+            MapModel mapModel)
         {
+            MapModel = mapModel;
+            _placementRepository = placementRepository;
+            _buildingRegistry = new BuildingRegistryService(_placementRepository);
             _clock = clock;
             _mapGenerator = mapGenerator;
             _mapObjectPlacementService = buildingPlacementService;
-            InitializeSimulation();
 
-            _citizenSimulationService = new CitizenSimulationService(new CitizenController(), _clock); // как будто заменить потом на инжект 
+
+            _citizenSimulationService = new CitizenSimulationService(
+                new CitizenController(
+                    _buildingRegistry,
+                    new MovementService(pathfinder),
+                    new JobService(),
+                    new EducationService(),
+                    new PopulationService()), 
+                    _clock); 
+
             _clock.TickOccurred += OnTick;
 
             _clock.Start();
@@ -37,12 +54,9 @@ namespace Services
         public void OnTick(int tick)
         {
             _citizenSimulationService.UpdateAll(tick);
-        }
-        private void InitializeSimulation()
-        {
-            MapModel = _mapGenerator.GenerateMap(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
-        }
 
+
+        }
         public bool TryPlace(MapObject mapObject, Placement placement)
         {
             if (_mapObjectPlacementService.TryPlace(MapModel, mapObject, placement))
@@ -53,6 +67,7 @@ namespace Services
             return false;
         }
 
+        public void AddCitizen(Citizen citizen) => _citizenSimulationService.AddCitizen(citizen);
         public Placement GetMapObjectPlacement(MapObject mapObject) => _placementRepository.GetPlacement(mapObject);
         public bool CanPlace(MapObject mapObject, Placement placement)
         {

@@ -10,7 +10,7 @@ namespace Domain.Buildings
         {
         }
 
-        public override Building Clone()
+        public override CommercialBuilding Clone()
         {
             return new CommercialBuilding(Floors, MaxOccupancy, new Area(Area.Width, Area.Height));
         }

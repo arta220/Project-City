@@ -7,7 +7,7 @@ namespace Services.CitizensSimulation
     {
         public void AgeCitizen(Citizen citizen)
         {
-            throw new NotImplementedException();
+//            throw new NotImplementedException();
         }
 
         public void TryReproduce(Citizen mom, Citizen dad)

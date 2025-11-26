@@ -1,13 +1,17 @@
-﻿using Services.Interfaces;
-using Services.CitizensSimulation;
-using Services.MapGenerator;
-using Services.PlaceBuilding;
-using Microsoft.Extensions.DependencyInjection;
-using System.Windows;
+﻿using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
+using Domain.Map;
+using Microsoft.Extensions.DependencyInjection;
 using Services;
-using CitySimulatorWPF.ViewModels;
+using Services.BuildingRegistry;
+using Services.CitizensSimulation;
+using Services.Interfaces;
+using Services.MapGenerator;
+using Services.NavigationMap;
+using Services.PathFind;
+using Services.PlaceBuilding;
 using Services.SimulationClock;
+using System.Windows;
 
 namespace CitySkylines_REMAKE
 {
@@ -30,32 +34,55 @@ namespace CitySkylines_REMAKE
 
         private void ConfigureServices(IServiceCollection services)
         {
+            // Map и генератор
+            services.AddSingleton<IMapGenerator, MapGenerator>();
+            services.AddSingleton<PlacementRepository>();
 
-            // Симуляция жителей
-            services.AddSingleton<EducationService>();
-            services.AddSingleton<JobService>();
-            services.AddSingleton<MovementService>();
-            services.AddSingleton<PopulationService>();
-            services.AddSingleton<CitizenController>();
-            services.AddSingleton<CitizenSimulationService>();
+            services.AddSingleton<MapModel>(sp =>
+            {
+                var generator = sp.GetRequiredService<IMapGenerator>();
+                return generator.GenerateMap(50, 50); // размер карты по умолчанию
+            });
+
+            // Реестр зданий
+            services.AddSingleton<IBuildingRegistry, BuildingRegistryService>();
+
+            services.AddSingleton<INavigationMap>(sp =>
+            {
+                var map = sp.GetRequiredService<MapModel>();
+                var registry = sp.GetRequiredService<IBuildingRegistry>();
+                return new NavigationMapService(map, registry);
+            });
+
+            services.AddSingleton<IPathFinder, AStarPathFinder>();
+
+            services.AddSingleton<ISimulationClock, SimulationClock>();
 
             // Размещение зданий
             services.AddSingleton<ConstructionValidator>();
             services.AddSingleton<IMapObjectPlacementService, MapObjectPlacementService>();
 
-            // Симуляция времени
-            services.AddSingleton<ISimulationClock, SimulationClock>();
+            // Сервисы граждан
+            services.AddSingleton<EducationService>();
+            services.AddSingleton<JobService>();
+            services.AddSingleton<PopulationService>();
+            services.AddSingleton<MovementService>();
+            services.AddSingleton<CitizenController>();
+            services.AddSingleton<CitizenSimulationService>();
 
-            services.AddSingleton<IMapGenerator, MapGenerator>();
-
+            // ViewModels
             services.AddTransient<BuildingPanelViewModel>();
             services.AddTransient<MainVM>();
             services.AddTransient<MapVM>();
 
-            services.AddTransient<Simulation>();
+            // Симуляция
+            services.AddSingleton<Simulation>();
 
+            // MainWindow
             services.AddSingleton<MainWindow>();
         }
+
+
 
         protected override void OnExit(ExitEventArgs e)
         {
