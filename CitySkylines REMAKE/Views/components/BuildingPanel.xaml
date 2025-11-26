@@ -57,9 +57,14 @@
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Промышленные"
                     Style="{StaticResource CategoryButtonStyle}"/>
+            
+            <Button Content="Инфраструктура"
+                    Command="{Binding SelectCategoryCommand}"
+                    CommandParameter="Инфраструктура"
+                    Style="{StaticResource CategoryButtonStyle}"/>
         </StackPanel>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedCategory.Buildings}">
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedCategory.Objects}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Margin="5,10" />
