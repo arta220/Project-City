@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Domain.Map;
 using Domain.Enums;
+using Domain.Base;
 
 namespace CitySimulatorWPF.ViewModels;
 
@@ -16,13 +17,22 @@ public partial class TileVM : ObservableObject
     [ObservableProperty]
     public int _y;
 
+    public bool HasObject => TileModel.MapObject != null;
+
     public TerrainType TerrainType => TileModel.Terrain;
 
+    public MapObject MapObject => TileModel.MapObject;
     public TileVM(TileModel tileModel)
     {
         TileModel = tileModel;
         X = tileModel.Position.X;
         Y = tileModel.Position.Y;
+
+        TileModel.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(TileModel.MapObject))
+                OnPropertyChanged(nameof(HasObject));
+        };
     }
 
     [RelayCommand]

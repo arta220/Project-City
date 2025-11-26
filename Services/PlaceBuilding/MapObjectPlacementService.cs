@@ -4,16 +4,16 @@ using Domain.Map;
 
 namespace Services.PlaceBuilding
 {
-    public class BuildingPlacementService : IBuildingPlacementService
+    public class MapObjectPlacementService : IMapObjectPlacementService
     {
         private readonly ConstructionValidator _validator;
 
-        public BuildingPlacementService(ConstructionValidator validator)
+        public MapObjectPlacementService(ConstructionValidator validator)
         {
             _validator = validator;
         }
 
-        public bool CanPlaceBuilding(MapModel map, Building building, Area area)
+        public bool CanPlace(MapModel map, MapObject mapObject, Placement area)
         {
             if (!map.IsAreaInBounds(area))
                 return false;
@@ -21,21 +21,21 @@ namespace Services.PlaceBuilding
             foreach (var position in area.GetAllPositions())
             {
                 TileModel tile = map[position];
-                if (!_validator.CanBuildOnTile(tile, building))
+                if (!_validator.CanBuildOnTile(tile, mapObject))
                     return false;
             }
             return true;
         }
 
-        public bool TryPlaceBuilding(MapModel map, Building building, Area area)
+        public bool TryPlace(MapModel map, MapObject mapObject, Placement area)
         {
-            if (!CanPlaceBuilding(map, building, area))
+            if (!CanPlace(map, mapObject, area))
                 return false;
 
-            return map.TrySetBuilding(building, area);
+            return map.TrySetMapObject(mapObject, area);
         }
 
-        public void RemoveBuilding(MapModel map, Area area)
+        public void RemoveBuilding(MapModel map, Placement area)
         {
             throw new NotImplementedException();
         }

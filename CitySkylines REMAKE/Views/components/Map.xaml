@@ -10,6 +10,7 @@
 
     <UserControl.Resources>
         <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
 
     <ScrollViewer 
@@ -47,6 +48,12 @@
                             <Grid>
                                 <Border Background="{Binding TerrainType, Converter={StaticResource TerrainTypeToBrushConverter}}">
                                 </Border>
+                                <Grid>
+                                    <Rectangle Fill="{Binding TerrainBrush}"/>
+
+                                    <Rectangle Fill="Gray"
+                                               Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </Grid>
 
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">

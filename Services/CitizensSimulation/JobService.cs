@@ -11,7 +11,7 @@ namespace Services.CitizensSimulation
             throw new NotImplementedException();
         }
 
-        public void UpdateWork(Citizen citizen)
+        public void UpdateWork(Citizen citizen, int tick)
         {
             throw new NotImplementedException();
         }

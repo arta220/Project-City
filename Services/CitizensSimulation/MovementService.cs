@@ -6,7 +6,7 @@ namespace Services.CitizensSimulation
 {
     public class MovementService : ICitizenMovementService
     {
-        public void Move(Citizen citizen, Position position)
+        public void Move(Citizen citizen, Position position, int tick)
         {
             throw new NotImplementedException();
         }
