@@ -57,6 +57,11 @@
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Промышленные"
                     Style="{StaticResource CategoryButtonStyle}"/>
+            
+            <Button Content="Инфраструктура"
+                    Command="{Binding SelectCategoryCommand}"
+                    CommandParameter="Инфраструктура"
+                    Style="{StaticResource CategoryButtonStyle}"/>
         </StackPanel>
 
         <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedCategory.Buildings}">

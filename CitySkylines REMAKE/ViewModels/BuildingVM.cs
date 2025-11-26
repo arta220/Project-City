@@ -3,12 +3,12 @@ using Domain.Base;
 
 public partial class BuildingVM : ObservableObject
 {
-    public Building Model { get; }
+    public MapObject Model { get; }
 
     public string Name { get; set; }
     public string IconPath { get; set; }
 
-    public BuildingVM(Building model, string name, string iconPath)
+    public BuildingVM(MapObject model, string name, string iconPath)
     {
         Model = model;
         Name = name;
