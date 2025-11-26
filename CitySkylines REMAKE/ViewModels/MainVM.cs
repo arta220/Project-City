@@ -15,7 +15,7 @@ namespace CitySimulatorWPF.ViewModels
 
             BuildingPanelVM.BuildingSelected += building =>
             {
-                MapVM.SelectedBuilding = building;
+                MapVM.SelectedObject = building;
                 MapVM.CurrentMode = MapInteractionMode.Build;
             };
         }

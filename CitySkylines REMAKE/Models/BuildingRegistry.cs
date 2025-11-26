@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using Domain.Base;
 using Domain.Buildings;
+using Domain.Enums;
 using Domain.Map;
 
 namespace CitySimulatorWPF.Models
@@ -19,7 +21,7 @@ namespace CitySimulatorWPF.Models
             var residential = new BuildingCategory { Name = "Жилые" };
 
             residential.Objects.Add(
-                new MapObjectVM(
+                new ObjectVM(
                     new ResidentialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -31,7 +33,7 @@ namespace CitySimulatorWPF.Models
             );
 
             residential.Objects.Add(
-                new MapObjectVM(
+                new ObjectVM(
                     new ResidentialBuilding(
                         floors: 5,
                         maxOccupancy: 1,
@@ -45,7 +47,7 @@ namespace CitySimulatorWPF.Models
             var commercial = new BuildingCategory { Name = "Коммерческие" };
 
             commercial.Objects.Add(
-                new MapObjectVM(
+                new ObjectVM(
                     new CommercialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -57,7 +59,7 @@ namespace CitySimulatorWPF.Models
             );
 
             commercial.Objects.Add(
-                new MapObjectVM(
+                new ObjectVM(
                     new CommercialBuilding(
                         floors: 1, 
                         maxOccupancy: 1,
@@ -71,7 +73,7 @@ namespace CitySimulatorWPF.Models
             var industrial = new BuildingCategory { Name = "Промышленные" };
 
             industrial.Objects.Add(
-                new MapObjectVM(
+                new ObjectVM(
                     new IndustrialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -83,7 +85,7 @@ namespace CitySimulatorWPF.Models
             );
 
             industrial.Objects.Add(
-                new MapObjectVM(
+                new ObjectVM(
                     new IndustrialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
@@ -93,7 +95,72 @@ namespace CitySimulatorWPF.Models
                     "Assets/Icons/Warehouse.png"
                 )
             );
+            
+            var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
 
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(3, 3),
+                        type: ParkType.UrbanPark
+                    ),
+                    "Городской парк",
+                    "Assets/Icons/UrbanPark.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(2, 2),
+                        type: ParkType.Square
+                    ),
+                    "Сквер",
+                    "Assets/Icons/Square.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(4, 4),
+                        type: ParkType.BotanicalGarden
+                    ),
+                    "Ботанический сад",
+                    "Assets/Icons/BotanicalGarden.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(1, 1),
+                        type: ParkType.Playground
+                    ),
+                    "Детская площадка",
+                    "Assets/Icons/Playground.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(2, 3),
+                        type: ParkType.RecreationArea
+                    ),
+                    "Зона отдыха",
+                    "Assets/Icons/RecreationArea.png"
+                )
+            );
+            
+            infrastructure.Objects.Add(new ObjectVM(
+                new Road(
+                area: new Area(1, 1)),
+                "Дорога",
+                "Assets/Icons/RecreationArea.png"
+                ));
+
+            Categories.Add(infrastructure);
             Categories.Add(residential);
             Categories.Add(commercial);
             Categories.Add(industrial);
