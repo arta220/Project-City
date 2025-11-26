@@ -46,27 +46,99 @@ namespace CitySimulatorWPF.Models
 
             var commercial = new BuildingCategory { Name = "Коммерческие" };
 
+            // Магазин
             commercial.Objects.Add(
                 new ObjectVM(
                     new CommercialBuilding(
                         floors: 1,
                         maxOccupancy: 1,
-                        area: new Area(3, 2)
+                        area: new Area(2, 2),
+                        type: CommercialType.Shop,
+                        requiredWorkers: 2,
+                        maxVisitors: 8
                     ),
                     "Магазин",
-                    "Типа путь до иконки"
+                    "Путь к Shop.png"
                 )
             );
 
+            // Супермаркет
             commercial.Objects.Add(
                 new ObjectVM(
                     new CommercialBuilding(
-                        floors: 1, 
+                        floors: 1,
                         maxOccupancy: 1,
-                        area: new Area(3, 3)
+                        area: new Area(3, 3),
+                        type: CommercialType.Supermarket,
+                        requiredWorkers: 6,
+                        maxVisitors: 20
                     ),
-                    "Офис",
-                    "Типа путь до иконки"
+                    "Супермаркет",
+                    "Путь к Supermarket.png"
+                )
+            );
+
+            // Кафе
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(2, 2),
+                        type: CommercialType.Cafe,
+                        requiredWorkers: 4,
+                        maxVisitors: 10
+                    ),
+                    "Кафе",
+                    "Путь к Cafe.png"
+                )
+            );
+
+            // Ресторан
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(3, 3),
+                        type: CommercialType.Restaurant,
+                        requiredWorkers: 6,
+                        maxVisitors: 20
+                    ),
+                    "Ресторан",
+                    "Путь к Restaurant.png"
+                )
+            );
+
+            // Заправка
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(2, 2),
+                        type: CommercialType.GasStation,
+                        requiredWorkers: 3,
+                        maxVisitors: 4
+                    ),
+                    "Заправка",
+                    "Путь к GasStation.png"
+                )
+            );
+
+            // Аптека
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(2, 2),
+                        type: CommercialType.Pharmacy,
+                        requiredWorkers: 2,
+                        maxVisitors: 6
+                    ),
+                    "Аптека",
+                    "Путь к Pharmacy.png"
                 )
             );
 
@@ -95,7 +167,7 @@ namespace CitySimulatorWPF.Models
                     "Assets/Icons/Warehouse.png"
                 )
             );
-            
+
             var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
 
             infrastructure.Objects.Add(
@@ -152,13 +224,15 @@ namespace CitySimulatorWPF.Models
                     "Assets/Icons/RecreationArea.png"
                 )
             );
-            
+
             infrastructure.Objects.Add(new ObjectVM(
                 new Road(
                 area: new Area(1, 1)),
                 "Дорога",
                 "Assets/Icons/RecreationArea.png"
                 ));
+
+
 
             Categories.Add(infrastructure);
             Categories.Add(residential);
