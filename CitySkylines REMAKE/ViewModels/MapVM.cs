@@ -88,7 +88,6 @@ namespace CitySimulatorWPF.ViewModels
             }
         }
 
-        // ОБНОВЛЕНИЕ ПРЕВЬЮ (при TileEnter / MouseMove)
         public void UpdateRoadPreview(TileVM currentTile)
         {
             // Если строительство дороги начато и это не тот же самый тайл
@@ -119,7 +118,7 @@ namespace CitySimulatorWPF.ViewModels
             }
         }
         
-        // ЗАВЕРШЕНИЕ СТРОИТЕЛЬСТВА (при TileClick/MouseUp)
+        // ЗАВЕРШЕНИЕ СТРОИТЕЛЬСТВА
         public void FinishRoadConstruction(TileVM endTile)
         {
             // Если строительство дороги было начато
@@ -143,18 +142,11 @@ namespace CitySimulatorWPF.ViewModels
                     // Для каждого тайла в списке строим дорогу
                     foreach (var tile in _tilesToBuildRoadOn)
                     {
-                        // Создаем новую Road-модель для каждого тайла, 
-                        // так как Area дороги - это 1x1 тайл.
                         var singleTileRoad = new Road(new Area(1, 1)); 
                         var placement = new Placement(new Position(tile.X, tile.Y), singleTileRoad.Area);
 
-                        // Пытаемся разместить. (RoadModel - это 1x1, поэтому просто ставим)
-                        // ВАЖНО: Здесь нужно создать НОВЫЙ объект Road для каждого тайла,
-                        // потому что каждый тайл будет иметь свою ссылку на MapObject.
                         _simulation.TryPlace(singleTileRoad, placement);
                     }
-
-                    MessageBox.Show($"ПОСТРОЕНА ДОРОГА НА {_tilesToBuildRoadOn.Count} ТАЙЛАХ ОТЛАДКА");
                 }
                 else
                 {
@@ -182,7 +174,7 @@ namespace CitySimulatorWPF.ViewModels
                 _tilesToBuildRoadOn.Add(_startRoadTile);
         }
         
-        // Реализация Алгоритма Брезенхема для получения тайлов по прямой линии
+        // Реализация Алгоритма Брезенхема для получения тайлов по прямой линии (какая то сложная хуйня)
         private List<TileVM> GetTilesAlongLine(TileVM start, TileVM end)
         {
             var lineTiles = new List<TileVM>();
@@ -200,9 +192,6 @@ namespace CitySimulatorWPF.ViewModels
 
             while (true)
             {
-                // Находим тайл по координатам
-                // Предполагается, что Tiles - это одномерный список, 
-                // и их нужно найти по координатам (X, Y)
                 TileVM currentTile = Tiles.FirstOrDefault(t => t.X == x0 && t.Y == y0);
 
                 if (currentTile != null)
@@ -244,14 +233,9 @@ namespace CitySimulatorWPF.ViewModels
                         var building = SelectedObject.Model;
                         var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
 
-                        if (_simulation.TryPlace(building, placement))
-                        {
-                            MessageBox.Show("ЗДАНИЕ ПОСТАВЛЕНО ОТЛАДКА");
-                        }
-                        else
-                        {
-                            MessageBox.Show("НЕВОЗМОЖНО ПОСТРОИТЬ ЗДАНИЕ ОТЛАДКА");
-                        }
+                        if (!_simulation.TryPlace(building, placement)) 
+                            MessageBox.Show("НЕВОЗМОЖНО ПОСТАВИТЬ ЗДАНИЕ"); 
+                        
                         CurrentMode = MapInteractionMode.None;
                     }
                     break;

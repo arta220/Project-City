@@ -48,11 +48,9 @@ public partial class TileVM : ObservableObject
     }
 
     [RelayCommand]
-    // Эта команда теперь будет вызываться, когда пользователь ОТПУСКАЕТ кнопку мыши (MouseUp)
     public void TileClick() => TileClicked?.Invoke(this); 
 
     [RelayCommand]
-    // Новая команда, которая будет вызываться, когда пользователь НАЖИМАЕТ кнопку мыши (MouseDown)
     public void TileMouseDown()
     {
         // Вызываем новое событие для MapVM, чтобы начать процесс строительства дороги
