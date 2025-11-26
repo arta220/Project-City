@@ -24,7 +24,7 @@ namespace Services.PlaceBuilding
             _placements.Remove(obj);
         }
 
-        public IEnumerable<(MapObject obj, Placement placement)> GetAll() => (IEnumerable<(MapObject obj, Placement placement)>)_placements;
+        public IEnumerable<MapObject> GetAll() => _placements.Keys;
     }
 
 }

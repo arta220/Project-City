@@ -14,6 +14,9 @@ namespace Domain.Citizens
 
         public ResidentialBuilding Home { get; set; }
 
+        public Position TargetPosition { get; set; }
+        public Queue<Position> CurrentPath { get; set; } = new();
+
         public float Health { get; set; }
         public float Happiness { get; set; }
         public float Money { get; set; }

@@ -17,6 +17,10 @@ public partial class TileVM : ObservableObject
     [ObservableProperty]
     public int _y;
 
+    [ObservableProperty] // ДЛЯ ТЕСТА
+    private bool _hasCitizen;
+
+
     public bool HasObject => TileModel.MapObject != null;
 
     public TerrainType TerrainType => TileModel.Terrain;
@@ -48,4 +52,5 @@ public partial class TileVM : ObservableObject
     {
 
     }
+
 }

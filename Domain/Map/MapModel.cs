@@ -39,7 +39,9 @@ namespace Domain.Map
         public bool TrySetMapObject(MapObject mapObject, Placement area)
         {
             foreach (var pos in area.GetAllPositions())
+            {
                 _tiles[pos.X, pos.Y].MapObject = mapObject;
+            }
 
             return true;
         }

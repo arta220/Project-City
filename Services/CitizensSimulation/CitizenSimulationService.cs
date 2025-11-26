@@ -24,7 +24,9 @@ namespace Services.CitizensSimulation
         public void UpdateAll(int tick)
         {
             foreach (var citizen in allCitizens)
+            {
                 _controller.UpdateCitizen(citizen, tick);
+            }
         }
     }
 

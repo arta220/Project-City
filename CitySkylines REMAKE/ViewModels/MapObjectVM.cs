@@ -1,14 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Domain.Base;
 
-public partial class BuildingVM : ObservableObject
+public partial class MapObjectVM : ObservableObject
 {
-    public Building Model { get; }
+    public MapObject Model { get; }
 
     public string Name { get; set; }
     public string IconPath { get; set; }
 
-    public BuildingVM(Building model, string name, string iconPath)
+    public MapObjectVM(MapObject model, string name, string iconPath)
     {
         Model = model;
         Name = name;

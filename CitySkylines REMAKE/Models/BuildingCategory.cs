@@ -6,11 +6,11 @@ namespace CitySimulatorWPF.Models
     public class BuildingCategory
     {
         public string Name { get; set; }
-        public ObservableCollection<BuildingVM> Buildings { get; set; }
+        public ObservableCollection<MapObjectVM> Objects { get; set; }
 
         public BuildingCategory()
         {
-            Buildings = new ObservableCollection<BuildingVM>();
+            Objects = new ObservableCollection<MapObjectVM>();
         }
     }
 }

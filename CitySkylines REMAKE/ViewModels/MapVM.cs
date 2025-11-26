@@ -1,5 +1,8 @@
 ﻿using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Buildings;
+using Domain.Citizens;
+using Domain.Citizens.States;
 using Domain.Map;
 using Services;
 using System.Collections.ObjectModel;
@@ -10,7 +13,7 @@ namespace CitySimulatorWPF.ViewModels
     public partial class MapVM : ObservableObject
     {
         [ObservableProperty]
-        private BuildingVM _selectedBuilding;
+        private MapObjectVM _selectedBuilding;
 
         [ObservableProperty]
         private MapInteractionMode _currentMode = MapInteractionMode.None;
@@ -26,6 +29,20 @@ namespace CitySimulatorWPF.ViewModels
             _simulation = simulation;
             Tiles = new();
             InitializeTiles();
+            CreateHumanAndHome();
+        }
+
+        private void CreateHumanAndHome()
+        {
+            var home = new ResidentialBuilding(1, 1, new Area(1, 1));
+
+            _simulation.TryPlace(home, new Placement(new Position(25, 25), home.Area));
+
+            var citizen = new Citizen();
+            citizen.Home = home;
+            citizen.Position = new Position(10, 10);
+            citizen.State = CitizenState.GoingHome;
+            _simulation.AddCitizen(citizen); 
 
         }
 
