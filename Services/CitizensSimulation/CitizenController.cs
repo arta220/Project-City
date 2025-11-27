@@ -10,16 +10,16 @@ namespace Services.CitizensSimulation
     {
         private readonly IBuildingRegistry _buildingRegistry;
         private readonly ICitizenMovementService _movement;
-        private readonly JobService _jobService;
-        private readonly EducationService _educationService;
-        private readonly PopulationService _populationService;
+        private readonly IJobService _jobService;
+        private readonly IEducationService _educationService;
+        private readonly IPopulationService _populationService;
 
         public CitizenController(
-            IBuildingRegistry buildingRegistry,
-            ICitizenMovementService movementService,
-            JobService jobService,
-            EducationService educationService,
-            PopulationService populationService)
+              IBuildingRegistry buildingRegistry,
+              ICitizenMovementService movementService,
+              IJobService jobService,
+              IEducationService educationService,
+              IPopulationService populationService)
         {
             _buildingRegistry = buildingRegistry;
             _movement = movementService;
@@ -27,6 +27,7 @@ namespace Services.CitizensSimulation
             _educationService = educationService;
             _populationService = populationService;
         }
+
         public void UpdateCitizen(Citizen citizen, int tick)
         {
             switch (citizen.State)

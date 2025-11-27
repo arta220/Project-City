@@ -51,19 +51,16 @@ public partial class TileVM : ObservableObject
     [RelayCommand]
     public void TileMouseDown()
     {
-        // Вызываем новое событие для MapVM, чтобы начать процесс строительства дороги
         TileConstructionStart?.Invoke(this); 
     }
 
     [RelayCommand]
-    // Эта команда вызывается при покидании тайла
     public void TileLeave()
     {
         IsMouseOver = false;
     }
     
     [RelayCommand]
-    // Эта команда вызывается при наведении на тайл и будет использоваться для обновления превью дороги (MouseMove)
     public void TileEnter()
     {
         IsMouseOver = true;

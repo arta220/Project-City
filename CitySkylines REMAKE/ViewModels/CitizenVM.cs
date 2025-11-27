@@ -27,7 +27,6 @@ namespace CitySimulatorWPF.ViewModels
         {
             Citizen = citizen;
             UpdatePosition();
-            UpdateColor();
 
             Citizen.PropertyChanged += OnCitizenPropertyChanged;
         }
@@ -38,10 +37,6 @@ namespace CitySimulatorWPF.ViewModels
             {
                 UpdatePosition();
             }
-            if (e.PropertyName == nameof(Citizen.State))
-            {
-                UpdateColor();
-            }
         }
 
         public void UpdatePosition()
@@ -50,17 +45,6 @@ namespace CitySimulatorWPF.ViewModels
             Y = Citizen.Position.Y;
             PixelX = X * 20;
             PixelY = Y * 20;
-        }
-
-        private void UpdateColor()
-        {
-            CitizenColor = Citizen.State switch
-            {
-                CitizenState.GoingHome => "Red",
-                CitizenState.GoingToWork => "Blue",
-                CitizenState.Idle => "Green",
-                _ => "Gray"
-            };
         }
     }
 }

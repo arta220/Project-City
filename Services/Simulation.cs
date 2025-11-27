@@ -1,77 +1,49 @@
 ﻿using Domain.Base;
-using Services.Interfaces;
 using Domain.Map;
+using Services.Interfaces;
 using Services.PlaceBuilding;
-using Services.CitizensSimulation;
-using Services.BuildingRegistry;
-using Services.PathFind;
-using Domain.Citizens;
 using Services.SimulationClock;
+using System;
 using System.Collections.ObjectModel;
 
 namespace Services
 {
     public class Simulation
     {
-        private readonly IMapObjectPlacementService _mapObjectPlacementService;
-        private readonly IMapGenerator _mapGenerator;
+        private readonly IMapObjectPlacementService _placementService;
         private readonly ISimulationClock _clock;
-        private readonly IBuildingRegistry _buildingRegistry;
         private readonly PlacementRepository _placementRepository;
-        public readonly CitizenSimulationService _citizenSimulationService;
 
         public event Action<int> TickOccurred;
-        public event Action<Citizen> CitizenAdded;
-        public event Action<Citizen> CitizenRemoved;
         public event Action<MapObject> MapObjectPlaced;
         public event Action<MapObject> MapObjectRemoved;
 
-        public ObservableCollection<Citizen> Citizens { get; } = new ObservableCollection<Citizen>();
+        public MapModel MapModel { get; private set; }
         public ObservableCollection<MapObject> MapObjects { get; } = new ObservableCollection<MapObject>();
 
-        public MapModel MapModel { get; private set; }
-
         public Simulation(
-            IMapGenerator mapGenerator,
-            IMapObjectPlacementService buildingPlacementService,
+            MapModel mapModel,
+            IMapObjectPlacementService placementService,
             ISimulationClock clock,
-            IPathFinder pathfinder,
-            PlacementRepository placementRepository,
-            MapModel mapModel)
+            PlacementRepository placementRepository)
         {
-            MapModel = mapModel;
-            _placementRepository = placementRepository;
-            _buildingRegistry = new BuildingRegistryService(_placementRepository);
-            _clock = clock;
-            _mapGenerator = mapGenerator;
-            _mapObjectPlacementService = buildingPlacementService;
-
-            _citizenSimulationService = new CitizenSimulationService(
-                new CitizenController(
-                    _buildingRegistry,
-                    new MovementService(pathfinder),
-                    new JobService(),
-                    new EducationService(),
-                    new PopulationService()),
-                _clock);
-
-            _citizenSimulationService.CitizenAdded += OnCitizenAdded;
-            _citizenSimulationService.CitizenRemoved += OnCitizenRemoved;
-
+            MapModel = mapModel ?? throw new ArgumentNullException(nameof(mapModel));
+            _placementService = placementService ?? throw new ArgumentNullException(nameof(placementService));
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+            _placementRepository = placementRepository ?? throw new ArgumentNullException(nameof(placementRepository));
 
             _clock.TickOccurred += OnTick;
             _clock.Start();
         }
 
-        public void OnTick(int tick)
+        private void OnTick(int tick)
         {
-            _citizenSimulationService.UpdateAll(tick);
             TickOccurred?.Invoke(tick);
         }
 
         public bool TryPlace(MapObject mapObject, Placement placement)
         {
-            if (_mapObjectPlacementService.TryPlace(MapModel, mapObject, placement))
+            if (_placementService.TryPlace(MapModel, mapObject, placement))
             {
                 _placementRepository.Register(mapObject, placement);
                 MapObjects.Add(mapObject);
@@ -90,36 +62,16 @@ namespace Services
             //    return true;
             //}
             return false;
-            
         }
 
-        public void AddCitizen(Citizen citizen)
+        public Placement GetMapObjectPlacement(MapObject mapObject)
         {
-            _citizenSimulationService.AddCitizen(citizen);
+            return _placementRepository.GetPlacement(mapObject);
         }
-
-        public void RemoveCitizen(Citizen citizen)
-        {
-//            _citizenSimulationService.RemoveCitizen(citizen);
-        }
-
-        public Placement GetMapObjectPlacement(MapObject mapObject) => _placementRepository.GetPlacement(mapObject);
 
         public bool CanPlace(MapObject mapObject, Placement placement)
         {
-            return _mapObjectPlacementService.CanPlace(MapModel, mapObject, placement);
-        }
-
-        private void OnCitizenAdded(Citizen citizen)
-        {
-            Citizens.Add(citizen);
-            CitizenAdded?.Invoke(citizen);
-        }
-
-        private void OnCitizenRemoved(Citizen citizen)
-        {
-            Citizens.Remove(citizen);
-            CitizenRemoved?.Invoke(citizen);
+            return _placementService.CanPlace(MapModel, mapObject, placement);
         }
     }
 }
