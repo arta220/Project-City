@@ -10,7 +10,7 @@ using Services.Interfaces;
 // Smirnov
 namespace Services.Utilities
 {
-    public class UtilityService: IUtilityService
+    public class UtilityService : IUtilityService
     {
         private readonly Random _random = new Random();
         private readonly Dictionary<Building, Dictionary<UtilityType, int>> _brokenUtilities = new();
@@ -29,7 +29,7 @@ namespace Services.Utilities
                 }
             }
         }
-        
+
         public void BreakUtility(Building building, UtilityType utilityType, int currentTick)
         {
             building.BreakUtility(utilityType);

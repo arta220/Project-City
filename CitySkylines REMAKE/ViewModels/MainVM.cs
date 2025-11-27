@@ -52,7 +52,7 @@ namespace CitySimulatorWPF.ViewModels
             {
                 if (isActive)
                 {
-                    MapVM.ActivateRemoveMode();
+                    MapVM.CurrentMode = MapInteractionMode.Remove;
                 }
                 else
                 {
