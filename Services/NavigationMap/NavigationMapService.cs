@@ -1,10 +1,10 @@
 ﻿using Domain.Enums;
 using Domain.Map;
 using Services.BuildingRegistry;
+using System.Net.Http.Headers;
 
 namespace Services.NavigationMap
 {
-
     public class NavigationMapService : INavigationMap
     {
         private readonly MapModel _map;
@@ -30,10 +30,13 @@ namespace Services.NavigationMap
             return baseCost;
         }
 
-        public bool IsWalkable(Position p)
+        public bool IsWalkable(Position p, Position goal)
         {
             if (!_map.IsPositionInBounds(p))
                 return false;
+
+            if (p.Equals(goal))
+                return true;
 
             var tile = _map[p];
             if (tile.MapObject != null)

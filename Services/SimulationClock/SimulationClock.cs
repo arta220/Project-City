@@ -8,7 +8,7 @@
 
         public event Action<int> TickOccurred;
 
-        public SimulationClock(int tickRateMs = 3000)
+        public SimulationClock(int tickRateMs = 1000)
         {
             _timer = new System.Timers.Timer(tickRateMs);
             _timer.Elapsed += (_, _) => Update();

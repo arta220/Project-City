@@ -52,8 +52,16 @@ namespace Services.CitizensSimulation
                     break;
 
                 case CitizenState.GoingHome:
-                    _movement.Move(citizen, _buildingRegistry.GetPlacement(citizen.Home).Position, tick); // Пока нет реализации дома жителя, нет зданий
+                    var homePos = _buildingRegistry.GetPlacement(citizen.Home).Position;
+                    _movement.Move(citizen, homePos, tick);
+
+                    if (citizen.Position.Equals(homePos))
+                    {
+                        citizen.State = CitizenState.Idle;
+                        citizen.CurrentPath.Clear();
+                    }
                     break;
+
             }
 
             _populationService.AgeCitizen(citizen);

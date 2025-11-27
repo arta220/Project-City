@@ -1,10 +1,11 @@
-﻿using Domain.Buildings;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Buildings;
 using Domain.Citizens.States;
 using Domain.Map;
 
 namespace Domain.Citizens
 {
-    public class Citizen
+    public class Citizen : ObservableObject
     {
         public int Age { get; set; }
         public EducationLevel Education { get; set; }
@@ -15,7 +16,12 @@ namespace Domain.Citizens
         public ResidentialBuilding Home { get; set; }
 
         public Position TargetPosition { get; set; }
-        public Queue<Position> CurrentPath { get; set; } = new();
+        public Queue<Position> CurrentPath { get; set; }
+
+        public Citizen()
+        {
+            CurrentPath = new();
+        }
 
         public float Health { get; set; }
         public float Happiness { get; set; }

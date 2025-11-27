@@ -18,8 +18,9 @@ namespace Services.CitizensSimulation
             if (citizen.CurrentPath.Count == 0 || citizen.TargetPosition != position)
             {
                 citizen.TargetPosition = position;
-                citizen.CurrentPath = _pathFinder.FindPath(citizen.Position, citizen.TargetPosition);
+                _pathFinder.FindPath(citizen.Position, citizen.TargetPosition, citizen.CurrentPath);
             }
+
             if (citizen.CurrentPath.Count > 0)
             {
                 citizen.Position = citizen.CurrentPath.Dequeue();

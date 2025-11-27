@@ -18,8 +18,6 @@ public partial class TileVM : ObservableObject
     [ObservableProperty]
     public int _y;
 
-    [ObservableProperty] // ДЛЯ ТЕСТА
-    private bool _hasCitizen;
 
     [ObservableProperty]
     private bool _isPreviewTile = false;

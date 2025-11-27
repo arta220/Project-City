@@ -6,7 +6,11 @@ namespace Services.CitizensSimulation
     public class CitizenSimulationService
     {
         private readonly CitizenController _controller;
-        private readonly List<Citizen> allCitizens = new();
+        public readonly List<Citizen> Citizens = new();
+
+        public event Action<Citizen> CitizenAdded;
+        public event Action<Citizen> CitizenRemoved;
+        public event Action<Citizen> CitizenUpdated;
 
         public CitizenSimulationService(
             CitizenController controller,
@@ -18,12 +22,13 @@ namespace Services.CitizensSimulation
 
         public void AddCitizen(Citizen citizen)
         {
-            allCitizens.Add(citizen);
+            Citizens.Add(citizen);
+            CitizenAdded?.Invoke(citizen);
         }
 
         public void UpdateAll(int tick)
         {
-            foreach (var citizen in allCitizens)
+            foreach (var citizen in Citizens)
             {
                 _controller.UpdateCitizen(citizen, tick);
             }
