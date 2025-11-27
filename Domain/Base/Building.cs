@@ -4,10 +4,6 @@ using System.ComponentModel;
 
 namespace Domain.Base
 {
-    public abstract class Building : MapObject, INotifyPropertyChanged
-    {
-        // Smirnov
-        public event PropertyChangedEventHandler PropertyChanged;
     /// <summary>
     /// Базовый класс для всех типов зданий на карте.
     /// </summary>
@@ -17,6 +13,7 @@ namespace Domain.Base
     /// </remarks>
     public abstract class Building : MapObject
     {
+        public event PropertyChangedEventHandler PropertyChanged;
         /// <summary>
         /// Количество этажей в здании.
         /// </summary>

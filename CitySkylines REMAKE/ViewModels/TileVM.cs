@@ -45,13 +45,10 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty]
         public int _y;
 
-    [ObservableProperty]
-    private bool _isBlinkingRed; // Smirnov
-    private DispatcherTimer _blinkTimer; // Smirnov
+        [ObservableProperty]
+        private bool _isBlinkingRed; // Smirnov
+        private DispatcherTimer _blinkTimer; // Smirnov
 
-    public bool HasObject => TileModel.MapObject != null;
-    
-    public bool CanBuild => !HasObject;
         /// <summary>
         /// Флаг, показывающий, является ли клетка превью для строительства.
         /// </summary>
@@ -74,41 +71,53 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         public bool CanBuild => !HasObject;
 
-        _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
-        _blinkTimer.Tick += (s, e) =>
+        /// <summary>
+        /// Создаёт ViewModel для клетки карты.
+        /// </summary>
+        /// <param name="tileModel">Модель клетки</param>
+        public TileVM(TileModel tileModel)
         {
-            if (IsBlinkingRed)
-            {
-                OnPropertyChanged(nameof(IsBlinkingRed)); // Принудительно обновляем привязку
-            }
-        };
-        _blinkTimer.Start();
+            TileModel = tileModel;
+            X = tileModel.Position.X;
+            Y = tileModel.Position.Y;
 
-        TileModel.PropertyChanged += (s, e) =>
-        {
-            if (e.PropertyName == nameof(TileModel.MapObject))
+            // ДОБАВЛЕНО: инициализация таймера мигания для ЖКХ
+            _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+            _blinkTimer.Tick += (s, e) =>
             {
-                OnPropertyChanged(nameof(HasObject));
-                UpdateBlinkingState();
-
-                if (TileModel.MapObject is Domain.Base.Building building)
+                if (IsBlinkingRed)
                 {
-                    building.PropertyChanged += (sender, args) =>
-                    {
-                        if (args.PropertyName == nameof(building.HasBrokenUtilities))
-                        {
-                            UpdateBlinkingState();
-                        }
-                    };
+                    OnPropertyChanged(nameof(IsBlinkingRed));
                 }
-            }
-        };
+            };
+            _blinkTimer.Start();
 
-        UpdateBlinkingState(); // Smirnov
-    }
+            // Подписка на изменения объекта
+            TileModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(TileModel.MapObject))
+                {
+                    OnPropertyChanged(nameof(HasObject));
+                    UpdateBlinkingState();
 
-    // Smirnov
-    public void UpdateBlinkingState()
+                    if (TileModel.MapObject is Domain.Base.Building building)
+                    {
+                        building.PropertyChanged += (sender, args) =>
+                        {
+                            if (args.PropertyName == nameof(building.HasBrokenUtilities))
+                            {
+                                UpdateBlinkingState();
+                            }
+                        };
+                    }
+                }
+            };
+
+            UpdateBlinkingState(); // Начальное обновление состояния
+        }
+
+        // Smirnov
+        public void UpdateBlinkingState()
     {
         // Проверяем что это именно жилой дом и у него есть поломки
         if (TileModel.MapObject is Domain.Buildings.ResidentialBuilding residentialBuilding)
@@ -130,24 +139,6 @@ namespace CitySimulatorWPF.ViewModels
         /// Объект, размещённый на клетке (если есть).
         /// </summary>
         public MapObject MapObject => TileModel.MapObject;
-
-        /// <summary>
-        /// Создаёт ViewModel для клетки карты.
-        /// </summary>
-        /// <param name="tileModel">Модель клетки</param>
-        public TileVM(TileModel tileModel)
-        {
-            TileModel = tileModel;
-            X = tileModel.Position.X;
-            Y = tileModel.Position.Y;
-
-            // Подписка на изменения объекта, чтобы обновлять свойства UI
-            TileModel.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(TileModel.MapObject))
-                    OnPropertyChanged(nameof(HasObject));
-            };
-        }
 
         /// <summary>
         /// Команда клика по клетке.
