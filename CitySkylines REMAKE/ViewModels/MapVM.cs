@@ -175,5 +175,61 @@ namespace CitySimulatorWPF.ViewModels
             _citizenManager.StopSimulation();
             _citizenSimulation.Stop();
         }
+        // Smirnov*
+        private void ShowRemoveConfirmationDialog(TileVM tile)
+        {
+            string message = $"Удалить {tile.MapObject.GetType().Name}?\n";
+            message += "Это действие нельзя отменить!";
+
+            if (MessageBox.Show(message, "Подтверждение удаления",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                _simulation.RemoveBuilding(tile.MapObject);
+            }
+
+        }
+
+        // Smirnov
+        private MapObject CreateNewBuilding(MapObject template)
+        {
+            return template switch
+            {
+                ResidentialBuilding rb => new ResidentialBuilding(rb.Floors, rb.MaxOccupancy, new Area(rb.Area.Width, rb.Area.Height)),
+                CommercialBuilding cb => new CommercialBuilding(cb.Floors, cb.MaxOccupancy, new Area(cb.Area.Width, cb.Area.Height)),
+                IndustrialBuilding ib => new IndustrialBuilding(ib.Floors, ib.MaxOccupancy, new Area(ib.Area.Width, ib.Area.Height)),
+                Park p => new Park(new Area(p.Area.Width, p.Area.Height), p.Type),
+                Road r => new Road(new Area(r.Area.Width, r.Area.Height)),
+                _ => throw new NotImplementedException($"Неизвестный тип здания: {template.GetType().Name}")
+            };
+        }
+        // Smirnov
+        private void ShowRepairDialog(Domain.Base.Building building, TileVM tile)
+        {
+            var brokenUtilities = _simulation.GetBrokenUtilities(building);
+
+            // Показываем список поломок
+            string message = "Что починить?\n";
+            int i = 1;
+            var utilitiesList = brokenUtilities.Keys.ToList();
+
+            foreach (var utility in utilitiesList)
+            {
+                message += $"{i}. {utility} - сломано с тика {brokenUtilities[utility]}\n";
+                i++;
+            }
+
+            message += "\nВведите номер (или 0 для отмены):";
+
+            string input = Microsoft.VisualBasic.Interaction.InputBox(message, "Ремонт коммуналки", "0");
+
+            if (int.TryParse(input, out int choice) && choice > 0 && choice <= utilitiesList.Count)
+            {
+                var utilityToFix = utilitiesList[choice - 1];
+                _simulation.FixBuildingUtility(building, utilityToFix);
+
+                // Обновляем визуальное состояние
+                tile.UpdateBlinkingState();
+            }
+        }
     }
 }

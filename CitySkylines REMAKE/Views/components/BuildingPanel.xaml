@@ -11,6 +11,9 @@
     <UserControl.Resources>
         <converters:EqualityConverter x:Key="EqualityConverter"/>
 
+        <converters:RemoveModeConverter x:Key="RemoveModeConverter" />
+        <converters:RemoveModeBackgroundConverter x:Key="RemoveModeBackgroundConverter" />
+
         <Style x:Key="BaseCategoryStyle" TargetType="Button">
             <Setter Property="Background" Value="#CCCCCC" />
             <Setter Property="BorderThickness" Value="0" />
@@ -62,6 +65,15 @@
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Инфраструктура"
                     Style="{StaticResource CategoryButtonStyle}"/>
+            <!-- Smirnov* -->
+            <Button Content="{Binding IsRemoveModeActive, Converter={StaticResource RemoveModeConverter}}"
+                    Command="{Binding ToggleRemoveModeCommand}"
+                    Background="{Binding IsRemoveModeActive, Converter={StaticResource RemoveModeBackgroundConverter}}"
+                    Foreground="White"
+                    Margin="10,5"
+                    Padding="15,5"
+                    BorderThickness="0"
+                    Cursor="Hand" />
         </StackPanel>
 
         <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedCategory.Objects}">

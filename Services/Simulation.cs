@@ -124,5 +124,28 @@ namespace Services
         {
             return _placementService.CanPlace(MapModel, mapObject, placement);
         }
+
+        // Smirnov *
+        public void RemoveBuilding(MapObject mapObject)
+        {
+            // Получаем размещение объекта
+            var placement = _placementRepository.GetPlacement(mapObject);
+
+            // Убираем объект со всех тайлов в области размещения
+            for (int x = placement.Position.X; x < placement.Position.X + placement.Area.Width; x++)
+            {
+                for (int y = placement.Position.Y; y < placement.Position.Y + placement.Area.Height; y++)
+                {
+                    if (x < MapModel.Width && y < MapModel.Height &&
+                        MapModel[x, y].MapObject == mapObject)
+                    {
+                        MapModel[x, y].MapObject = null;
+                    }
+                }
+            }
+
+            // Удаляем из репозитория
+            _placementRepository.Remove(mapObject);
+        }
     }
 }

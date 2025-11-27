@@ -47,6 +47,18 @@ namespace CitySimulatorWPF.ViewModels
                 MapVM.SelectedObject = building;
                 MapVM.CurrentMode = MapInteractionMode.Build;
             };
+
+            BuildingPanelVM.RemoveModeChanged += (isActive) =>
+            {
+                if (isActive)
+                {
+                    MapVM.ActivateRemoveMode();
+                }
+                else
+                {
+                    MapVM.CurrentMode = MapInteractionMode.None;
+                }
+            };
         }
     }
 }
