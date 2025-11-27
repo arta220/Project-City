@@ -103,9 +103,13 @@ namespace Services
         /// <summary>
         /// Удаляет объект с карты (пока не реализован полностью).
         /// </summary>
-        public bool RemoveMapObject(MapObject mapObject)
+        public bool TryRemove(MapObject mapObject)
         {
-            // TODO: реализовать корректное удаление с уведомлением
+            var placement = _placementRepository.GetPlacement(mapObject);
+
+            if (_placementService.TryRemove(MapModel, placement))
+                return true;
+
             return false;
         }
 

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CitySkylines_REMAKE.Models.Enums;
+using CitySkylines_REMAKE.ViewModels;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -26,6 +27,8 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         public BuildingPanelViewModel BuildingPanelVM { get; }
 
+        public HeaderPanelViewModel HeaderPanelVM { get; }
+
         /// <summary>
         /// ViewModel карты города.
         /// </summary>
@@ -36,16 +39,25 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         /// <param name="mapVM">ViewModel карты города.</param>
         /// <param name="buildingPanelVM">ViewModel панели строительства.</param>
-        public MainVM(MapVM mapVM, BuildingPanelViewModel buildingPanelVM)
+        public MainVM(
+            MapVM mapVM, 
+            BuildingPanelViewModel buildingPanelVM,
+            HeaderPanelViewModel headerPanelVM)
         {
             MapVM = mapVM;
             BuildingPanelVM = buildingPanelVM;
+            HeaderPanelVM = headerPanelVM;
 
             // Подписка на событие выбора здания в панели
             BuildingPanelVM.BuildingSelected += building =>
             {
                 MapVM.SelectedObject = building;
                 MapVM.CurrentMode = MapInteractionMode.Build;
+            };
+
+            HeaderPanelVM.RemoveModeOn += () =>
+            {
+                MapVM.CurrentMode = MapInteractionMode.Remove;
             };
         }
     }

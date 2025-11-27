@@ -5,6 +5,7 @@ using Domain.Base;
 using Domain.Buildings;
 using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Factories;
 using Domain.Map;
 using Services;
 using Services.CitizensSimulation;
@@ -127,10 +128,11 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         private void OnTileConstructionStart(TileVM tile)
         {
-            if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Road)
+            if (SelectedObject?.Factory is IRoadFactory)
             {
                 _roadService.StartConstruction(tile);
             }
+
         }
 
         /// <summary>
@@ -145,19 +147,28 @@ namespace CitySimulatorWPF.ViewModels
                 return;
             }
 
-            if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Building building)
+            if (CurrentMode == MapInteractionMode.Build && SelectedObject != null)
             {
-                var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
-                if (!_simulation.TryPlace(building, placement))
+                var obj = SelectedObject.Factory.Create();
+
+                var placement = new Placement(new Position(tile.X, tile.Y), obj.Area);
+
+                if (!_simulation.TryPlace(obj, placement))
                 {
-                    _messageService.ShowMessage("Невозможно поставить здание");
+                    _messageService.ShowMessage("Невозможно поставить объект");
                 }
+
                 CurrentMode = MapInteractionMode.None;
                 return;
             }
 
+
             if (CurrentMode == MapInteractionMode.Remove)
             {
+                if (!_simulation.TryRemove(tile.MapObject))
+                {
+                    _messageService.ShowMessage("Невозможно удалить объект");
+                }
                 return;
             }
 
