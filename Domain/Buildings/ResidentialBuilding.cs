@@ -9,10 +9,5 @@ namespace Domain.Buildings
             : base(floors, maxOccupancy, area)
         {
         }
-
-        public override ResidentialBuilding Clone()
-        {
-            return new ResidentialBuilding(Floors, MaxOccupancy, new Area(Area.Width, Area.Height));
-        }
     }
 }

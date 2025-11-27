@@ -12,7 +12,5 @@ namespace Domain.Base
             Floors = floors;
             MaxOccupancy = maxOccupancy;
         }
-
-        public abstract Building Clone();
     }
 }
