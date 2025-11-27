@@ -145,10 +145,10 @@ namespace CitySimulatorWPF.ViewModels
                 return;
             }
 
-            if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Building building)
+            if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is MapObject mapobject)
             {
-                var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
-                if (!_simulation.TryPlace(building, placement))
+                var placement = new Placement(new Position(tile.X, tile.Y), mapobject.Area);
+                if (!_simulation.TryPlace(mapobject, placement))
                 {
                     _messageService.ShowMessage("Невозможно поставить здание");
                 }

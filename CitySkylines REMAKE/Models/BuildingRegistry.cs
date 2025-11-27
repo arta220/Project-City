@@ -161,14 +161,67 @@ namespace CitySimulatorWPF.Models
 
             // Инфраструктура
             var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(3, 3),
+                        type: ParkType.UrbanPark
+                    ),
+                    "Городской парк",
+                    "Assets/Icons/UrbanPark.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(2, 2),
+                        type: ParkType.Square
+                    ),
+                    "Сквер",
+                    "Assets/Icons/Square.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(4, 4),
+                        type: ParkType.BotanicalGarden
+                    ),
+                    "Ботанический сад",
+                    "Assets/Icons/BotanicalGarden.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(1, 1),
+                        type: ParkType.Playground
+                    ),
+                    "Детская площадка",
+                    "Assets/Icons/Playground.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new Park(
+                        area: new Area(2, 3),
+                        type: ParkType.RecreationArea
+                    ),
+                    "Зона отдыха",
+                    "Assets/Icons/RecreationArea.png"
+                )
+            );
+
             infrastructure.Objects.Add(new ObjectVM(
-                new Park(new Area(3, 3), ParkType.UrbanPark),
-                "Городской парк",
-                "Assets/Icons/UrbanPark.png"));
-            infrastructure.Objects.Add(new ObjectVM(
-                new Road(new Area(1, 1)),
+                new Road(
+                area: new Area(1, 1)),
                 "Дорога",
-                "Assets/Icons/Road.png"));
+                "Assets/Icons/RecreationArea.png"
+                ));
 
             // Добавление категорий в реестр
             Categories.Add(infrastructure);
