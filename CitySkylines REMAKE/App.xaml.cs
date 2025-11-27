@@ -1,4 +1,5 @@
-﻿using CitySimulatorWPF.ViewModels;
+﻿using CitySimulatorWPF.Services;
+using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
 using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,42 +49,51 @@ namespace CitySkylines_REMAKE
             // Реестр зданий
             services.AddSingleton<IBuildingRegistry, BuildingRegistryService>();
 
+            // Навигация и PathFinding
             services.AddSingleton<INavigationMap>(sp =>
             {
                 var map = sp.GetRequiredService<MapModel>();
                 var registry = sp.GetRequiredService<IBuildingRegistry>();
                 return new NavigationMapService(map, registry);
             });
-
             services.AddSingleton<IPathFinder, AStarPathFinder>();
 
+            // Симуляция и часы
             services.AddSingleton<ISimulationClock, SimulationClock>();
+            services.AddSingleton<Simulation>();
 
-            // Размещение зданий
+            // Размещение объектов на карте
             services.AddSingleton<ConstructionValidator>();
             services.AddSingleton<IMapObjectPlacementService, MapObjectPlacementService>();
 
-            // Сервисы граждан
-            services.AddSingleton<EducationService>();
-            services.AddSingleton<JobService>();
-            services.AddSingleton<PopulationService>();
-            services.AddSingleton<MovementService>();
+            // Сервисы граждан через интерфейсы
+            services.AddSingleton<IEducationService, EducationService>();
+            services.AddSingleton<IJobService, JobService>();
+            services.AddSingleton<IPopulationService, PopulationService>();
+            services.AddSingleton<ICitizenMovementService, MovementService>();
+
+            // Контроллер и менеджеры граждан
             services.AddSingleton<CitizenController>();
+            services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
+
+            // Сервисы работы с картой
+            services.AddSingleton<IMapTileService, MapTileService>();
+            services.AddSingleton<IRoadConstructionService, RoadConstructionService>(sp =>
+            {
+                var tileService = sp.GetRequiredService<IMapTileService>();
+                return new RoadConstructionService(tileService.Tiles);
+            });
+            services.AddSingleton<MessageService, MessageService>();
 
             // ViewModels
             services.AddTransient<BuildingPanelViewModel>();
             services.AddTransient<MainVM>();
             services.AddTransient<MapVM>();
 
-            // Симуляция
-            services.AddSingleton<Simulation>();
-
             // MainWindow
             services.AddSingleton<MainWindow>();
         }
-
-
 
         protected override void OnExit(ExitEventArgs e)
         {

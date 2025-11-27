@@ -5,28 +5,45 @@ using Domain.Enums;
 using Domain.Base;
 using System.Windows.Threading;
 
-namespace CitySimulatorWPF.ViewModels;
-
-public partial class TileVM : ObservableObject
+namespace CitySimulatorWPF.ViewModels
 {
-    public event Action<TileVM> TileClicked;
-    public event Action<TileVM> TileConstructionStart;
-    public TileModel TileModel { get; }
+    /// <summary>
+    /// ViewModel для отдельной клетки карты (<see cref="TileModel"/>).
+    /// Содержит информацию о позиции, типе местности и размещённом объекте.
+    /// </summary>
+    /// <remarks>
+    /// Контекст использования:
+    /// - В <see cref="MapVM"/> для отображения и взаимодействия с клетками.
+    /// - Обрабатывает клики, наведение мыши и начало строительства.
+    /// </remarks>
+    public partial class TileVM : ObservableObject
+    {
+        /// <summary>
+        /// Событие, вызываемое при клике на клетку.
+        /// </summary>
+        public event Action<TileVM> TileClicked;
 
-    [ObservableProperty]
-    public int _x;
+        /// <summary>
+        /// Событие, вызываемое при начале строительства на клетке.
+        /// </summary>
+        public event Action<TileVM> TileConstructionStart;
 
-    [ObservableProperty]
-    public int _y;
+        /// <summary>
+        /// Модель клетки карты.
+        /// </summary>
+        public TileModel TileModel { get; }
 
-    [ObservableProperty] // ДЛЯ ТЕСТА
-    private bool _hasCitizen;
+        /// <summary>
+        /// Координата X клетки.
+        /// </summary>
+        [ObservableProperty]
+        public int _x;
 
-    [ObservableProperty]
-    private bool _isPreviewTile = false;
-    
-    [ObservableProperty]
-    private bool _isMouseOver = false;
+        /// <summary>
+        /// Координата Y клетки.
+        /// </summary>
+        [ObservableProperty]
+        public int _y;
 
     [ObservableProperty]
     private bool _isBlinkingRed; // Smirnov
@@ -35,15 +52,27 @@ public partial class TileVM : ObservableObject
     public bool HasObject => TileModel.MapObject != null;
     
     public bool CanBuild => !HasObject;
+        /// <summary>
+        /// Флаг, показывающий, является ли клетка превью для строительства.
+        /// </summary>
+        [ObservableProperty]
+        private bool _isPreviewTile = false;
 
-    public TerrainType TerrainType => TileModel.Terrain;
+        /// <summary>
+        /// Флаг наведения мыши на клетку.
+        /// </summary>
+        [ObservableProperty]
+        private bool _isMouseOver = false;
 
-    public MapObject MapObject => TileModel.MapObject;
-    public TileVM(TileModel tileModel)
-    {
-        TileModel = tileModel;
-        X = tileModel.Position.X;
-        Y = tileModel.Position.Y;
+        /// <summary>
+        /// Есть ли на клетке объект.
+        /// </summary>
+        public bool HasObject => TileModel.MapObject != null;
+
+        /// <summary>
+        /// Можно ли построить объект на этой клетке.
+        /// </summary>
+        public bool CanBuild => !HasObject;
 
         _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
         _blinkTimer.Tick += (s, e) =>
@@ -92,29 +121,57 @@ public partial class TileVM : ObservableObject
         }
         OnPropertyChanged(nameof(IsBlinkingRed));
     }
+        /// <summary>
+        /// Тип местности клетки.
+        /// </summary>
+        public TerrainType TerrainType => TileModel.Terrain;
 
-    [RelayCommand]
-    public void TileClick() => TileClicked?.Invoke(this); 
+        /// <summary>
+        /// Объект, размещённый на клетке (если есть).
+        /// </summary>
+        public MapObject MapObject => TileModel.MapObject;
 
-    [RelayCommand]
-    public void TileMouseDown()
-    {
-        // Вызываем новое событие для MapVM, чтобы начать процесс строительства дороги
-        TileConstructionStart?.Invoke(this); 
-    }
+        /// <summary>
+        /// Создаёт ViewModel для клетки карты.
+        /// </summary>
+        /// <param name="tileModel">Модель клетки</param>
+        public TileVM(TileModel tileModel)
+        {
+            TileModel = tileModel;
+            X = tileModel.Position.X;
+            Y = tileModel.Position.Y;
 
-    [RelayCommand]
-    // Эта команда вызывается при покидании тайла
-    public void TileLeave()
-    {
-        IsMouseOver = false;
-    }
-    
-    [RelayCommand]
-    // Эта команда вызывается при наведении на тайл и будет использоваться для обновления превью дороги (MouseMove)
-    public void TileEnter()
-    {
-        IsMouseOver = true;
+            // Подписка на изменения объекта, чтобы обновлять свойства UI
+            TileModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(TileModel.MapObject))
+                    OnPropertyChanged(nameof(HasObject));
+            };
+        }
+
+        /// <summary>
+        /// Команда клика по клетке.
+        /// </summary>
+        [RelayCommand]
+        public void TileClick() => TileClicked?.Invoke(this);
+
+        /// <summary>
+        /// Команда нажатия мыши на клетке (начало строительства).
+        /// </summary>
+        [RelayCommand]
+        public void TileMouseDown() => TileConstructionStart?.Invoke(this);
+
+        /// <summary>
+        /// Команда ухода мыши с клетки.
+        /// </summary>
+        [RelayCommand]
+        public void TileLeave() => IsMouseOver = false;
+
+        /// <summary>
+        /// Команда наведения мыши на клетку.
+        /// </summary>
+        [RelayCommand]
+        public void TileEnter() => IsMouseOver = true;
     }
 
 }
