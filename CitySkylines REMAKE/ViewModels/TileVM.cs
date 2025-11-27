@@ -72,6 +72,26 @@ namespace CitySimulatorWPF.ViewModels
         public TerrainType TerrainType => TileModel.Terrain;
 
         /// <summary>
+        /// Тип природного ресурса на клетке.
+        /// </summary>
+        public NaturalResourceType ResourceType => TileModel.ResourceType;
+
+        /// <summary>
+        /// Есть ли на клетке природный ресурс.
+        /// </summary>
+        public bool HasResource => TileModel.ResourceType != NaturalResourceType.None;
+
+        /// <summary>
+        /// Количество природного ресурса на клетке.
+        /// </summary>
+        public float ResourceAmount => TileModel.ResourceAmount;
+
+        /// <summary>
+        /// Высота клетки (для подсказки/отладки рельефа).
+        /// </summary>
+        public float Height => TileModel.Height;
+
+        /// <summary>
         /// Объект, размещённый на клетке (если есть).
         /// </summary>
         public MapObject MapObject => TileModel.MapObject;

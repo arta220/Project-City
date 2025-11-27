@@ -49,5 +49,15 @@ namespace Domain.Map
         {
             return MapObject == null;
         }
+
+        /// <summary>
+        /// Тип природных ресурсов которые имеются у клетки
+        /// </summary>
+        public NaturalResourceType ResourceType { get; set; } = NaturalResourceType.None;
+
+        /// <summary>
+        /// Количество ресурсов имеющихся у клетки
+        /// </summary>
+        public float ResourceAmount { get; set; } = 0;
     }
 }
