@@ -12,11 +12,41 @@ using System.Collections.ObjectModel;
 
 namespace CitySimulatorWPF.ViewModels
 {
+    /// <summary>
+    /// ViewModel для основной карты города.
+    /// </summary>
+    /// <remarks>
+    /// Ответственность:
+    /// - Управляет коллекциями тайлов (<see cref="TileVM"/>) и жителей (<see cref="CitizenVM"/>).
+    /// - Обрабатывает взаимодействие пользователя с картой: клики, строительство, удаление объектов.
+    /// - Инициирует симуляцию жителей и их движения.
+    ///
+    /// Контекст использования:
+    /// - Связан с MainWindow для отображения карты и объектов.
+    /// - Получает зависимости через DI (Simulation, RoadService, CitizenManager, MapTileService, MessageService, CitizenSimulationService).
+    ///
+    /// Взаимодействие с другими компонентами:
+    /// - <see cref="Simulation"/> — размещение зданий и объектов на карте.
+    /// - <see cref="IRoadConstructionService"/> — управление строительством дорог.
+    /// - <see cref="ICitizenManagerService"/> и <see cref="CitizenSimulationService"/> — управление и обновление состояния жителей.
+    /// - <see cref="IMapTileService"/> — инициализация и привязка тайлов к UI.
+    ///
+    /// Возможные расширения:
+    /// - Добавление новых режимов взаимодействия с картой.
+    /// - Поддержка разных типов объектов (коммерческие, культурные здания).
+    /// - Расширение логики жителей (работа, учеба, досуг).
+    /// </remarks>
     public partial class MapVM : ObservableObject
     {
+        /// <summary>
+        /// Выбранный объект для постройки.
+        /// </summary>
         [ObservableProperty]
         private ObjectVM _selectedObject;
 
+        /// <summary>
+        /// Текущий режим взаимодействия с картой (строительство, удаление и т.д.).
+        /// </summary>
         [ObservableProperty]
         private MapInteractionMode _currentMode = MapInteractionMode.None;
 
@@ -27,12 +57,22 @@ namespace CitySimulatorWPF.ViewModels
         private readonly MessageService _messageService;
         private readonly CitizenSimulationService _citizenSimulation;
 
+        /// <summary>
+        /// Коллекция тайлов карты для привязки к UI.
+        /// </summary>
         public ObservableCollection<TileVM> Tiles => _mapTileService.Tiles;
+
+        /// <summary>
+        /// Коллекция жителей города для привязки к UI.
+        /// </summary>
         public ObservableCollection<CitizenVM> Citizens => _citizenManager.Citizens;
 
         public int Width => _simulation.MapModel.Width;
         public int Height => _simulation.MapModel.Height;
 
+        /// <summary>
+        /// Создаёт ViewModel карты с переданными сервисами и симуляцией.
+        /// </summary>
         public MapVM(Simulation simulation,
                      IRoadConstructionService roadService,
                      ICitizenManagerService citizenManager,
@@ -48,7 +88,6 @@ namespace CitySimulatorWPF.ViewModels
             _citizenSimulation = citizenSimulation;
 
             _citizenManager.StartSimulation(_citizenSimulation);
-
             _citizenSimulation.Start();
 
             _mapTileService.InitializeTiles(
@@ -65,7 +104,9 @@ namespace CitySimulatorWPF.ViewModels
             CreateHumanAndHome();
         }
 
-
+        /// <summary>
+        /// Создаёт начальное жилище и жителя для тестирования симуляции.
+        /// </summary>
         private void CreateHumanAndHome()
         {
             var home = new ResidentialBuilding(1, 1, new Area(1, 1));
@@ -81,6 +122,9 @@ namespace CitySimulatorWPF.ViewModels
             _citizenSimulation.AddCitizen(citizen);
         }
 
+        /// <summary>
+        /// Обрабатывает начало строительства на тайле.
+        /// </summary>
         private void OnTileConstructionStart(TileVM tile)
         {
             if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Road)
@@ -89,6 +133,9 @@ namespace CitySimulatorWPF.ViewModels
             }
         }
 
+        /// <summary>
+        /// Обрабатывает клик по тайлу карты.
+        /// </summary>
         private void OnTileClicked(TileVM tile)
         {
             if (_roadService.IsBuilding)
@@ -116,15 +163,17 @@ namespace CitySimulatorWPF.ViewModels
 
             if (CurrentMode == MapInteractionMode.None)
             {
-
+                // Возможные действия по клику, когда режим не выбран
             }
         }
 
+        /// <summary>
+        /// Очищает ресурсы и останавливает симуляцию жителей.
+        /// </summary>
         public void Cleanup()
         {
             _citizenManager.StopSimulation();
             _citizenSimulation.Stop();
         }
-
     }
 }

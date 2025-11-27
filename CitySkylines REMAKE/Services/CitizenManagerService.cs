@@ -7,13 +7,56 @@ using System.Linq;
 
 namespace CitySimulatorWPF.Services
 {
+    /// <summary>
+    /// Интерфейс сервиса управления визуальными представлениями жителей.
+    /// </summary>
+    /// <remarks>
+    /// Ответственность:
+    /// - Поддерживает ObservableCollection<CitizenVM> для UI.
+    /// - Слушает события CitizenSimulationService (добавление, удаление, обновление).
+    ///
+    /// Контекст использования:
+    /// - Используется MapVM или любым другим UI-слоем для отображения жителей на карте.
+    /// - Позволяет отделить логику симуляции (CitizenSimulationService) от визуализации.
+    ///
+    /// Расширяемость:
+    /// - Можно добавить фильтрацию по состоянию жителя (идет на работу, дома и т.д.).
+    /// - Можно интегрировать с системой событий или уведомлений при изменении состояния жителей.
+    /// </remarks>
     public interface ICitizenManagerService
     {
+        /// <summary>
+        /// Коллекция визуальных представлений жителей.
+        /// </summary>
         ObservableCollection<CitizenVM> Citizens { get; }
+
+        /// <summary>
+        /// Подключает сервис визуализации к симуляции жителей.
+        /// </summary>
+        /// <param name="simulation">Сервис симуляции жителей.</param>
         void StartSimulation(CitizenSimulationService simulation);
+
+        /// <summary>
+        /// Отключает сервис визуализации от симуляции и очищает коллекцию.
+        /// </summary>
         void StopSimulation();
     }
 
+    /// <summary>
+    /// Реализация сервиса управления визуализацией жителей на карте.
+    /// </summary>
+    /// <remarks>
+    /// Ответственность:
+    /// - Создает и обновляет CitizenVM для каждого Citizen из CitizenSimulationService.
+    /// - Подписывается на события CitizenAdded, CitizenRemoved и CitizenUpdated.
+    ///
+    /// Контекст использования:
+    /// - Используется MapVM для связывания симуляции жителей с визуальной частью.
+    ///
+    /// Расширяемость:
+    /// - Можно добавить сортировку или группировку жителей по домам, работам или состояниям.
+    /// - Можно интегрировать с системой навигации или визуальных эффектов (например, анимация движения).
+    /// </remarks>
     public class CitizenManagerService : ICitizenManagerService
     {
         private CitizenSimulationService _simulation;

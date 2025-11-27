@@ -4,65 +4,118 @@ using Domain.Map;
 using Domain.Enums;
 using Domain.Base;
 
-namespace CitySimulatorWPF.ViewModels;
-
-public partial class TileVM : ObservableObject
+namespace CitySimulatorWPF.ViewModels
 {
-    public event Action<TileVM> TileClicked;
-    public event Action<TileVM> TileConstructionStart;
-    public TileModel TileModel { get; }
-
-    [ObservableProperty]
-    public int _x;
-
-    [ObservableProperty]
-    public int _y;
-
-
-    [ObservableProperty]
-    private bool _isPreviewTile = false;
-    
-    [ObservableProperty]
-    private bool _isMouseOver = false;
-
-    public bool HasObject => TileModel.MapObject != null;
-    
-    public bool CanBuild => !HasObject;
-
-    public TerrainType TerrainType => TileModel.Terrain;
-
-    public MapObject MapObject => TileModel.MapObject;
-    public TileVM(TileModel tileModel)
+    /// <summary>
+    /// ViewModel для отдельной клетки карты (<see cref="TileModel"/>).
+    /// Содержит информацию о позиции, типе местности и размещённом объекте.
+    /// </summary>
+    /// <remarks>
+    /// Контекст использования:
+    /// - В <see cref="MapVM"/> для отображения и взаимодействия с клетками.
+    /// - Обрабатывает клики, наведение мыши и начало строительства.
+    /// </remarks>
+    public partial class TileVM : ObservableObject
     {
-        TileModel = tileModel;
-        X = tileModel.Position.X;
-        Y = tileModel.Position.Y;
+        /// <summary>
+        /// Событие, вызываемое при клике на клетку.
+        /// </summary>
+        public event Action<TileVM> TileClicked;
 
-        TileModel.PropertyChanged += (s, e) =>
+        /// <summary>
+        /// Событие, вызываемое при начале строительства на клетке.
+        /// </summary>
+        public event Action<TileVM> TileConstructionStart;
+
+        /// <summary>
+        /// Модель клетки карты.
+        /// </summary>
+        public TileModel TileModel { get; }
+
+        /// <summary>
+        /// Координата X клетки.
+        /// </summary>
+        [ObservableProperty]
+        public int _x;
+
+        /// <summary>
+        /// Координата Y клетки.
+        /// </summary>
+        [ObservableProperty]
+        public int _y;
+
+        /// <summary>
+        /// Флаг, показывающий, является ли клетка превью для строительства.
+        /// </summary>
+        [ObservableProperty]
+        private bool _isPreviewTile = false;
+
+        /// <summary>
+        /// Флаг наведения мыши на клетку.
+        /// </summary>
+        [ObservableProperty]
+        private bool _isMouseOver = false;
+
+        /// <summary>
+        /// Есть ли на клетке объект.
+        /// </summary>
+        public bool HasObject => TileModel.MapObject != null;
+
+        /// <summary>
+        /// Можно ли построить объект на этой клетке.
+        /// </summary>
+        public bool CanBuild => !HasObject;
+
+        /// <summary>
+        /// Тип местности клетки.
+        /// </summary>
+        public TerrainType TerrainType => TileModel.Terrain;
+
+        /// <summary>
+        /// Объект, размещённый на клетке (если есть).
+        /// </summary>
+        public MapObject MapObject => TileModel.MapObject;
+
+        /// <summary>
+        /// Создаёт ViewModel для клетки карты.
+        /// </summary>
+        /// <param name="tileModel">Модель клетки</param>
+        public TileVM(TileModel tileModel)
         {
-            if (e.PropertyName == nameof(TileModel.MapObject))
-                OnPropertyChanged(nameof(HasObject));
-        };
-    }
+            TileModel = tileModel;
+            X = tileModel.Position.X;
+            Y = tileModel.Position.Y;
 
-    [RelayCommand]
-    public void TileClick() => TileClicked?.Invoke(this); 
+            // Подписка на изменения объекта, чтобы обновлять свойства UI
+            TileModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(TileModel.MapObject))
+                    OnPropertyChanged(nameof(HasObject));
+            };
+        }
 
-    [RelayCommand]
-    public void TileMouseDown()
-    {
-        TileConstructionStart?.Invoke(this); 
-    }
+        /// <summary>
+        /// Команда клика по клетке.
+        /// </summary>
+        [RelayCommand]
+        public void TileClick() => TileClicked?.Invoke(this);
 
-    [RelayCommand]
-    public void TileLeave()
-    {
-        IsMouseOver = false;
-    }
-    
-    [RelayCommand]
-    public void TileEnter()
-    {
-        IsMouseOver = true;
+        /// <summary>
+        /// Команда нажатия мыши на клетке (начало строительства).
+        /// </summary>
+        [RelayCommand]
+        public void TileMouseDown() => TileConstructionStart?.Invoke(this);
+
+        /// <summary>
+        /// Команда ухода мыши с клетки.
+        /// </summary>
+        [RelayCommand]
+        public void TileLeave() => IsMouseOver = false;
+
+        /// <summary>
+        /// Команда наведения мыши на клетку.
+        /// </summary>
+        [RelayCommand]
+        public void TileEnter() => IsMouseOver = true;
     }
 }
