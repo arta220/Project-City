@@ -51,14 +51,102 @@ namespace CitySimulatorWPF.Models
 
             // Коммерческие здания
             var commercial = new BuildingCategory { Name = "Коммерческие" };
-            commercial.Objects.Add(new ObjectVM(
-                new CommercialBuilding(1, 1, new Area(3, 2)),
-                "Магазин",
-                "Assets/Icons/Shop.png"));
-            commercial.Objects.Add(new ObjectVM(
-                new CommercialBuilding(1, 1, new Area(3, 3)),
-                "Офис",
-                "Assets/Icons/Office.png"));
+
+            // Магазин
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(2, 2),
+                        type: CommercialType.Shop,
+                        requiredWorkers: 2,
+                        maxVisitors: 8
+                    ),
+                    "Магазин",
+                    "Путь к Shop.png"
+                )
+            );
+
+            // Супермаркет
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(3, 3),
+                        type: CommercialType.Supermarket,
+                        requiredWorkers: 6,
+                        maxVisitors: 20
+                    ),
+                    "Супермаркет",
+                    "Путь к Supermarket.png"
+                )
+            );
+
+            // Кафе
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(2, 2),
+                        type: CommercialType.Cafe,
+                        requiredWorkers: 4,
+                        maxVisitors: 10
+                    ),
+                    "Кафе",
+                    "Путь к Cafe.png"
+                )
+            );
+
+            // Ресторан
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(3, 3),
+                        type: CommercialType.Restaurant,
+                        requiredWorkers: 6,
+                        maxVisitors: 20
+                    ),
+                    "Ресторан",
+                    "Путь к Restaurant.png"
+                )
+            );
+
+            // Заправка
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(2, 2),
+                        type: CommercialType.GasStation,
+                        requiredWorkers: 3,
+                        maxVisitors: 4
+                    ),
+                    "Заправка",
+                    "Путь к GasStation.png"
+                )
+            );
+
+            // Аптека
+            commercial.Objects.Add(
+                new ObjectVM(
+                    new CommercialBuilding(
+                        floors: 1,
+                        maxOccupancy: 1,
+                        area: new Area(2, 2),
+                        type: CommercialType.Pharmacy,
+                        requiredWorkers: 2,
+                        maxVisitors: 6
+                    ),
+                    "Аптека",
+                    "Путь к Pharmacy.png"
+                )
+            );
 
             // Промышленные здания
             var industrial = new BuildingCategory { Name = "Промышленные" };
