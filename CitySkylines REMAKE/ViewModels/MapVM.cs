@@ -1,252 +1,179 @@
-﻿using CitySkylines_REMAKE.Models.Enums;
+﻿using CitySimulatorWPF.Services;
+using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Base;
 using Domain.Buildings;
 using Domain.Citizens;
 using Domain.Citizens.States;
 using Domain.Map;
 using Services;
+using Services.CitizensSimulation;
 using System.Collections.ObjectModel;
-using System.Windows;
-using Domain.Base;
 
 namespace CitySimulatorWPF.ViewModels
 {
+    /// <summary>
+    /// ViewModel для основной карты города.
+    /// </summary>
+    /// <remarks>
+    /// Ответственность:
+    /// - Управляет коллекциями тайлов (<see cref="TileVM"/>) и жителей (<see cref="CitizenVM"/>).
+    /// - Обрабатывает взаимодействие пользователя с картой: клики, строительство, удаление объектов.
+    /// - Инициирует симуляцию жителей и их движения.
+    ///
+    /// Контекст использования:
+    /// - Связан с MainWindow для отображения карты и объектов.
+    /// - Получает зависимости через DI (Simulation, RoadService, CitizenManager, MapTileService, MessageService, CitizenSimulationService).
+    ///
+    /// Взаимодействие с другими компонентами:
+    /// - <see cref="Simulation"/> — размещение зданий и объектов на карте.
+    /// - <see cref="IRoadConstructionService"/> — управление строительством дорог.
+    /// - <see cref="ICitizenManagerService"/> и <see cref="CitizenSimulationService"/> — управление и обновление состояния жителей.
+    /// - <see cref="IMapTileService"/> — инициализация и привязка тайлов к UI.
+    ///
+    /// Возможные расширения:
+    /// - Добавление новых режимов взаимодействия с картой.
+    /// - Поддержка разных типов объектов (коммерческие, культурные здания).
+    /// - Расширение логики жителей (работа, учеба, досуг).
+    /// </remarks>
     public partial class MapVM : ObservableObject
     {
+        /// <summary>
+        /// Выбранный объект для постройки.
+        /// </summary>
         [ObservableProperty]
         private ObjectVM _selectedObject;
 
+        /// <summary>
+        /// Текущий режим взаимодействия с картой (строительство, удаление и т.д.).
+        /// </summary>
         [ObservableProperty]
         private MapInteractionMode _currentMode = MapInteractionMode.None;
 
         private readonly Simulation _simulation;
-        
-        private TileVM _startRoadTile;
-        private List<TileVM> _tilesToBuildRoadOn = new List<TileVM>();
+        private readonly IRoadConstructionService _roadService;
+        private readonly ICitizenManagerService _citizenManager;
+        private readonly IMapTileService _mapTileService;
+        private readonly MessageService _messageService;
+        private readonly CitizenSimulationService _citizenSimulation;
+
+        /// <summary>
+        /// Коллекция тайлов карты для привязки к UI.
+        /// </summary>
+        public ObservableCollection<TileVM> Tiles => _mapTileService.Tiles;
+
+        /// <summary>
+        /// Коллекция жителей города для привязки к UI.
+        /// </summary>
+        public ObservableCollection<CitizenVM> Citizens => _citizenManager.Citizens;
 
         public int Width => _simulation.MapModel.Width;
         public int Height => _simulation.MapModel.Height;
-        public ObservableCollection<TileVM> Tiles { get; set; }
 
-        public MapVM(Simulation simulation)
+        /// <summary>
+        /// Создаёт ViewModel карты с переданными сервисами и симуляцией.
+        /// </summary>
+        public MapVM(Simulation simulation,
+                     IRoadConstructionService roadService,
+                     ICitizenManagerService citizenManager,
+                     IMapTileService mapTileService,
+                     MessageService messageService,
+                     CitizenSimulationService citizenSimulation)
         {
             _simulation = simulation;
-            Tiles = new();
-            InitializeTiles();
+            _roadService = roadService;
+            _citizenManager = citizenManager;
+            _mapTileService = mapTileService;
+            _messageService = messageService;
+            _citizenSimulation = citizenSimulation;
+
+            _citizenManager.StartSimulation(_citizenSimulation);
+            _citizenSimulation.Start();
+
+            _mapTileService.InitializeTiles(
+                _simulation.MapModel,
+                onTileClicked: OnTileClicked,
+                onTileConstructionStart: OnTileConstructionStart,
+                onMouseOverPreview: tile =>
+                {
+                    if (_roadService.IsBuilding)
+                        _roadService.UpdatePreview(tile);
+                    return true;
+                });
+
             CreateHumanAndHome();
         }
 
+        /// <summary>
+        /// Создаёт начальное жилище и жителя для тестирования симуляции.
+        /// </summary>
         private void CreateHumanAndHome()
         {
             var home = new ResidentialBuilding(1, 1, new Area(1, 1));
-
             _simulation.TryPlace(home, new Placement(new Position(25, 25), home.Area));
 
-            var citizen = new Citizen();
-            citizen.Home = home;
-            citizen.Position = new Position(10, 10);
-            citizen.State = CitizenState.GoingHome;
-            _simulation.AddCitizen(citizen); 
-
-        }
-
-        private void InitializeTiles()
-        {
-            for (int x = 0; x < Width; x++)
+            var citizen = new Citizen
             {
-                for (int y = 0; y < Height; y++)
-                {
-                    var tileVM = new TileVM(_simulation.MapModel[x, y]);
-                    Tiles.Add(tileVM);
+                Home = home,
+                Position = new Position(0, 0),
+                State = CitizenState.GoingHome
+            };
 
-                    tileVM.TileClicked += OnTileClicked;
-                    
-                    tileVM.TileConstructionStart += StartRoadConstruction;
-                    
-                    tileVM.PropertyChanged += (s, e) =>
-                    {
-                        if (e.PropertyName == nameof(tileVM.IsMouseOver) && ((TileVM)s).IsMouseOver && _startRoadTile != null)
-                        {
-                            UpdateRoadPreview(tileVM);
-                        }
-                    };
-                }
-            }
+            _citizenSimulation.AddCitizen(citizen);
         }
-        
-        public void StartRoadConstruction(TileVM startTile)
+
+        /// <summary>
+        /// Обрабатывает начало строительства на тайле.
+        /// </summary>
+        private void OnTileConstructionStart(TileVM tile)
         {
-            // Проверяем, что находимся в режиме строительства и что выбран именно Road
             if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Road)
             {
-                // Устанавливаем начальный тайл
-                _startRoadTile = startTile;
-                // Очищаем и добавляем начальный тайл в список
-                ClearRoadPreview();
-                _tilesToBuildRoadOn.Add(_startRoadTile);
-                _startRoadTile.IsPreviewTile = true;
+                _roadService.StartConstruction(tile);
             }
         }
 
-        public void UpdateRoadPreview(TileVM currentTile)
+        /// <summary>
+        /// Обрабатывает клик по тайлу карты.
+        /// </summary>
+        private void OnTileClicked(TileVM tile)
         {
-            // Если строительство дороги начато и это не тот же самый тайл
-            if (_startRoadTile != null && currentTile != _startRoadTile)
+            if (_roadService.IsBuilding)
             {
-                // Очищаем старое превью, кроме стартового тайла
-                ClearRoadPreview(keepStartTile: true); 
-
-                // Вычисляем тайлы по прямой линии
-                _tilesToBuildRoadOn = GetTilesAlongLine(_startRoadTile, currentTile);
-                
-                // Подсвечиваем все вычисленные тайлы
-                foreach (var tile in _tilesToBuildRoadOn)
-                {
-                    // Проверяем возможность строительства
-                    if (tile.CanBuild)
-                    {
-                        tile.IsPreviewTile = true;
-                    }
-                    else
-                    {
-                        // Если на пути есть занятый тайл, то дорога не строится
-                        // (можно добавить более сложную логику, но пока так)
-                        ClearRoadPreview(keepStartTile: true); 
-                        break;
-                    }
-                }
-            }
-        }
-        
-        // ЗАВЕРШЕНИЕ СТРОИТЕЛЬСТВА
-        public void FinishRoadConstruction(TileVM endTile)
-        {
-            // Если строительство дороги было начато
-            if (_startRoadTile != null && _tilesToBuildRoadOn.Count > 0)
-            {
-                // Сначала убедимся, что все выбранные тайлы пригодны для строительства
-                bool canBuildAll = true;
-                foreach(var tile in _tilesToBuildRoadOn)
-                {
-                    if (!tile.CanBuild)
-                    {
-                        canBuildAll = false;
-                        break;
-                    }
-                }
-                
-                if (canBuildAll)
-                {
-                    var roadModel = SelectedObject.Model as Road;
-                    
-                    // Для каждого тайла в списке строим дорогу
-                    foreach (var tile in _tilesToBuildRoadOn)
-                    {
-                        var singleTileRoad = new Road(new Area(1, 1)); 
-                        var placement = new Placement(new Position(tile.X, tile.Y), singleTileRoad.Area);
-
-                        _simulation.TryPlace(singleTileRoad, placement);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("НЕВОЗМОЖНО ПОСТРОИТЬ ДОРОГУ, ПУТЬ ЗАНЯТ ОТЛАДКА");
-                }
-                
-                // Сбрасываем состояние
-                ClearRoadPreview();
-                _startRoadTile = null;
-                _tilesToBuildRoadOn.Clear();
+                _roadService.FinishConstruction(tile, (road, placement) => _simulation.TryPlace(road, placement));
                 CurrentMode = MapInteractionMode.None;
+                return;
+            }
+
+            if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Building building)
+            {
+                var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
+                if (!_simulation.TryPlace(building, placement))
+                {
+                    _messageService.ShowMessage("Невозможно поставить здание");
+                }
+                CurrentMode = MapInteractionMode.None;
+                return;
+            }
+
+            if (CurrentMode == MapInteractionMode.Remove)
+            {
+                return;
+            }
+
+            if (CurrentMode == MapInteractionMode.None)
+            {
+                // Возможные действия по клику, когда режим не выбран
             }
         }
-        
-        // Вспомогательный метод для очистки превью
-        private void ClearRoadPreview(bool keepStartTile = false)
+
+        /// <summary>
+        /// Очищает ресурсы и останавливает симуляцию жителей.
+        /// </summary>
+        public void Cleanup()
         {
-            foreach (var tile in _tilesToBuildRoadOn)
-            {
-                if (keepStartTile && tile == _startRoadTile) continue;
-                tile.IsPreviewTile = false;
-            }
-            _tilesToBuildRoadOn.Clear();
-            if(keepStartTile && _startRoadTile != null)
-                _tilesToBuildRoadOn.Add(_startRoadTile);
-        }
-        
-        // Реализация Алгоритма Брезенхема для получения тайлов по прямой линии (какая то сложная хуйня)
-        private List<TileVM> GetTilesAlongLine(TileVM start, TileVM end)
-        {
-            var lineTiles = new List<TileVM>();
-
-            int x0 = start.X;
-            int y0 = start.Y;
-            int x1 = end.X;
-            int y1 = end.Y;
-
-            int dx = Math.Abs(x1 - x0);
-            int dy = Math.Abs(y1 - y0);
-            int sx = x0 < x1 ? 1 : -1;
-            int sy = y0 < y1 ? 1 : -1;
-            int err = dx - dy;
-
-            while (true)
-            {
-                TileVM currentTile = Tiles.FirstOrDefault(t => t.X == x0 && t.Y == y0);
-
-                if (currentTile != null)
-                {
-                    lineTiles.Add(currentTile);
-                }
-                
-                if (x0 == x1 && y0 == y1) break;
-
-                int e2 = 2 * err;
-                if (e2 > -dy)
-                {
-                    err -= dy;
-                    x0 += sx;
-                }
-                if (e2 < dx)
-                {
-                    err += dx;
-                    y0 += sy;
-                }
-            }
-
-            return lineTiles;
-        }
-
-        public void OnTileClicked(TileVM tile)
-        {
-            if (_startRoadTile != null)
-            {
-                FinishRoadConstruction(tile);
-                return; // Завершили строительство дороги и выходим
-            }
-            
-            switch (CurrentMode)
-            {
-                case MapInteractionMode.Build:
-                    if (SelectedObject != null)
-                    {
-                        var building = SelectedObject.Model;
-                        var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
-
-                        if (!_simulation.TryPlace(building, placement)) 
-                            MessageBox.Show("НЕВОЗМОЖНО ПОСТАВИТЬ ЗДАНИЕ"); 
-                        
-                        CurrentMode = MapInteractionMode.None;
-                    }
-                    break;
-                case MapInteractionMode.Remove:
-                    break;
-                case MapInteractionMode.None:
-                    // Можно добавить сервис информационный, показывать информацию о клетке.
-                    break;
-                default:
-                    break;
-            }
+            _citizenManager.StopSimulation();
+            _citizenSimulation.Stop();
         }
     }
 }

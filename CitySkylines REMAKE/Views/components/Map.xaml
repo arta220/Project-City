@@ -11,6 +11,15 @@
     <UserControl.Resources>
         <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- Простой стиль для гражданина -->
+        <Style x:Key="CitizenStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="Fill" Value="Red"/>
+            <Setter Property="Stroke" Value="DarkRed"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer 
@@ -36,51 +45,73 @@
             </Grid.RenderTransform>
 
             <Grid>
+                <!-- Слой тайлов -->
                 <ItemsControl ItemsSource="{Binding Tiles}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Rows="{Binding Height}" Columns="{Binding Width}"/>
+                            <UniformGrid Rows="{Binding Height}" Columns="{Binding Width}" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Grid>
-                                <Border Background="{Binding TerrainType, Converter={StaticResource TerrainTypeToBrushConverter}}"> 
-                                </Border>
-                                <Grid>
-                                    <Rectangle Fill="{Binding TerrainBrush}"/> 
+                                <Border Background="{Binding TerrainType, Converter={StaticResource TerrainTypeToBrushConverter}}"/>
 
-                                    <Rectangle Fill="#8800FF00" 
-                                               Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <Rectangle Fill="{Binding TerrainBrush}"/>
 
-                                    <Rectangle Fill="Gray"
-                                               Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}"/> 
-                                </Grid>
+                                <Rectangle Fill="#8800FF00"
+                               Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                <Rectangle Fill="Gray"
+                               Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                                 <i:Interaction.Triggers>
-                
-                                    <i:EventTrigger EventName="MouseLeftButtonDown"> 
-                                        <i:InvokeCommandAction Command="{Binding TileMouseDownCommand}"/>
+                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                        <i:InvokeCommandAction Command="{Binding TileMouseDownCommand}" />
                                     </i:EventTrigger>
-                
-                                    <i:EventTrigger EventName="MouseLeftButtonUp"> 
-                                        <i:InvokeCommandAction Command="{Binding TileClickCommand}"/>
+
+                                    <i:EventTrigger EventName="MouseLeftButtonUp">
+                                        <i:InvokeCommandAction Command="{Binding TileClickCommand}" />
                                     </i:EventTrigger>
-                
+
                                     <i:EventTrigger EventName="MouseEnter">
-                                        <i:InvokeCommandAction Command="{Binding TileEnterCommand}"/>
+                                        <i:InvokeCommandAction Command="{Binding TileEnterCommand}" />
                                     </i:EventTrigger>
-                
+
                                     <i:EventTrigger EventName="MouseLeave">
-                                        <i:InvokeCommandAction Command="{Binding TileLeaveCommand}"/>
+                                        <i:InvokeCommandAction Command="{Binding TileLeaveCommand}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <!-- Слой граждан (ПОВЕРХ тайлов) -->
+                <ItemsControl ItemsSource="{Binding Citizens}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemContainerStyle>
+                        <Style>
+                            <Setter Property="Canvas.Left" Value="{Binding PixelX}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding PixelY}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Ellipse Style="{StaticResource CitizenStyle}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
             </Grid>
+
         </Grid>
     </ScrollViewer>
 </UserControl>
