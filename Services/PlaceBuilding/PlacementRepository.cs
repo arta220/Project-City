@@ -19,6 +19,15 @@ namespace Services.PlaceBuilding
             return placement;
         }
 
+        // Smirnov
+        public List<Building> GetAllBuildings()
+        {
+            return _placements.Keys
+                .Where(obj => obj is Building)
+                .Cast<Building>()
+                .ToList();
+        }
+
         public void Remove(MapObject obj)
         {
             _placements.Remove(obj);

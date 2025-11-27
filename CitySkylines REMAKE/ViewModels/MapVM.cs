@@ -8,6 +8,7 @@ using Services;
 using System.Collections.ObjectModel;
 using System.Windows;
 using Domain.Base;
+using CitySimulatorWPF.Views.components;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -20,7 +21,7 @@ namespace CitySimulatorWPF.ViewModels
         private MapInteractionMode _currentMode = MapInteractionMode.None;
 
         private readonly Simulation _simulation;
-        
+
         private TileVM _startRoadTile;
         private List<TileVM> _tilesToBuildRoadOn = new List<TileVM>();
 
@@ -36,6 +37,13 @@ namespace CitySimulatorWPF.ViewModels
             CreateHumanAndHome();
         }
 
+        // Smirnov*
+        public void ActivateRemoveMode()
+        {
+            CurrentMode = MapInteractionMode.Remove;
+            SelectedObject = null;
+        }
+
         private void CreateHumanAndHome()
         {
             var home = new ResidentialBuilding(1, 1, new Area(1, 1));
@@ -46,7 +54,7 @@ namespace CitySimulatorWPF.ViewModels
             citizen.Home = home;
             citizen.Position = new Position(10, 10);
             citizen.State = CitizenState.GoingHome;
-            _simulation.AddCitizen(citizen); 
+            _simulation.AddCitizen(citizen);
 
         }
 
@@ -60,9 +68,9 @@ namespace CitySimulatorWPF.ViewModels
                     Tiles.Add(tileVM);
 
                     tileVM.TileClicked += OnTileClicked;
-                    
+
                     tileVM.TileConstructionStart += StartRoadConstruction;
-                    
+
                     tileVM.PropertyChanged += (s, e) =>
                     {
                         if (e.PropertyName == nameof(tileVM.IsMouseOver) && ((TileVM)s).IsMouseOver && _startRoadTile != null)
@@ -73,7 +81,7 @@ namespace CitySimulatorWPF.ViewModels
                 }
             }
         }
-        
+
         public void StartRoadConstruction(TileVM startTile)
         {
             // Проверяем, что находимся в режиме строительства и что выбран именно Road
@@ -94,11 +102,11 @@ namespace CitySimulatorWPF.ViewModels
             if (_startRoadTile != null && currentTile != _startRoadTile)
             {
                 // Очищаем старое превью, кроме стартового тайла
-                ClearRoadPreview(keepStartTile: true); 
+                ClearRoadPreview(keepStartTile: true);
 
                 // Вычисляем тайлы по прямой линии
                 _tilesToBuildRoadOn = GetTilesAlongLine(_startRoadTile, currentTile);
-                
+
                 // Подсвечиваем все вычисленные тайлы
                 foreach (var tile in _tilesToBuildRoadOn)
                 {
@@ -111,13 +119,13 @@ namespace CitySimulatorWPF.ViewModels
                     {
                         // Если на пути есть занятый тайл, то дорога не строится
                         // (можно добавить более сложную логику, но пока так)
-                        ClearRoadPreview(keepStartTile: true); 
+                        ClearRoadPreview(keepStartTile: true);
                         break;
                     }
                 }
             }
         }
-        
+
         // ЗАВЕРШЕНИЕ СТРОИТЕЛЬСТВА
         public void FinishRoadConstruction(TileVM endTile)
         {
@@ -126,7 +134,7 @@ namespace CitySimulatorWPF.ViewModels
             {
                 // Сначала убедимся, что все выбранные тайлы пригодны для строительства
                 bool canBuildAll = true;
-                foreach(var tile in _tilesToBuildRoadOn)
+                foreach (var tile in _tilesToBuildRoadOn)
                 {
                     if (!tile.CanBuild)
                     {
@@ -134,15 +142,15 @@ namespace CitySimulatorWPF.ViewModels
                         break;
                     }
                 }
-                
+
                 if (canBuildAll)
                 {
                     var roadModel = SelectedObject.Model as Road;
-                    
+
                     // Для каждого тайла в списке строим дорогу
                     foreach (var tile in _tilesToBuildRoadOn)
                     {
-                        var singleTileRoad = new Road(new Area(1, 1)); 
+                        var singleTileRoad = new Road(new Area(1, 1));
                         var placement = new Placement(new Position(tile.X, tile.Y), singleTileRoad.Area);
 
                         _simulation.TryPlace(singleTileRoad, placement);
@@ -152,7 +160,7 @@ namespace CitySimulatorWPF.ViewModels
                 {
                     MessageBox.Show("НЕВОЗМОЖНО ПОСТРОИТЬ ДОРОГУ, ПУТЬ ЗАНЯТ ОТЛАДКА");
                 }
-                
+
                 // Сбрасываем состояние
                 ClearRoadPreview();
                 _startRoadTile = null;
@@ -160,7 +168,7 @@ namespace CitySimulatorWPF.ViewModels
                 CurrentMode = MapInteractionMode.None;
             }
         }
-        
+
         // Вспомогательный метод для очистки превью
         private void ClearRoadPreview(bool keepStartTile = false)
         {
@@ -170,10 +178,10 @@ namespace CitySimulatorWPF.ViewModels
                 tile.IsPreviewTile = false;
             }
             _tilesToBuildRoadOn.Clear();
-            if(keepStartTile && _startRoadTile != null)
+            if (keepStartTile && _startRoadTile != null)
                 _tilesToBuildRoadOn.Add(_startRoadTile);
         }
-        
+
         // Реализация Алгоритма Брезенхема для получения тайлов по прямой линии (какая то сложная хуйня)
         private List<TileVM> GetTilesAlongLine(TileVM start, TileVM end)
         {
@@ -198,7 +206,7 @@ namespace CitySimulatorWPF.ViewModels
                 {
                     lineTiles.Add(currentTile);
                 }
-                
+
                 if (x0 == x1 && y0 == y1) break;
 
                 int e2 = 2 * err;
@@ -224,28 +232,92 @@ namespace CitySimulatorWPF.ViewModels
                 FinishRoadConstruction(tile);
                 return; // Завершили строительство дороги и выходим
             }
-            
+
+
             switch (CurrentMode)
             {
                 case MapInteractionMode.Build:
                     if (SelectedObject != null)
                     {
-                        var building = SelectedObject.Model;
-                        var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
+                        var newBuilding = CreateNewBuilding(SelectedObject.Model); // Smirnov
+                        var placement = new Placement(new Position(tile.X, tile.Y), newBuilding.Area);
 
-                        if (!_simulation.TryPlace(building, placement)) 
-                            MessageBox.Show("НЕВОЗМОЖНО ПОСТАВИТЬ ЗДАНИЕ"); 
-                        
+                        if (!_simulation.TryPlace(newBuilding, placement))
+                            MessageBox.Show("НЕВОЗМОЖНО ПОСТАВИТЬ ЗДАНИЕ");
+
                         CurrentMode = MapInteractionMode.None;
                     }
                     break;
-                case MapInteractionMode.Remove:
+                case MapInteractionMode.Remove: // Smirnov*
+                    if (tile.MapObject != null)
+                    {
+                        ShowRemoveConfirmationDialog(tile);
+                    }
                     break;
-                case MapInteractionMode.None:
-                    // Можно добавить сервис информационный, показывать информацию о клетке.
+                case MapInteractionMode.None:                   
+                    if (tile.MapObject is Domain.Base.Building building && building.HasBrokenUtilities)
+                    {
+                        ShowRepairDialog(building, tile);
+                    }
                     break;
                 default:
                     break;
+            }
+        }
+        // Smirnov*
+        private void ShowRemoveConfirmationDialog(TileVM tile)
+        {
+            string message = $"Удалить {tile.MapObject.GetType().Name}?\n";
+            message += "Это действие нельзя отменить!";
+
+            if (MessageBox.Show(message, "Подтверждение удаления",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                _simulation.RemoveBuilding(tile.MapObject);
+            }
+
+        }
+
+        // Smirnov
+        private MapObject CreateNewBuilding(MapObject template)
+        {
+            return template switch
+            {
+                ResidentialBuilding rb => new ResidentialBuilding(rb.Floors, rb.MaxOccupancy, new Area(rb.Area.Width, rb.Area.Height)),
+                CommercialBuilding cb => new CommercialBuilding(cb.Floors, cb.MaxOccupancy, new Area(cb.Area.Width, cb.Area.Height)),
+                IndustrialBuilding ib => new IndustrialBuilding(ib.Floors, ib.MaxOccupancy, new Area(ib.Area.Width, ib.Area.Height)),
+                Park p => new Park(new Area(p.Area.Width, p.Area.Height), p.Type),
+                Road r => new Road(new Area(r.Area.Width, r.Area.Height)),
+                _ => throw new NotImplementedException($"Неизвестный тип здания: {template.GetType().Name}")
+            };
+        }
+        // Smirnov
+        private void ShowRepairDialog(Domain.Base.Building building, TileVM tile)
+        {
+            var brokenUtilities = _simulation.GetBrokenUtilities(building);
+
+            // Показываем список поломок
+            string message = "Что починить?\n";
+            int i = 1;
+            var utilitiesList = brokenUtilities.Keys.ToList();
+
+            foreach (var utility in utilitiesList)
+            {
+                message += $"{i}. {utility} - сломано с тика {brokenUtilities[utility]}\n";
+                i++;
+            }
+
+            message += "\nВведите номер (или 0 для отмены):";
+
+            string input = Microsoft.VisualBasic.Interaction.InputBox(message, "Ремонт коммуналки", "0");
+
+            if (int.TryParse(input, out int choice) && choice > 0 && choice <= utilitiesList.Count)
+            {
+                var utilityToFix = utilitiesList[choice - 1];
+                _simulation.FixBuildingUtility(building, utilityToFix);
+
+                // Обновляем визуальное состояние
+                tile.UpdateBlinkingState();
             }
         }
     }
