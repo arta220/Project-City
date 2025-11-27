@@ -37,9 +37,6 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty]
         private ObjectVM _selectedObject;
 
-        [ObservableProperty]
-        private bool _isRemoveModeActive; // Smirnov*
-
         /// <summary>
         /// Событие вызывается при выборе здания пользователем.
         /// </summary>
@@ -63,7 +60,6 @@ namespace CitySimulatorWPF.ViewModels
         private void SelectCategory(string categoryName)
         {
             SelectedCategory = Categories.FirstOrDefault(c => c.Name == categoryName);
-            IsRemoveModeActive = false;
         }
 
         /// <summary>
@@ -75,7 +71,6 @@ namespace CitySimulatorWPF.ViewModels
         {
             SelectedObject = @object;
             BuildingSelected?.Invoke(SelectedObject);
-            IsRemoveModeActive = false;
         }
 
         /// <summary>
@@ -87,12 +82,5 @@ namespace CitySimulatorWPF.ViewModels
                 SelectedCategory = Categories.First();
         }
 
-        // Smirnov*
-        [RelayCommand]
-        private void ToggleRemoveMode()
-        {
-            IsRemoveModeActive = !IsRemoveModeActive;
-            RemoveModeChanged?.Invoke(IsRemoveModeActive);
-        }
     }
 }
