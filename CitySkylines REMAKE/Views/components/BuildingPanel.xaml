@@ -6,33 +6,45 @@
              xmlns:local="clr-namespace:CitySimulatorWPF.Views.components"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:CitySimulatorWPF.Converters"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800">
     <UserControl.Resources>
-        <converters:EqualityConverter x:Key="EqualityConverter"/>
+        <converters:EqualityConverter x:Key="EqualityConverter" />
 
-        <converters:RemoveModeConverter x:Key="RemoveModeConverter" />
-        <converters:RemoveModeBackgroundConverter x:Key="RemoveModeBackgroundConverter" />
-
-        <Style x:Key="BaseCategoryStyle" TargetType="Button">
-            <Setter Property="Background" Value="#CCCCCC" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Padding" Value="15, 5" />
-            <Setter Property="Foreground" Value="Black" />
-            <Setter Property="Cursor" Value="Hand"/>
+        <Style x:Key="BaseCategoryStyle"
+               TargetType="Button">
+            <Setter Property="Background"
+                    Value="#CCCCCC" />
+            <Setter Property="BorderThickness"
+                    Value="0" />
+            <Setter Property="Padding"
+                    Value="15, 5" />
+            <Setter Property="Foreground"
+                    Value="Black" />
+            <Setter Property="Cursor"
+                    Value="Hand" />
         </Style>
 
-        <Style x:Key="CategoryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseCategoryStyle}">
-            <Setter Property="Background" Value="#CCCCCC" /> <!-- Серый по умолчанию -->
+        <Style x:Key="CategoryButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource BaseCategoryStyle}">
+            <Setter Property="Background"
+                    Value="#CCCCCC" />
+            <!-- Серый по умолчанию -->
             <Style.Triggers>
                 <DataTrigger Value="True">
                     <DataTrigger.Binding>
                         <MultiBinding Converter="{StaticResource EqualityConverter}">
-                            <Binding Path="Content" RelativeSource="{RelativeSource Self}" />
-                            <Binding Path="DataContext.SelectedCategory.Name" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                            <Binding Path="Content"
+                                     RelativeSource="{RelativeSource Self}" />
+                            <Binding Path="DataContext.SelectedCategory.Name"
+                                     RelativeSource="{RelativeSource AncestorType=UserControl}" />
                         </MultiBinding>
                     </DataTrigger.Binding>
-                    <Setter Property="Background" Value="White" /> <!-- Белый для выбранной -->
+                    <Setter Property="Background"
+                            Value="White" />
+                    <!-- Белый для выбранной -->
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -45,38 +57,33 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="#CCCCCC" x:Name="CategoryPanel">
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Background="#CCCCCC"
+                    x:Name="CategoryPanel">
             <Button Content="Жилые"
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Жилые"
-                    Style="{StaticResource CategoryButtonStyle}"/>
+                    Style="{StaticResource CategoryButtonStyle}" />
 
             <Button Content="Коммерческие"
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Коммерческие"
-                    Style="{StaticResource CategoryButtonStyle}"/>
+                    Style="{StaticResource CategoryButtonStyle}" />
 
             <Button Content="Промышленные"
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Промышленные"
-                    Style="{StaticResource CategoryButtonStyle}"/>
-            
+                    Style="{StaticResource CategoryButtonStyle}" />
+
             <Button Content="Инфраструктура"
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Инфраструктура"
-                    Style="{StaticResource CategoryButtonStyle}"/>
-            <!-- Smirnov* -->
-            <Button Content="{Binding IsRemoveModeActive, Converter={StaticResource RemoveModeConverter}}"
-                    Command="{Binding ToggleRemoveModeCommand}"
-                    Background="{Binding IsRemoveModeActive, Converter={StaticResource RemoveModeBackgroundConverter}}"
-                    Foreground="White"
-                    Margin="10,5"
-                    Padding="15,5"
-                    BorderThickness="0"
-                    Cursor="Hand" />
+                    Style="{StaticResource CategoryButtonStyle}" />
         </StackPanel>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding SelectedCategory.Objects}">
+        <ItemsControl Grid.Row="1"
+                      ItemsSource="{Binding SelectedCategory.Objects}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Margin="5,10" />
@@ -85,24 +92,30 @@
 
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="Gray" 
-                            BorderThickness="1" 
-                            Width="100" Height="100" 
-                            Margin="5,0" Background="White"
-                            CornerRadius="5" 
-                            Cursor="Hand"
->
+                    <Border BorderBrush="Gray"
+                            BorderThickness="1"
+                            Width="100"
+                            Height="100"
+                            Margin="5,0"
+                            Background="White"
+                            CornerRadius="5"
+                            Cursor="Hand">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonDown">
                                 <i:InvokeCommandAction Command="{Binding DataContext.SelectBuildingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                       CommandParameter="{Binding}"/>
+                                                       CommandParameter="{Binding}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
->
-                            <Image Source="{Binding IconPath}" Width="64" Height="64" Margin="5"/>
-                            <TextBlock Text="{Binding Name}" TextWrapping="Wrap" TextAlignment="Center"/>
+
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <Image Source="{Binding IconPath}"
+                                   Width="64"
+                                   Height="64"
+                                   Margin="5" />
+                            <TextBlock Text="{Binding Name}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center" />
                         </StackPanel>
                     </Border>
                 </DataTemplate>
