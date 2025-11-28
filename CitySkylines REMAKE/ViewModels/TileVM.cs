@@ -4,6 +4,7 @@ using Domain.Map;
 using Domain.Enums;
 using Domain.Base;
 using System.Windows.Threading;
+using Domain.Buildings;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -81,7 +82,7 @@ namespace CitySimulatorWPF.ViewModels
             X = tileModel.Position.X;
             Y = tileModel.Position.Y;
 
-            // ДОБАВЛЕНО: инициализация таймера мигания для ЖКХ
+            // инициализация таймера мигания для ЖКХ
             _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _blinkTimer.Tick += (s, e) =>
             {
@@ -100,7 +101,7 @@ namespace CitySimulatorWPF.ViewModels
                     OnPropertyChanged(nameof(HasObject));
                     UpdateBlinkingState();
 
-                    if (TileModel.MapObject is Domain.Base.Building building)
+                    if (TileModel.MapObject is ResidentialBuilding building)
                     {
                         building.PropertyChanged += (sender, args) =>
                         {
@@ -118,18 +119,18 @@ namespace CitySimulatorWPF.ViewModels
 
         // Smirnov
         public void UpdateBlinkingState()
-    {
-        // Проверяем что это именно жилой дом и у него есть поломки
-        if (TileModel.MapObject is Domain.Buildings.ResidentialBuilding residentialBuilding)
         {
-            IsBlinkingRed = residentialBuilding.HasBrokenUtilities;
+            // Проверяем что это именно жилой дом и у него есть поломки
+            if (TileModel.MapObject is ResidentialBuilding residentialBuilding)
+            {
+                IsBlinkingRed = residentialBuilding.HasBrokenUtilities;
+            }
+            else
+            {
+                IsBlinkingRed = false;
+            }
+            OnPropertyChanged(nameof(IsBlinkingRed));
         }
-        else
-        {
-            IsBlinkingRed = false;
-        }
-        OnPropertyChanged(nameof(IsBlinkingRed));
-    }
         /// <summary>
         /// Тип местности клетки.
         /// </summary>

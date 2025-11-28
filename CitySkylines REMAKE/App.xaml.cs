@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.BuildingRegistry;
 using Services.CitizensSimulation;
+using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
 using Services.NavigationMap;
@@ -20,6 +21,7 @@ namespace CitySkylines_REMAKE
     {
         private ServiceProvider? _serviceProvider;
 
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -33,12 +35,17 @@ namespace CitySkylines_REMAKE
             mainWindow.Show();
         }
 
+
         private void ConfigureServices(IServiceCollection services)
         {
             // Map и генератор
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<Services.Interfaces.IUtilityService, Services.Utilities.UtilityService>();
+
+            services.AddSingleton<GraphService>();
+
+            services.AddTransient<ChartsWindowViewModel>();
 
             services.AddSingleton<MapModel>(sp =>
             {

@@ -1,5 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CitySkylines_REMAKE.Models.Enums;
+using CommunityToolkit.Mvvm.Input;
+using System.Windows;
+using System.Windows.Input;
+using Services.Graphing;
+using CitySimulatorWPF.Views.dialogs;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -21,6 +26,8 @@ namespace CitySimulatorWPF.ViewModels
     /// </remarks>
     public partial class MainVM : ObservableObject
     {
+
+        private readonly GraphService _graphService;
         /// <summary>
         /// Панель выбора зданий.
         /// </summary>
@@ -36,8 +43,9 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         /// <param name="mapVM">ViewModel карты города.</param>
         /// <param name="buildingPanelVM">ViewModel панели строительства.</param>
-        public MainVM(MapVM mapVM, BuildingPanelViewModel buildingPanelVM)
+        public MainVM(MapVM mapVM, BuildingPanelViewModel buildingPanelVM, GraphService graphService)
         {
+            _graphService = graphService;
             MapVM = mapVM;
             BuildingPanelVM = buildingPanelVM;
 
@@ -59,6 +67,16 @@ namespace CitySimulatorWPF.ViewModels
                     MapVM.CurrentMode = MapInteractionMode.None;
                 }
             };
+        }
+
+        [RelayCommand]
+        private void ShowCharts()
+        {
+            // Теперь используем _graphService из DI
+            var chartsWindow = new ChartsWindow(
+                new ChartsWindowViewModel(_graphService));
+            chartsWindow.Owner = Application.Current.MainWindow;
+            chartsWindow.ShowDialog();
         }
     }
 }
