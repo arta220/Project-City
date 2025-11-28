@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace Domain.Buildings
 {
     /// <summary>
-    /// Менеджер коммунальных систем для жилых зданий.
+    /// Менеджер коммунальных систем для жилых зданий.dsds
     /// </summary>
     public class UtilityManager : ObservableObject
     {
