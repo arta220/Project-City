@@ -69,6 +69,11 @@ namespace CitySimulatorWPF.Models
                 "Склад",
                 "Assets/Icons/Warehouse.png"
             ));
+            industrial.Objects.Add(new ObjectVM(
+                new JewelryFactoryFactory(),
+                "Ювелирная фабрика",
+                "Assets/Icons/JewelryFactory.jpg"
+            ));
 
             // Инфраструктура
             var infrastructure = new BuildingCategory { Name = "Инфраструктура" };

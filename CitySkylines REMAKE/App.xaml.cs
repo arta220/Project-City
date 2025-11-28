@@ -15,7 +15,7 @@ using Services.PathFind;
 using Services.PlaceBuilding;
 using Services.SimulationClock;
 using System.Windows;
-
+using Services.JewelryProduction;
 namespace CitySkylines_REMAKE
 {
     public partial class App : Application
@@ -56,6 +56,7 @@ namespace CitySkylines_REMAKE
 
             // Реестр зданий
             services.AddSingleton<IBuildingRegistry, BuildingRegistryService>();
+            services.AddSingleton<JewelryProductionService>();
 
             // Навигация и PathFinding
             services.AddSingleton<INavigationMap>(sp =>
@@ -84,6 +85,7 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<CitizenController>();
             services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
+
 
             // Сервисы работы с картой
             services.AddSingleton<IMapTileService, MapTileService>();

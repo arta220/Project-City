@@ -4,6 +4,7 @@
     {
         Factory,
         Shop,
-        Park
+        Park,
+        JewelryFactory 
     }
 }
