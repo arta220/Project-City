@@ -1,6 +1,7 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
+using CitySkylines_REMAKE.ViewModels;
 using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
@@ -13,6 +14,7 @@ using Services.PathFind;
 using Services.PlaceBuilding;
 using Services.SimulationClock;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace CitySkylines_REMAKE
 {
@@ -87,6 +89,7 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<MessageService, MessageService>();
 
             // ViewModels
+            services.AddTransient<HeaderPanelViewModel>();
             services.AddTransient<BuildingPanelViewModel>();
             services.AddTransient<MainVM>();
             services.AddTransient<MapVM>();

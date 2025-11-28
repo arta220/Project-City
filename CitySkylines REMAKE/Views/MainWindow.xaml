@@ -15,7 +15,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <components:Header Grid.Row="0"/>
+        <components:Header Grid.Row="0" DataContext="{Binding HeaderPanelVM}"/>
 
         <components:Map DataContext="{Binding MapVM}" Grid.Row="1" Grid.Column="1" BorderThickness="2" BorderBrush="Black"/>
 

@@ -76,9 +76,12 @@ namespace Services.PlaceBuilding
         /// Метод пока не реализован. Требует удаления объекта с тайлов карты
         /// и, возможно, уведомления подписчиков симуляции.
         /// </remarks>
-        public void RemoveBuilding(MapModel map, Placement area)
+        public bool TryRemove(MapModel map, Placement area)
         {
-            throw new NotImplementedException();
+            if (map.TryRemoveMapObject(area))
+                return true;
+
+            return false;
         }
     }
 }

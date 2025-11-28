@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Domain.Base;
+using Domain.Factories;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -20,9 +21,9 @@ namespace CitySimulatorWPF.ViewModels
     public partial class ObjectVM : ObservableObject
     {
         /// <summary>
-        /// Модель игрового объекта.
+        /// Фабрика игрового объекта.
         /// </summary>
-        public MapObject Model { get; }
+        public IMapObjectFactory Factory { get; }
 
         /// <summary>
         /// Название объекта для UI.
@@ -40,11 +41,11 @@ namespace CitySimulatorWPF.ViewModels
         /// <param name="model">Модель игрового объекта</param>
         /// <param name="name">Название объекта для UI</param>
         /// <param name="iconPath">Путь к иконке для UI</param>
-        public ObjectVM(MapObject model, string name, string iconPath)
+        public ObjectVM(IMapObjectFactory factory, string name, string icon)
         {
-            Model = model;
+            Factory = factory;
             Name = name;
-            IconPath = iconPath;
+            IconPath = icon;
         }
     }
 }
