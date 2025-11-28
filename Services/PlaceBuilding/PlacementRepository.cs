@@ -1,18 +1,14 @@
 ﻿using Domain.Base;
+using Domain.Buildings;
 using Domain.Map;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Services.PlaceBuilding
 {
     /// <summary>
     /// Репозиторий для отслеживания размещения объектов на карте.
     /// </summary>
-    /// <remarks>
-    /// Контекст использования:
-    /// - Используется сервисами типа <see cref="BuildingRegistryService"/> и <see cref="MapObjectPlacementService"/>
-    ///   для получения позиции зданий или других объектов на карте.
-    /// - Хранит соответствие между <see cref="MapObject"/> и его <see cref="Placement"/>.
-    /// - Позволяет расширять функционал, например, добавляя историю изменений или проверку пересечений.
-    /// </remarks>
     public class PlacementRepository
     {
         private readonly Dictionary<MapObject, Placement> _placements = new();
@@ -20,8 +16,6 @@ namespace Services.PlaceBuilding
         /// <summary>
         /// Регистрирует объект на указанной позиции.
         /// </summary>
-        /// <param name="obj">Объект карты, который нужно разместить.</param>
-        /// <param name="placement">Позиция и размер размещения.</param>
         public void Register(MapObject obj, Placement placement)
         {
             _placements[obj] = placement;
@@ -30,20 +24,17 @@ namespace Services.PlaceBuilding
         /// <summary>
         /// Получает размещение объекта на карте.
         /// </summary>
-        /// <param name="obj">Объект карты.</param>
-        /// <returns>Позиция и размер размещения.</returns>
-        /// <exception cref="InvalidOperationException">Если объект не зарегистрирован.</exception>
-        public Placement GetPlacement(MapObject obj)
+        public (Placement? placement, bool found) TryGetPlacement(MapObject obj)
         {
-            if (!_placements.TryGetValue(obj, out var placement))
-                throw new InvalidOperationException("Объект не размещён на карте.");
-            return placement;
+            if (obj == null) return (null, false);
+            if (!_placements.TryGetValue(obj, out var placement)) return (null, false);
+
+            return (placement, true);
         }
 
         /// <summary>
         /// Удаляет объект из репозитория.
         /// </summary>
-        /// <param name="obj">Объект карты.</param>
         public void Remove(MapObject obj)
         {
             _placements.Remove(obj);
@@ -52,7 +43,19 @@ namespace Services.PlaceBuilding
         /// <summary>
         /// Получает все зарегистрированные объекты на карте.
         /// </summary>
-        /// <returns>Коллекция объектов карты.</returns>
         public IEnumerable<MapObject> GetAll() => _placements.Keys;
+
+        /// <summary>
+        /// Возвращает все жилые здания (ResidentialBuilding) на карте.
+        /// </summary>
+        public IEnumerable<ResidentialBuilding> GetAllResidentialBuildings()
+        {
+            return _placements.Keys.OfType<ResidentialBuilding>();
+        }
+
+        /// <summary>
+        /// Проверяет, существует ли объект в репозитории.
+        /// </summary>
+        public bool Contains(MapObject obj) => _placements.ContainsKey(obj);
     }
 }

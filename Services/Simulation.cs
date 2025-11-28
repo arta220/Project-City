@@ -50,11 +50,6 @@ namespace Services
         public MapModel MapModel { get; private set; }
 
         /// <summary>
-        /// Коллекция всех размещённых объектов на карте.
-        /// </summary>
-        public ObservableCollection<MapObject> MapObjects { get; } = new ObservableCollection<MapObject>();
-
-        /// <summary>
         /// Создаёт экземпляр симуляции.
         /// </summary>
         /// <param name="mapModel">Модель карты.</param>
@@ -90,17 +85,17 @@ namespace Services
 
         private void OnUtilityTick(int tick)
         {
-            // Получаем только жилые здания для симуляции ЖКХ
-            var residentialBuildings = MapObjects.OfType<ResidentialBuilding>().ToList();
-            _utilityService.SimulateUtilitiesBreakdown(tick, residentialBuildings.Cast<Building>().ToList());
+            var residentialBuildings = _placementRepository.GetAllResidentialBuildings().ToList();
+            _utilityService.SimulateUtilitiesBreakdown(tick, residentialBuildings);
         }
 
-        public Dictionary<UtilityType, int> GetBrokenUtilities(Building building)
+
+        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
         {
             return _utilityService.GetBrokenUtilities(building);
         }
 
-        public void FixBuildingUtility(Building building, UtilityType utilityType)
+        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType)
         {
             _utilityService.FixUtility(building, utilityType);
         }
@@ -116,7 +111,6 @@ namespace Services
             if (_placementService.TryPlace(MapModel, mapObject, placement))
             {
                 _placementRepository.Register(mapObject, placement);
-                MapObjects.Add(mapObject);
                 MapObjectPlaced?.Invoke(mapObject);
                 return true;
             }
@@ -124,24 +118,25 @@ namespace Services
         }
 
         /// <summary>
-        /// Удаляет объект с карты (пока не реализован полностью).
+        /// Удаляет объект с карты
         /// </summary>
         public bool TryRemove(MapObject mapObject)
         {
-            var placement = _placementRepository.GetPlacement(mapObject);
+            var (placement, found) = _placementRepository.TryGetPlacement(mapObject);
 
-            if (_placementService.TryRemove(MapModel, placement))
-                return true;
+            if (!found || placement is null)
+                return false;
 
-            return false;
+            return _placementService.TryRemove(MapModel, (Placement)placement);
         }
+
 
         /// <summary>
         /// Получает размещение объекта на карте.
         /// </summary>
-        public Placement GetMapObjectPlacement(MapObject mapObject)
+        public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject)
         {
-            return _placementRepository.GetPlacement(mapObject);
+            return _placementRepository.TryGetPlacement(mapObject);
         }
 
         /// <summary>
@@ -150,29 +145,6 @@ namespace Services
         public bool CanPlace(MapObject mapObject, Placement placement)
         {
             return _placementService.CanPlace(MapModel, mapObject, placement);
-        }
-
-        // Smirnov *
-        public void RemoveBuilding(MapObject mapObject)
-        {
-            // Получаем размещение объекта
-            var placement = _placementRepository.GetPlacement(mapObject);
-
-            // Убираем объект со всех тайлов в области размещения
-            for (int x = placement.Position.X; x < placement.Position.X + placement.Area.Width; x++)
-            {
-                for (int y = placement.Position.Y; y < placement.Position.Y + placement.Area.Height; y++)
-                {
-                    if (x < MapModel.Width && y < MapModel.Height &&
-                        MapModel[x, y].MapObject == mapObject)
-                    {
-                        MapModel[x, y].MapObject = null;
-                    }
-                }
-            }
-
-            // Удаляем из репозитория
-            _placementRepository.Remove(mapObject);
         }
     }
 }
