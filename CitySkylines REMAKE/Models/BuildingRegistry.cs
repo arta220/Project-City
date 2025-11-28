@@ -116,6 +116,18 @@ namespace CitySimulatorWPF.Models
                 "Assets/Icons/Road.png"
             ));
 
+            infrastructure.Objects.Add(new ObjectVM(
+            new PedestrianPathFactory(),
+            "Пешеходная дорожка",
+            "Assets/Icons/PedestrianPath.png" 
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new BicyclePathFactory(),
+                "Велосипедная дорожка",
+                "Assets/Icons/BicyclePath.png" 
+            ));
+
             // Добавление категорий в реестр
             Categories.Add(infrastructure);
             Categories.Add(residential);

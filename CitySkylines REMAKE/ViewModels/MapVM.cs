@@ -10,6 +10,8 @@ using Services;
 using Services.CitizensSimulation;
 using System.Collections.ObjectModel;
 using Services.Interfaces;
+using Domain.Enums;
+using Domain.Infrastructure;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -58,6 +60,7 @@ namespace CitySimulatorWPF.ViewModels
         private readonly MessageService _messageService;
         private readonly CitizenSimulationService _citizenSimulation;
         private readonly IUtilityService _utilityService;
+        private readonly IPathConstructionService _pathService;
 
         /// <summary>
         /// Коллекция тайлов карты для привязки к UI.
@@ -81,7 +84,8 @@ namespace CitySimulatorWPF.ViewModels
                      IMapTileService mapTileService,
                      MessageService messageService,
                      CitizenSimulationService citizenSimulation,
-                     IUtilityService utilityService)
+                     IUtilityService utilityService,
+                     IPathConstructionService pathService)
         {
             _simulation = simulation;
             _roadService = roadService;
@@ -90,6 +94,7 @@ namespace CitySimulatorWPF.ViewModels
             _messageService = messageService;
             _citizenSimulation = citizenSimulation;
             _utilityService = utilityService;
+            _pathService = pathService;
 
             _citizenManager.StartSimulation(_citizenSimulation);
             _citizenSimulation.Start();
@@ -102,6 +107,8 @@ namespace CitySimulatorWPF.ViewModels
                 {
                     if (_roadService.IsBuilding)
                         _roadService.UpdatePreview(tile);
+                    if (_pathService.IsBuilding) 
+                        _pathService.UpdatePreview(tile);
                     return true;
                 });
 
@@ -136,6 +143,14 @@ namespace CitySimulatorWPF.ViewModels
             {
                 _roadService.StartConstruction(tile);
             }
+            else if (SelectedObject?.Factory is PedestrianPathFactory)
+            {
+                _pathService.StartConstruction(tile, PathType.Pedestrian);
+            }
+            else if (SelectedObject?.Factory is BicyclePathFactory)
+            {
+                _pathService.StartConstruction(tile, PathType.Bicycle);
+            }
 
         }
 
@@ -147,6 +162,13 @@ namespace CitySimulatorWPF.ViewModels
             if (_roadService.IsBuilding)
             {
                 _roadService.FinishConstruction(tile, (road, placement) => _simulation.TryPlace(road, placement));
+                CurrentMode = MapInteractionMode.None;
+                return;
+            }
+
+            if (_pathService.IsBuilding)
+            {
+                _pathService.FinishConstruction(tile, (path, placement) => _simulation.TryPlace(path, placement));
                 CurrentMode = MapInteractionMode.None;
                 return;
             }

@@ -12,6 +12,7 @@
     <UserControl.Resources>
         <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter" />
         <conv:BlinkingColorConverter x:Key="BlinkingColorConverter" />
+        <conv:PathToBrushConverter x:Key="PathToBrushConverter" />
         <!-- конвертер для мигания -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 

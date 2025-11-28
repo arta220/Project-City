@@ -2,10 +2,12 @@
 using Domain.Buildings;
 using Domain.Enums;
 using Domain.Factories;
+using Domain.Infrastructure;
 using Domain.Map;
 
 namespace Domain.Factories
 {
+
     public class SmallHouseFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -111,11 +113,21 @@ namespace Domain.Factories
             );
     }
 
-    public class RoadFactory : IRoadFactory
+    public class PedestrianPathFactory : IMapObjectFactory
     {
-        public MapObject Create() =>
-            new Road(
-                area: new Area(1, 1)
-            );
+        public MapObject Create() => new PedestrianPath();
     }
+
+    public class BicyclePathFactory : IMapObjectFactory
+    {
+        public MapObject Create() => new BicyclePath();
+    }
+
+    public class RoadFactory : IRoadFactory
+        {
+            public MapObject Create() =>
+                new Road(
+                    area: new Area(1, 1)
+                );
+        }
 

@@ -92,6 +92,13 @@ namespace CitySkylines_REMAKE
                 var tileService = sp.GetRequiredService<IMapTileService>();
                 return new RoadConstructionService(tileService.Tiles);
             });
+
+            services.AddSingleton<IPathConstructionService, PathConstructionService>(sp =>
+            {
+                var tileService = sp.GetRequiredService<IMapTileService>();
+                return new PathConstructionService(tileService.Tiles);
+            });
+
             services.AddSingleton<MessageService, MessageService>();
 
             // ViewModels
