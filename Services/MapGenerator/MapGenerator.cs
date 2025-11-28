@@ -262,6 +262,11 @@ namespace Services.MapGenerator
 
                         continue;
                     }
+                    if (tile.Terrain == TerrainType.Forest)
+                    {
+                        tile.ResourceType = NaturalResourceType.Wood;
+                        tile.ResourceAmount = 100 + ((x * 7 + y * 5) % 80);
+                    }
 
                     // --- Нефть и газ на равнинах и лугах ---
                     bool isFlat =

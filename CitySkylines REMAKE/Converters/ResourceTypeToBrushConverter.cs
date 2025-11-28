@@ -45,6 +45,7 @@ namespace CitySimulatorWPF.Converters
                     NaturalResourceType.Copper => Brushes.Orange,       // медь
                     NaturalResourceType.Oil => Brushes.Black,        // нефть
                     NaturalResourceType.Gas => Brushes.LightSkyBlue, // газ
+                    NaturalResourceType.Wood => Brushes.SaddleBrown, // дерево
                     _ => Brushes.Transparent   // нет ресурса / неизвестный тип
                 };
             }

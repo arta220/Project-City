@@ -12,6 +12,7 @@ namespace Domain.Enums
         Iron,
         Oil,
         Gas,
+        Wood,
         Copper
     }
 }
