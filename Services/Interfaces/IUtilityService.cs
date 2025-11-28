@@ -10,7 +10,6 @@ namespace Services.Interfaces
         void SimulateUtilitiesBreakdown(int currentTick, List<ResidentialBuilding> buildings);
         void FixUtility(ResidentialBuilding building, UtilityType utilityType);
         Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building);
-
         UtilityStatistics GetStatistics();
     }
 }
