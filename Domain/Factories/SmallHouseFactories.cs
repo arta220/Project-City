@@ -5,7 +5,7 @@ using Domain.Map;
 
 namespace Domain.Factories
 {
-    public class AllFactories : IMapObjectFactory
+    public class SmallHouseFactories : IMapObjectFactory
     {
         public MapObject Create() =>
             new ResidentialBuilding(

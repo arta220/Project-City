@@ -28,7 +28,7 @@ namespace CitySimulatorWPF.Models
             var residential = new BuildingCategory { Name = "Жилые" };
 
             residential.Objects.Add(new ObjectVM(
-                new AllFactories(),
+                new SmallHouseFactories(),
                 "Маленький дом",
                 "Assets/Icons/SmallHouse.png"
             ));
