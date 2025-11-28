@@ -1,4 +1,5 @@
 using CitySimulatorWPF.ViewModels;
+using Domain.Base;
 using Domain.Enums;
 using Domain.Factories;
 using Domain.Map;
@@ -77,6 +78,37 @@ namespace CitySimulatorWPF.Models
                 "Городской парк",
                 "Assets/Icons/UrbanPark.png"
             ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new SquareParkFactory(),
+                    "Сквер",
+                    "Assets/Icons/Square.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new BotanicalGardenParkFactory(),
+                    "Ботанический сад",
+                    "Assets/Icons/BotanicalGarden.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new PlaygroundParkFactory(),
+                    "Детская площадка",
+                    "Assets/Icons/Playground.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new RecreationAreaParkFactory(),
+                    "Зона отдыха",
+                    "Assets/Icons/RecreationArea.png"
+                )
+            );
 
             infrastructure.Objects.Add(new ObjectVM(
                 new RoadFactory(),
