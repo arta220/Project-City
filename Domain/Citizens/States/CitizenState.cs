@@ -15,5 +15,6 @@
 
         // Дом
         GoingHome,
+        SearchingHome
     }
 }

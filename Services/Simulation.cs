@@ -1,4 +1,6 @@
 ﻿using Domain.Base;
+using Domain.Buildings;
+using Domain.Enums;
 using Domain.Map;
 using Services.Interfaces;
 using Services.PlaceBuilding;
@@ -25,6 +27,7 @@ namespace Services
         private readonly IMapObjectPlacementService _placementService;
         private readonly ISimulationClock _clock;
         private readonly PlacementRepository _placementRepository;
+        private readonly IUtilityService _utilityService;
 
         /// <summary>
         /// Событие, вызываемое на каждом тике симуляции.
@@ -47,11 +50,6 @@ namespace Services
         public MapModel MapModel { get; private set; }
 
         /// <summary>
-        /// Коллекция всех размещённых объектов на карте.
-        /// </summary>
-        public ObservableCollection<MapObject> MapObjects { get; } = new ObservableCollection<MapObject>();
-
-        /// <summary>
         /// Создаёт экземпляр симуляции.
         /// </summary>
         /// <param name="mapModel">Модель карты.</param>
@@ -62,15 +60,18 @@ namespace Services
             MapModel mapModel,
             IMapObjectPlacementService placementService,
             ISimulationClock clock,
-            PlacementRepository placementRepository)
+            PlacementRepository placementRepository,
+            IUtilityService utilityService)
         {
             MapModel = mapModel ?? throw new ArgumentNullException(nameof(mapModel));
             _placementService = placementService ?? throw new ArgumentNullException(nameof(placementService));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _placementRepository = placementRepository ?? throw new ArgumentNullException(nameof(placementRepository));
+            _utilityService = utilityService;
 
             // Подписка на тики часов симуляции
             _clock.TickOccurred += OnTick;
+            _clock.TickOccurred += OnUtilityTick;
             _clock.Start();
         }
 
@@ -80,6 +81,23 @@ namespace Services
         private void OnTick(int tick)
         {
             TickOccurred?.Invoke(tick);
+        }
+
+        private void OnUtilityTick(int tick)
+        {
+            var residentialBuildings = _placementRepository.GetAllResidentialBuildings().ToList();
+            _utilityService.SimulateUtilitiesBreakdown(tick, residentialBuildings);
+        }
+
+
+        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
+        {
+            return _utilityService.GetBrokenUtilities(building);
+        }
+
+        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType)
+        {
+            _utilityService.FixUtility(building, utilityType);
         }
 
         /// <summary>
@@ -93,7 +111,6 @@ namespace Services
             if (_placementService.TryPlace(MapModel, mapObject, placement))
             {
                 _placementRepository.Register(mapObject, placement);
-                MapObjects.Add(mapObject);
                 MapObjectPlaced?.Invoke(mapObject);
                 return true;
             }
@@ -101,20 +118,25 @@ namespace Services
         }
 
         /// <summary>
-        /// Удаляет объект с карты (пока не реализован полностью).
+        /// Удаляет объект с карты
         /// </summary>
-        public bool RemoveMapObject(MapObject mapObject)
+        public bool TryRemove(MapObject mapObject)
         {
-            // TODO: реализовать корректное удаление с уведомлением
-            return false;
+            var (placement, found) = _placementRepository.TryGetPlacement(mapObject);
+
+            if (!found || placement is null)
+                return false;
+
+            return _placementService.TryRemove(MapModel, (Placement)placement);
         }
+
 
         /// <summary>
         /// Получает размещение объекта на карте.
         /// </summary>
-        public Placement GetMapObjectPlacement(MapObject mapObject)
+        public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject)
         {
-            return _placementRepository.GetPlacement(mapObject);
+            return _placementRepository.TryGetPlacement(mapObject);
         }
 
         /// <summary>

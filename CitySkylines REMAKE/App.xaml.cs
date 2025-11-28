@@ -1,11 +1,13 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
+using CitySkylines_REMAKE.ViewModels;
 using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.BuildingRegistry;
 using Services.CitizensSimulation;
+using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
 using Services.NavigationMap;
@@ -20,6 +22,7 @@ namespace CitySkylines_REMAKE
     {
         private ServiceProvider? _serviceProvider;
 
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -33,11 +36,17 @@ namespace CitySkylines_REMAKE
             mainWindow.Show();
         }
 
+
         private void ConfigureServices(IServiceCollection services)
         {
             // Map и генератор
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
+            services.AddSingleton<Services.Interfaces.IUtilityService, Services.Utilities.UtilityService>();
+
+            services.AddSingleton<GraphService>();
+
+            services.AddTransient<ChartsWindowViewModel>();
 
             services.AddSingleton<MapModel>(sp =>
             {
@@ -83,9 +92,17 @@ namespace CitySkylines_REMAKE
                 var tileService = sp.GetRequiredService<IMapTileService>();
                 return new RoadConstructionService(tileService.Tiles);
             });
+
+            services.AddSingleton<IPathConstructionService, PathConstructionService>(sp =>
+            {
+                var tileService = sp.GetRequiredService<IMapTileService>();
+                return new PathConstructionService(tileService.Tiles);
+            });
+
             services.AddSingleton<MessageService, MessageService>();
 
             // ViewModels
+            services.AddTransient<HeaderPanelViewModel>();
             services.AddTransient<BuildingPanelViewModel>();
             services.AddTransient<MainVM>();
             services.AddTransient<MapVM>();

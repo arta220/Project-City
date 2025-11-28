@@ -1,8 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Domain.Map;
-using Domain.Enums;
 using Domain.Base;
+using Domain.Buildings;
+using Domain.Enums;
+using Domain.Map;
+using System.Windows.Threading;
+using Domain.Buildings;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -17,58 +20,21 @@ namespace CitySimulatorWPF.ViewModels
     /// </remarks>
     public partial class TileVM : ObservableObject
     {
-        /// <summary>
-        /// Событие, вызываемое при клике на клетку.
-        /// </summary>
         public event Action<TileVM> TileClicked;
-
-        /// <summary>
-        /// Событие, вызываемое при начале строительства на клетке.
-        /// </summary>
         public event Action<TileVM> TileConstructionStart;
 
-        /// <summary>
-        /// Модель клетки карты.
-        /// </summary>
         public TileModel TileModel { get; }
 
-        /// <summary>
-        /// Координата X клетки.
-        /// </summary>
-        [ObservableProperty]
-        public int _x;
+        [ObservableProperty] private int _x;
+        [ObservableProperty] private int _y;
+        [ObservableProperty] private bool _isBlinkingRed;
+        [ObservableProperty] private bool _isPreviewTile = false;
+        [ObservableProperty] private bool _isMouseOver = false;
 
-        /// <summary>
-        /// Координата Y клетки.
-        /// </summary>
-        [ObservableProperty]
-        public int _y;
+        private DispatcherTimer _blinkTimer;
 
-        /// <summary>
-        /// Флаг, показывающий, является ли клетка превью для строительства.
-        /// </summary>
-        [ObservableProperty]
-        private bool _isPreviewTile = false;
-
-        /// <summary>
-        /// Флаг наведения мыши на клетку.
-        /// </summary>
-        [ObservableProperty]
-        private bool _isMouseOver = false;
-
-        /// <summary>
-        /// Есть ли на клетке объект.
-        /// </summary>
         public bool HasObject => TileModel.MapObject != null;
-
-        /// <summary>
-        /// Можно ли построить объект на этой клетке.
-        /// </summary>
         public bool CanBuild => !HasObject;
-
-        /// <summary>
-        /// Тип местности клетки.
-        /// </summary>
         public TerrainType TerrainType => TileModel.Terrain;
 
         /// <summary>
@@ -96,46 +62,62 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         public MapObject MapObject => TileModel.MapObject;
 
-        /// <summary>
-        /// Создаёт ViewModel для клетки карты.
-        /// </summary>
-        /// <param name="tileModel">Модель клетки</param>
         public TileVM(TileModel tileModel)
         {
-            TileModel = tileModel;
+            TileModel = tileModel ?? throw new ArgumentNullException(nameof(tileModel));
             X = tileModel.Position.X;
             Y = tileModel.Position.Y;
 
-            // Подписка на изменения объекта, чтобы обновлять свойства UI
+            _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+            _blinkTimer.Tick += (s, e) =>
+            {
+                if (IsBlinkingRed)
+                    OnPropertyChanged(nameof(IsBlinkingRed));
+            };
+            _blinkTimer.Start();
+
             TileModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(TileModel.MapObject))
+                {
                     OnPropertyChanged(nameof(HasObject));
+                    UpdateBlinkingState();
+
+                    if (TileModel.MapObject is ResidentialBuilding residential)
+                    {
+                        residential.Utilities.PropertyChanged += (sender, args) =>
+                        {
+                            if (args.PropertyName == nameof(residential.Utilities.HasBrokenUtilities))
+                                UpdateBlinkingState();
+                        };
+                    }
+                }
             };
+
+            UpdateBlinkingState();
         }
 
-        /// <summary>
-        /// Команда клика по клетке.
-        /// </summary>
+        public void UpdateBlinkingState()
+        {
+            if (TileModel.MapObject is ResidentialBuilding residential)
+                IsBlinkingRed = residential.Utilities.HasBrokenUtilities;
+            else
+                IsBlinkingRed = false;
+
+            OnPropertyChanged(nameof(IsBlinkingRed));
+        }
+
         [RelayCommand]
         public void TileClick() => TileClicked?.Invoke(this);
 
-        /// <summary>
-        /// Команда нажатия мыши на клетке (начало строительства).
-        /// </summary>
         [RelayCommand]
         public void TileMouseDown() => TileConstructionStart?.Invoke(this);
 
-        /// <summary>
-        /// Команда ухода мыши с клетки.
-        /// </summary>
         [RelayCommand]
         public void TileLeave() => IsMouseOver = false;
 
-        /// <summary>
-        /// Команда наведения мыши на клетку.
-        /// </summary>
         [RelayCommand]
         public void TileEnter() => IsMouseOver = true;
     }
+
 }

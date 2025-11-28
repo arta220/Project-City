@@ -82,10 +82,19 @@ namespace Services.CitizensSimulation
                     break;
 
                 case CitizenState.GoingHome:
-                    var homePos = _buildingRegistry.GetPlacement(citizen.Home).Position;
-                    _movement.Move(citizen, homePos, tick);
+                    var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.Home);
 
-                    if (citizen.Position.Equals(homePos))
+                    if (!found || placement is null)
+                    {
+                        citizen.State = CitizenState.SearchingHome; // ну если дом удалили надо типа найти новый
+                        break;
+                    }
+
+                    Position pos = ((Placement)placement).Position;
+
+                    _movement.Move(citizen, pos, tick);
+
+                    if (citizen.Position.Equals(pos))
                     {
                         citizen.State = CitizenState.Idle;
                         citizen.CurrentPath.Clear();

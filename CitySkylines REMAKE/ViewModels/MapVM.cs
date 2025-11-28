@@ -1,14 +1,17 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Domain.Base;
 using Domain.Buildings;
 using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Factories;
 using Domain.Map;
 using Services;
 using Services.CitizensSimulation;
 using System.Collections.ObjectModel;
+using Services.Interfaces;
+using Domain.Enums;
+using Domain.Infrastructure;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -56,6 +59,8 @@ namespace CitySimulatorWPF.ViewModels
         private readonly IMapTileService _mapTileService;
         private readonly MessageService _messageService;
         private readonly CitizenSimulationService _citizenSimulation;
+        private readonly IUtilityService _utilityService;
+        private readonly IPathConstructionService _pathService;
 
         /// <summary>
         /// Коллекция тайлов карты для привязки к UI.
@@ -78,7 +83,9 @@ namespace CitySimulatorWPF.ViewModels
                      ICitizenManagerService citizenManager,
                      IMapTileService mapTileService,
                      MessageService messageService,
-                     CitizenSimulationService citizenSimulation)
+                     CitizenSimulationService citizenSimulation,
+                     IUtilityService utilityService,
+                     IPathConstructionService pathService)
         {
             _simulation = simulation;
             _roadService = roadService;
@@ -86,6 +93,8 @@ namespace CitySimulatorWPF.ViewModels
             _mapTileService = mapTileService;
             _messageService = messageService;
             _citizenSimulation = citizenSimulation;
+            _utilityService = utilityService;
+            _pathService = pathService;
 
             _citizenManager.StartSimulation(_citizenSimulation);
             _citizenSimulation.Start();
@@ -98,10 +107,13 @@ namespace CitySimulatorWPF.ViewModels
                 {
                     if (_roadService.IsBuilding)
                         _roadService.UpdatePreview(tile);
+                    if (_pathService.IsBuilding) 
+                        _pathService.UpdatePreview(tile);
                     return true;
                 });
 
             CreateHumanAndHome();
+            _utilityService = utilityService;
         }
 
         /// <summary>
@@ -127,10 +139,19 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         private void OnTileConstructionStart(TileVM tile)
         {
-            if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Road)
+            if (SelectedObject?.Factory is IRoadFactory)
             {
                 _roadService.StartConstruction(tile);
             }
+            else if (SelectedObject?.Factory is PedestrianPathFactory)
+            {
+                _pathService.StartConstruction(tile, PathType.Pedestrian);
+            }
+            else if (SelectedObject?.Factory is BicyclePathFactory)
+            {
+                _pathService.StartConstruction(tile, PathType.Bicycle);
+            }
+
         }
 
         /// <summary>
@@ -145,19 +166,40 @@ namespace CitySimulatorWPF.ViewModels
                 return;
             }
 
-            if (CurrentMode == MapInteractionMode.Build && SelectedObject?.Model is Building building)
+            if (_pathService.IsBuilding)
             {
-                var placement = new Placement(new Position(tile.X, tile.Y), building.Area);
-                if (!_simulation.TryPlace(building, placement))
-                {
-                    _messageService.ShowMessage("Невозможно поставить здание");
-                }
+                _pathService.FinishConstruction(tile, (path, placement) => _simulation.TryPlace(path, placement));
                 CurrentMode = MapInteractionMode.None;
                 return;
             }
 
+            if (CurrentMode == MapInteractionMode.Build && SelectedObject != null)
+            {
+                var obj = SelectedObject.Factory.Create();
+
+                var placement = new Placement(new Position(tile.X, tile.Y), obj.Area);
+
+                if (!_simulation.TryPlace(obj, placement))
+                {
+                    _messageService.ShowMessage("Невозможно поставить объект");
+                }
+
+                CurrentMode = MapInteractionMode.None;
+                return;
+            }
+
+            // Обработка клика для ремонта ЖКХ
+            if (CurrentMode == MapInteractionMode.None && tile.MapObject is ResidentialBuilding residentialBuilding)
+            {
+                if (residentialBuilding.Utilities.HasBrokenUtilities)
+                {
+                    ShowRepairDialog(residentialBuilding, tile);
+                }
+            }
+
             if (CurrentMode == MapInteractionMode.Remove)
             {
+                _simulation.TryRemove(tile.MapObject);
                 return;
             }
 
@@ -174,6 +216,44 @@ namespace CitySimulatorWPF.ViewModels
         {
             _citizenManager.StopSimulation();
             _citizenSimulation.Stop();
+        }
+
+        private void ShowRepairDialog(ResidentialBuilding building, TileVM tile)
+        {
+            // Получаем сломанные коммунальные услуги через сервис ЖКХ
+            var brokenUtilities = _utilityService.GetBrokenUtilities(building);
+
+            if (!brokenUtilities.Any())
+            {
+                _messageService.ShowMessage("Нет сломанных коммунальных услуг");
+                return;
+            }
+
+            // Показываем список поломок
+            string message = "Что починить?\n";
+            int i = 1;
+            var utilitiesList = brokenUtilities.Keys.ToList();
+
+            foreach (var utility in utilitiesList)
+            {
+                message += $"{i}. {utility} - сломано с тика {brokenUtilities[utility]}\n";
+                i++;
+            }
+
+            message += "\nВведите номер (или 0 для отмены):";
+
+            string input = Microsoft.VisualBasic.Interaction.InputBox(message, "Ремонт коммуналки", "0");
+
+            if (int.TryParse(input, out int choice) && choice > 0 && choice <= utilitiesList.Count)
+            {
+                var utilityToFix = utilitiesList[choice - 1];
+                _utilityService.FixUtility(building, utilityToFix);
+
+                // Обновляем визуальное состояние
+                tile.UpdateBlinkingState();
+
+                _messageService.ShowMessage($"{utilityToFix} отремонтирован!");
+            }
         }
     }
 }

@@ -56,6 +56,13 @@
                 Background="LightCoral"
                 Margin="0,0,10,0"
                 Padding="5,2"/>
+            
+            <Button Content="🔨Удалить"
+                    Command="{Binding SetRemoveModeCommand}"
+                    ToolTip="Удаление зданий"
+                    Background="#FFA07A"
+                    Margin="0,0,10,0"
+                    Padding="5,2"/>
 
             <Button Content="📦 Ресурсы" 
                 Command="{Binding ShowResourcesInfoCommand}"
@@ -63,6 +70,13 @@
                 Background="LightCyan"
                 Margin="0,0,10,0"
                 Padding="5,2"/>
+
+            <Button Content="📊 Графики"
+                    Command="{Binding ShowChartsCommand}"
+                    ToolTip="Показать графики статистики"
+                    Background="LightGreen"
+                    Margin="0,0,10,0"
+                    Padding="5,2" />
 
             <TextBlock Text="👤" FontSize="20" Margin="0,0,3,0" VerticalAlignment="Center" FontWeight="Bold" />
             <TextBlock Text="{Binding CitizenCount}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" />

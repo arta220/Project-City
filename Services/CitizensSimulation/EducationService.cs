@@ -11,9 +11,6 @@ namespace Services.CitizensSimulation
     /// - Используется внутри <see cref="CitizenController"/> для обновления состояния граждан, находящихся в процессе обучения.
     /// - Вызывается на каждом тике симуляции через <see cref="CitizenSimulationService"/>.
     /// 
-    /// Возможные расширения:
-    /// - Реализовать посещение школ, получение навыков или повышение уровня образования.
-    /// - Добавить влияние образования на работу, зарплату или счастье граждан.
     /// </remarks>
     public class EducationService : IEducationService
     {

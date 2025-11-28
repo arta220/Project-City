@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using System.Windows.Data;
-
+// проверка гита
 namespace CitySimulatorWPF.Converters
 {
     public class EqualityConverter : IMultiValueConverter
