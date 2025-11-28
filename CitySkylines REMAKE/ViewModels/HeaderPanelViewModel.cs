@@ -1,10 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Windows;
+using CitySimulatorWPF.ViewModels;
+using CitySimulatorWPF.Views.dialogs;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Services.Graphing;
 
 namespace CitySkylines_REMAKE.ViewModels
 {
     public partial class HeaderPanelViewModel : ObservableObject
     {
+        private readonly GraphService _graphService;
         public event Action RemoveModeOn;
 
         [RelayCommand]
@@ -12,5 +17,20 @@ namespace CitySkylines_REMAKE.ViewModels
         {
             RemoveModeOn?.Invoke();
         }
+
+        public HeaderPanelViewModel(GraphService graphService)
+        {
+            _graphService = graphService;
+        }
+
+        [RelayCommand]
+        private void ShowCharts()
+        {
+            var chartsWindow = new ChartsWindow(
+                new ChartsWindowViewModel(_graphService));
+            chartsWindow.Owner = Application.Current.MainWindow;
+            chartsWindow.ShowDialog();
+        }
+
     }
 }

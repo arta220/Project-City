@@ -1,4 +1,5 @@
 using CitySimulatorWPF.ViewModels;
+using Domain.Base;
 using Domain.Enums;
 using Domain.Factories;
 using Domain.Map;
@@ -79,9 +80,52 @@ namespace CitySimulatorWPF.Models
             ));
 
             infrastructure.Objects.Add(new ObjectVM(
+                new SquareParkFactory(),
+                    "Сквер",
+                    "Assets/Icons/Square.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new BotanicalGardenParkFactory(),
+                    "Ботанический сад",
+                    "Assets/Icons/BotanicalGarden.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new PlaygroundParkFactory(),
+                    "Детская площадка",
+                    "Assets/Icons/Playground.png"
+                )
+            );
+
+            infrastructure.Objects.Add(
+                new ObjectVM(
+                    new RecreationAreaParkFactory(),
+                    "Зона отдыха",
+                    "Assets/Icons/RecreationArea.png"
+                )
+            );
+
+            infrastructure.Objects.Add(new ObjectVM(
                 new RoadFactory(),
                 "Дорога",
                 "Assets/Icons/Road.png"
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+            new PedestrianPathFactory(),
+            "Пешеходная дорожка",
+            "Assets/Icons/PedestrianPath.png" 
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new BicyclePathFactory(),
+                "Велосипедная дорожка",
+                "Assets/Icons/BicyclePath.png" 
             ));
 
             // Добавление категорий в реестр

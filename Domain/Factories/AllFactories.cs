@@ -1,10 +1,13 @@
 ﻿using Domain.Base;
 using Domain.Buildings;
 using Domain.Enums;
+using Domain.Factories;
+using Domain.Infrastructure;
 using Domain.Map;
 
 namespace Domain.Factories
 {
+
     public class SmallHouseFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -73,12 +76,58 @@ namespace Domain.Factories
                 type: ParkType.UrbanPark
             );
     }
-    public class RoadFactory : IRoadFactory
+    public class SquareParkFactory : IMapObjectFactory
     {
         public MapObject Create() =>
-            new Road(
-                area: new Area(1, 1)
+            new Park(
+                area: new Area(2, 3),
+                type: ParkType.Square
             );
     }
 
-}
+    }
+    public class BotanicalGardenParkFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Park(
+                area: new Area(4, 4),
+                type: ParkType.BotanicalGarden
+            );
+    }
+
+    public class PlaygroundParkFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Park(
+                area: new Area(1, 1),
+                type: ParkType.Playground
+            );
+    }
+
+    public class RecreationAreaParkFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Park(
+                area: new Area(2, 3),
+                type: ParkType.RecreationArea
+            );
+    }
+
+    public class PedestrianPathFactory : IMapObjectFactory
+    {
+        public MapObject Create() => new PedestrianPath();
+    }
+
+    public class BicyclePathFactory : IMapObjectFactory
+    {
+        public MapObject Create() => new BicyclePath();
+    }
+
+    public class RoadFactory : IRoadFactory
+        {
+            public MapObject Create() =>
+                new Road(
+                    area: new Area(1, 1)
+                );
+        }
+

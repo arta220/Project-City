@@ -40,6 +40,6 @@ namespace Services.BuildingRegistry
         /// </summary>
         /// <param name="building">Здание, для которого необходимо узнать размещение.</param>
         /// <returns>Структура Placement с координатами и размером здания.</returns>
-        public Placement GetPlacement(MapObject building) => _placementRepository.GetPlacement(building);
+        public (Placement? placement, bool found) TryGetPlacement(MapObject building) => _placementRepository.TryGetPlacement(building);
     }
 }

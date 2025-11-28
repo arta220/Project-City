@@ -1,5 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CitySkylines_REMAKE.Models.Enums;
+using CommunityToolkit.Mvvm.Input;
+using System.Windows;
+using System.Windows.Input;
+using Services.Graphing;
+using CitySimulatorWPF.Views.dialogs;
 using CitySkylines_REMAKE.ViewModels;
 
 namespace CitySimulatorWPF.ViewModels
@@ -22,6 +27,8 @@ namespace CitySimulatorWPF.ViewModels
     /// </remarks>
     public partial class MainVM : ObservableObject
     {
+
+        private readonly GraphService _graphService;
         /// <summary>
         /// Панель выбора зданий.
         /// </summary>
@@ -42,8 +49,10 @@ namespace CitySimulatorWPF.ViewModels
         public MainVM(
             MapVM mapVM, 
             BuildingPanelViewModel buildingPanelVM,
-            HeaderPanelViewModel headerPanelVM)
+            HeaderPanelViewModel headerPanelVM,
+            GraphService graphService)
         {
+            _graphService = graphService;
             MapVM = mapVM;
             BuildingPanelVM = buildingPanelVM;
             HeaderPanelVM = headerPanelVM;

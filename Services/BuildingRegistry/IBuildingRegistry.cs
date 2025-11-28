@@ -6,7 +6,7 @@ namespace Services.BuildingRegistry
     public interface IBuildingRegistry
     {
         IEnumerable<MapObject> GetAllBuildings();
-        Placement GetPlacement(MapObject building);
+        (Placement? placement, bool found) TryGetPlacement(MapObject building);
     }
 
 }

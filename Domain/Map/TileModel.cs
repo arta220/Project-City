@@ -47,7 +47,9 @@ namespace Domain.Map
         /// <returns>True, если размещение возможно.</returns>
         public bool CanPlace(MapObject mapObject)
         {
-            return MapObject == null;
+            return MapObject == null &&
+                   Terrain != TerrainType.Water &&
+                   Terrain != TerrainType.Mountain;
         }
     }
 }

@@ -12,6 +12,7 @@
     <UserControl.Resources>
         <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter" />
         <conv:BlinkingColorConverter x:Key="BlinkingColorConverter" />
+        <conv:PathToBrushConverter x:Key="PathToBrushConverter" />
         <!-- конвертер для мигания -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
@@ -52,8 +53,6 @@
                 </TransformGroup>
             </Grid.RenderTransform>
 
-            <!-- УДАЛЕНО: лишний Grid -->
-            <!-- Слой тайлов -->
             <ItemsControl ItemsSource="{Binding Tiles}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -65,14 +64,11 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid>
-                            <!-- УДАЛЕНО: лишний Rectangle с TerrainBrush -->
                             <Border Background="{Binding TerrainType, Converter={StaticResource TerrainTypeToBrushConverter}}" />
 
-                            <!-- Превью для строительства -->
                             <Rectangle Fill="#8800FF00"
                                        Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                            <!-- Мигающий прямоугольник для ЖКХ -->
                             <Rectangle Fill="{Binding IsBlinkingRed, Converter={StaticResource BlinkingColorConverter}}"
                                        Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
