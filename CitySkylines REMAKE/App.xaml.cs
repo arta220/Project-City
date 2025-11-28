@@ -77,6 +77,20 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
 
+            // Транспорт: движение, контроллер и симуляция машин
+            services.AddSingleton<TransportMovementService>();
+
+            // Контроллер транспорта с настраиваемой "длиной рабочего дня" в тиках.
+            services.AddSingleton<TransportController>(sp =>
+            {
+                var movement = sp.GetRequiredService<TransportMovementService>();
+                int workDayLengthTicks = 50; // Здесь можно изменить длительность в тиках или вынести в конфиг.
+                return new TransportController(movement, workDayLengthTicks);
+            });
+
+            services.AddSingleton<TransportSimulationService>();
+            services.AddSingleton<ICarManagerService, CarManagerService>();
+
             // Сервисы работы с картой
             services.AddSingleton<IMapTileService, MapTileService>();
             services.AddSingleton<IRoadConstructionService, RoadConstructionService>(sp =>
