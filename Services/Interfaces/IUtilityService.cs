@@ -1,19 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Base;
+﻿using Domain.Buildings;
 using Domain.Enums;
-
 
 // Smirnov
 namespace Services.Interfaces
 {
     public interface IUtilityService
     {
-        void SimulateUtilitiesBreakdown(int currentTick, List<Building> buildings);
-        void FixUtility(Building building, UtilityType utilityType);
-        Dictionary<UtilityType, int> GetBrokenUtilities(Building building);
+        /// <summary>
+        /// Имитация поломок коммунальных систем только для жилых домов.
+        /// </summary>
+        void SimulateUtilitiesBreakdown(int currentTick, List<ResidentialBuilding> residentialBuildings);
+
+        /// <summary>
+        /// Починка определённой системы в жилом доме.
+        /// </summary>
+        void FixUtility(ResidentialBuilding building, UtilityType utilityType);
+
+        /// <summary>
+        /// Получение всех сломанных систем жилого дома.
+        /// </summary>
+        Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building);
     }
 }

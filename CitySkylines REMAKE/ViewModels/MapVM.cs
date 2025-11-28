@@ -1,7 +1,6 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Domain.Base;
 using Domain.Buildings;
 using Domain.Citizens;
 using Domain.Citizens.States;
@@ -10,7 +9,6 @@ using Domain.Map;
 using Services;
 using Services.CitizensSimulation;
 using System.Collections.ObjectModel;
-using System.Windows;
 using Services.Interfaces;
 
 namespace CitySimulatorWPF.ViewModels
@@ -168,13 +166,18 @@ namespace CitySimulatorWPF.ViewModels
                 return;
             }
 
+            // Обработка клика для ремонта ЖКХ
+            if (CurrentMode == MapInteractionMode.None && tile.MapObject is ResidentialBuilding residentialBuilding)
+            {
+                if (residentialBuilding.Utilities.HasBrokenUtilities)
+                {
+                    ShowRepairDialog(residentialBuilding, tile);
+                }
+            }
 
             if (CurrentMode == MapInteractionMode.Remove)
             {
-                if (!_simulation.TryRemove(tile.MapObject))
-                {
-                    _messageService.ShowMessage("Невозможно удалить объект");
-                }
+                _simulation.TryRemove(tile.MapObject);
                 return;
             }
 
@@ -193,7 +196,7 @@ namespace CitySimulatorWPF.ViewModels
             _citizenSimulation.Stop();
         }
 
-        private void ShowRepairDialog(Domain.Base.Building building, TileVM tile)
+        private void ShowRepairDialog(ResidentialBuilding building, TileVM tile)
         {
             // Получаем сломанные коммунальные услуги через сервис ЖКХ
             var brokenUtilities = _utilityService.GetBrokenUtilities(building);
