@@ -1,8 +1,12 @@
-﻿using Domain.Citizens;
+﻿using Domain.Base;
+using Domain.Buildings;
+using Domain.Citizens;
 using Domain.Citizens.States;
 using Domain.Map;
 using Services.BuildingRegistry;
 using Services.Interfaces;
+using System.Collections.Generic; 
+using System.Linq;
 
 namespace Services.CitizensSimulation
 {
@@ -29,6 +33,7 @@ namespace Services.CitizensSimulation
         private readonly IJobService _jobService;
         private readonly IEducationService _educationService;
         private readonly IPopulationService _populationService;
+        private readonly System.Random _random; // ve1ce - коммерция
 
         /// <summary>
         /// Создаёт контроллер граждан с зависимостями на сервисы симуляции.
@@ -50,6 +55,7 @@ namespace Services.CitizensSimulation
             _jobService = jobService;
             _educationService = educationService;
             _populationService = populationService;
+            _random = new System.Random(); // ve1ce - коммерция
         }
 
         /// <summary>
@@ -100,6 +106,14 @@ namespace Services.CitizensSimulation
                         citizen.CurrentPath.Clear();
                     }
                     break;
+
+                case CitizenState.GoingToCommercial: // ve1ce - коммерция
+                    HandleGoingToCommercial(citizen, tick);
+                    break;
+
+                case CitizenState.UsingCommercialService:  // ve1ce - коммерция (сомневаюсь что это нужно)
+                    // Гражданин уже в здании, ничего не делаем - здание само обработает тик
+                    break;
             }
 
             _populationService.AgeCitizen(citizen);
@@ -108,11 +122,112 @@ namespace Services.CitizensSimulation
         /// <summary>
         /// Определяет следующую цель гражданина в зависимости от текущих условий.
         /// </summary>
-        /// <param name="citizen">Гражданин, для которого нужно определить действие.</param>
-        /// <param name="tick">Текущий тик симуляции.</param>
-        private void DecideNextAction(Citizen citizen, int tick)
+        private void DecideNextAction(Citizen citizen, int tick)// ve1ce - коммерция
         {
+            // Сбрасываем предыдущую цель когда решаем новое действие
+            citizen.CurrentPath.Clear();
 
+            // Случайное решение пойти в коммерческое здание (15% chance)
+            if (_random.Next(100) < 15)
+            {
+                var commercialBuildings = GetAvailableCommercialBuildings();
+                if (commercialBuildings.Any())
+                {
+                    var targetBuilding = commercialBuildings[_random.Next(commercialBuildings.Count)];
+
+                    // Получаем позицию здания из реестра
+                    var (placement, found) = _buildingRegistry.TryGetPlacement(targetBuilding as MapObject);
+                    if (found && placement.HasValue)
+                    {
+                        citizen.State = CitizenState.GoingToCommercial;
+
+                        // Центр здания
+                        var centerPosition = new Position(
+                            placement.Value.Position.X + placement.Value.Area.Width / 2,
+                            placement.Value.Position.Y + placement.Value.Area.Height / 2
+                        );
+                        citizen.TargetPosition = centerPosition;
+                        return;
+                    }
+                }
+            }
+
+            // Логика для других действий...
+        }
+
+        /// <summary>
+        /// Обрабатывает перемещение гражданина к коммерческому зданию.
+        /// </summary>
+        private void HandleGoingToCommercial(Citizen citizen, int tick) // ve1ce - коммерция
+        {
+            var targetBuildings = GetCommercialBuildingAtPosition(citizen.TargetPosition);
+
+            if (!targetBuildings.Any())
+            {
+                citizen.State = CitizenState.Idle;
+                citizen.CurrentPath.Clear();
+                return;
+            }
+
+            _movement.Move(citizen, citizen.TargetPosition, tick);
+
+            if (citizen.Position.Equals(citizen.TargetPosition))
+            {
+                var commercialBuildings = GetCommercialBuildingAtPosition(citizen.TargetPosition);
+                if (commercialBuildings.Any())
+                {
+                    var targetBuilding = commercialBuildings.First();
+                    targetBuilding.EnqueueCitizen(citizen);
+                    citizen.State = CitizenState.UsingCommercialService;
+                    citizen.CurrentPath.Clear();
+                }
+                else
+                {
+                    citizen.State = CitizenState.Idle;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Получает список доступных коммерческих зданий.
+        /// </summary>
+        private List<IServiceBuilding> GetAvailableCommercialBuildings() // ve1ce - коммерция
+        {
+            var allBuildings = _buildingRegistry.GetAllBuildings();
+            var commercialBuildings = new List<IServiceBuilding>();
+
+            foreach (var building in allBuildings)
+            {
+                if (building is IServiceBuilding serviceBuilding && serviceBuilding.CanAcceptMoreVisitors)
+                {
+                    commercialBuildings.Add(serviceBuilding);
+                }
+            }
+
+            return commercialBuildings;
+        }
+
+        /// <summary>
+        /// Получает коммерческие здания в указанной позиции.
+        /// </summary>
+        private List<IServiceBuilding> GetCommercialBuildingAtPosition(Position position) // ve1ce - коммерция
+        {
+            var allBuildings = _buildingRegistry.GetAllBuildings();
+            var commercialBuildings = new List<IServiceBuilding>();
+
+            foreach (var building in allBuildings)
+            {
+                if (building is IServiceBuilding serviceBuilding)
+                {
+                    var (placement, found) = _buildingRegistry.TryGetPlacement(building);
+                    if (found && placement.HasValue && placement.Value.Contains(position))
+                    {
+                        commercialBuildings.Add(serviceBuilding);
+                    }
+                }
+            }
+
+            return commercialBuildings;
         }
     }
 }

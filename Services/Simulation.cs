@@ -7,6 +7,8 @@ using Services.PlaceBuilding;
 using Services.SimulationClock;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Services
 {
@@ -28,6 +30,7 @@ namespace Services
         private readonly ISimulationClock _clock;
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
+        private readonly List<IServiceBuilding> _commercialBuildings = new List<IServiceBuilding>(); // ve1ce - коммерция
 
         /// <summary>
         /// Событие, вызываемое на каждом тике симуляции.
@@ -72,32 +75,40 @@ namespace Services
             // Подписка на тики часов симуляции
             _clock.TickOccurred += OnTick;
             _clock.TickOccurred += OnUtilityTick;
+            _clock.TickOccurred += OnCommercialBuildingsTick; // ve1ce - коммерция
             _clock.Start();
+
+            // Загружаем существующие коммерческие здания
+            LoadCommercialBuildings(); //ve1ce - коммерция
         }
 
-        /// <summary>
-        /// Обрабатывает событие тика от часов симуляции.
-        /// </summary>
-        private void OnTick(int tick)
+        // Добавить новый метод для обработки тиков коммерческих зданий
+        private void OnCommercialBuildingsTick(int tick) // ve1ce - коммерция
         {
-            TickOccurred?.Invoke(tick);
+            UpdateCommercialBuildings(tick);
+        }
+        // Добавить метод загрузки коммерческих зданий
+        private void LoadCommercialBuildings()
+        {
+            _commercialBuildings.Clear();
+            var allBuildings = _placementRepository.GetAll(); // Нужно проверить название метода
+
+            foreach (var building in allBuildings)
+            {
+                if (building is IServiceBuilding serviceBuilding)
+                {
+                    _commercialBuildings.Add(serviceBuilding);
+                }
+            }
         }
 
-        private void OnUtilityTick(int tick)
+        // Добавить метод обновления коммерческих зданий
+        private void UpdateCommercialBuildings(int tick) // ve1ce - коммерция
         {
-            var residentialBuildings = _placementRepository.GetAllResidentialBuildings().ToList();
-            _utilityService.SimulateUtilitiesBreakdown(tick, residentialBuildings);
-        }
-
-
-        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
-        {
-            return _utilityService.GetBrokenUtilities(building);
-        }
-
-        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType)
-        {
-            _utilityService.FixUtility(building, utilityType);
+            foreach (var building in _commercialBuildings)
+            {
+                building.Tick(tick);
+            }
         }
 
         /// <summary>
@@ -111,6 +122,13 @@ namespace Services
             if (_placementService.TryPlace(MapModel, mapObject, placement))
             {
                 _placementRepository.Register(mapObject, placement);
+
+                // ve1ce - автоматически добавляем коммерческие здания в список
+                if (mapObject is IServiceBuilding serviceBuilding)
+                {
+                    _commercialBuildings.Add(serviceBuilding);
+                }
+
                 MapObjectPlaced?.Invoke(mapObject);
                 return true;
             }
@@ -126,8 +144,58 @@ namespace Services
 
             if (!found || placement is null)
                 return false;
+            // ve1ce - удаляем из списка коммерческих зданий (начало того что вставил)
+            if (mapObject is IServiceBuilding serviceBuilding)
+            {
+                _commercialBuildings.Remove(serviceBuilding);
+            }
+            // ve1ce - (конец того что вставил)
 
-            return _placementService.TryRemove(MapModel, (Placement)placement);
+            bool removed = _placementService.TryRemove(MapModel, (Placement)placement);
+
+            // ve1ce - (начало того что вставил)
+            if (removed)
+            {
+                MapObjectRemoved?.Invoke(mapObject);
+            }
+
+            return removed;
+            // ve1ce - (конец того что вставил)
+
+            //return _placementService.TryRemove(MapModel, (Placement)placement); (было до меня)
+        }
+
+        // Добавить метод для получения статистики коммерческих зданий (опционально)
+        public (int totalBuildings, int totalVisitors, int availableBuildings) GetCommercialBuildingsStats() // ve1ce - коммерция
+        {
+            return (
+                _commercialBuildings.Count,
+                _commercialBuildings.Sum(b => b.CurrentVisitors),
+                _commercialBuildings.Count(b => b.CanAcceptMoreVisitors)
+            );
+        }
+        /// <summary>
+        /// Обрабатывает событие тика от часов симуляции.
+        /// </summary>
+        private void OnTick(int tick)
+        {
+            TickOccurred?.Invoke(tick);
+        }
+
+        private void OnUtilityTick(int tick)
+        {
+            var residentialBuildings = _placementRepository.GetAllResidentialBuildings().ToList();
+            _utilityService.SimulateUtilitiesBreakdown(tick, residentialBuildings);
+        }
+
+        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
+        {
+            return _utilityService.GetBrokenUtilities(building);
+        }
+
+        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType)
+        {
+            _utilityService.FixUtility(building, utilityType);
         }
 
 
