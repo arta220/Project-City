@@ -15,7 +15,6 @@ using Services.PathFind;
 using Services.PlaceBuilding;
 using Services.SimulationClock;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace CitySkylines_REMAKE
 {

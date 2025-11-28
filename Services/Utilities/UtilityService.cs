@@ -1,6 +1,9 @@
 ﻿using Domain.Buildings;
 using Domain.Enums;
 using Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Services.Utilities
 {
@@ -15,6 +18,19 @@ namespace Services.Utilities
         private readonly Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>> _brokenUtilities
             = new Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>>();
 
+        // Статистика по типам коммунальных систем
+        private readonly Dictionary<UtilityType, int> _totalBreakdowns
+            = Enum.GetValues(typeof(UtilityType))
+                  .Cast<UtilityType>()
+                  .ToDictionary(u => u, u => 0);
+
+        private readonly Dictionary<UtilityType, int> _totalRepairs
+            = Enum.GetValues(typeof(UtilityType))
+                  .Cast<UtilityType>()
+                  .ToDictionary(u => u, u => 0);
+
+        private readonly UtilityStatistics _statistics = new();
+
         /// <summary>
         /// Имитация поломок коммунальных систем для жилых домов
         /// </summary>
@@ -22,11 +38,10 @@ namespace Services.Utilities
         {
             foreach (var building in residentialBuildings)
             {
-                if (_random.Next(100) < 5) // 15% шанс для каждого здания
+                if (_random.Next(100) < 5) // 5% шанс поломки
                 {
                     var brokenUtility = (UtilityType)_random.Next(Enum.GetValues(typeof(UtilityType)).Length);
                     BreakUtility(building, brokenUtility, currentTick);
-
                     RecordBreakdown(brokenUtility);
                     UpdateStatistics(currentTick);
                 }
@@ -40,11 +55,10 @@ namespace Services.Utilities
         {
             building.Utilities.BreakUtility(utilityType);
 
-                if (!_brokenUtilities.ContainsKey(building))
-                    _brokenUtilities[building] = new Dictionary<UtilityType, int>();
+            if (!_brokenUtilities.ContainsKey(building))
+                _brokenUtilities[building] = new Dictionary<UtilityType, int>();
 
-                _brokenUtilities[building][utilityType] = currentTick;
-            }
+            _brokenUtilities[building][utilityType] = currentTick;
         }
 
         /// <summary>
@@ -54,19 +68,14 @@ namespace Services.Utilities
         {
             building.Utilities.FixUtility(utilityType);
 
-            if (_brokenUtilities.ContainsKey(building))
+            if (_brokenUtilities.TryGetValue(building, out var dict))
             {
-                residentialBuilding.FixUtility(utilityType);
-
-                if (_brokenUtilities.ContainsKey(building))
-                {
-                    _brokenUtilities[building].Remove(utilityType);
-                    if (!_brokenUtilities[building].Any())
-                        _brokenUtilities.Remove(building);
-                }
-
-                RecordRepair(utilityType);
+                dict.Remove(utilityType);
+                if (dict.Count == 0)
+                    _brokenUtilities.Remove(building);
             }
+
+            RecordRepair(utilityType);
         }
 
         /// <summary>
@@ -79,19 +88,11 @@ namespace Services.Utilities
                 : new Dictionary<UtilityType, int>();
         }
 
-        public void RecordBreakdown(UtilityType utilityType)
-        {
-            _totalBreakdowns[utilityType]++;
-        }
-
-        public void RecordRepair(UtilityType utilityType)
-        {
-            _totalRepairs[utilityType]++;
-        }
+        private void RecordBreakdown(UtilityType utilityType) => _totalBreakdowns[utilityType]++;
+        private void RecordRepair(UtilityType utilityType) => _totalRepairs[utilityType]++;
 
         private void UpdateStatistics(int currentTick)
         {
-            // Обновляем историю для каждого типа коммунальных услуг
             foreach (UtilityType utilityType in Enum.GetValues(typeof(UtilityType)))
             {
                 var dataPoint = new UtilityDataPoint(
@@ -100,7 +101,6 @@ namespace Services.Utilities
                     _totalRepairs[utilityType]
                 );
 
-                // Добавляем в соответствующую историю
                 switch (utilityType)
                 {
                     case UtilityType.Electricity:
@@ -118,14 +118,10 @@ namespace Services.Utilities
                 }
             }
 
-            // Также обновляем общую историю починок
             var totalRepairs = _totalRepairs.Values.Sum();
             _statistics.RepairHistory.Add(new UtilityDataPoint(currentTick, 0, totalRepairs));
         }
 
-        public UtilityStatistics GetStatistics()
-        {
-            return _statistics;
-        }
+        public UtilityStatistics GetStatistics() => _statistics;
     }
 }

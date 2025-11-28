@@ -8,7 +8,7 @@ namespace Domain.Buildings
     public class ResidentialBuilding : Building
     {
         /// <summary>
-        /// Ìåíåäæåð êîììóíàëüíûõ ñèñòåì òîëüêî äëÿ æèëîãî äîìà
+
         /// </summary>
         public UtilityManager Utilities { get; }
 

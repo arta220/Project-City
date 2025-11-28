@@ -49,7 +49,8 @@ namespace CitySimulatorWPF.ViewModels
         public MainVM(
             MapVM mapVM, 
             BuildingPanelViewModel buildingPanelVM,
-            HeaderPanelViewModel headerPanelVM)
+            HeaderPanelViewModel headerPanelVM,
+            GraphService graphService)
         {
             _graphService = graphService;
             MapVM = mapVM;
@@ -67,16 +68,6 @@ namespace CitySimulatorWPF.ViewModels
             {
                 MapVM.CurrentMode = MapInteractionMode.Remove;
             };
-        }
-
-        [RelayCommand]
-        private void ShowCharts()
-        {
-            // Теперь используем _graphService из DI
-            var chartsWindow = new ChartsWindow(
-                new ChartsWindowViewModel(_graphService));
-            chartsWindow.Owner = Application.Current.MainWindow;
-            chartsWindow.ShowDialog();
         }
     }
 }
