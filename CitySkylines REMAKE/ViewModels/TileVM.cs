@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Domain.Map;
 using Domain.Enums;
 using Domain.Base;
+using System.Windows.Threading;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -44,6 +45,10 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty]
         public int _y;
 
+        [ObservableProperty]
+        private bool _isBlinkingRed; // Smirnov
+        private DispatcherTimer _blinkTimer; // Smirnov
+
         /// <summary>
         /// Флаг, показывающий, является ли клетка превью для строительства.
         /// </summary>
@@ -67,16 +72,6 @@ namespace CitySimulatorWPF.ViewModels
         public bool CanBuild => !HasObject;
 
         /// <summary>
-        /// Тип местности клетки.
-        /// </summary>
-        public TerrainType TerrainType => TileModel.Terrain;
-
-        /// <summary>
-        /// Объект, размещённый на клетке (если есть).
-        /// </summary>
-        public MapObject MapObject => TileModel.MapObject;
-
-        /// <summary>
         /// Создаёт ViewModel для клетки карты.
         /// </summary>
         /// <param name="tileModel">Модель клетки</param>
@@ -86,13 +81,64 @@ namespace CitySimulatorWPF.ViewModels
             X = tileModel.Position.X;
             Y = tileModel.Position.Y;
 
-            // Подписка на изменения объекта, чтобы обновлять свойства UI
+            // ДОБАВЛЕНО: инициализация таймера мигания для ЖКХ
+            _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
+            _blinkTimer.Tick += (s, e) =>
+            {
+                if (IsBlinkingRed)
+                {
+                    OnPropertyChanged(nameof(IsBlinkingRed));
+                }
+            };
+            _blinkTimer.Start();
+
+            // Подписка на изменения объекта
             TileModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(TileModel.MapObject))
+                {
                     OnPropertyChanged(nameof(HasObject));
+                    UpdateBlinkingState();
+
+                    if (TileModel.MapObject is Domain.Base.Building building)
+                    {
+                        building.PropertyChanged += (sender, args) =>
+                        {
+                            if (args.PropertyName == nameof(building.HasBrokenUtilities))
+                            {
+                                UpdateBlinkingState();
+                            }
+                        };
+                    }
+                }
             };
+
+            UpdateBlinkingState(); // Начальное обновление состояния
         }
+
+        // Smirnov
+        public void UpdateBlinkingState()
+    {
+        // Проверяем что это именно жилой дом и у него есть поломки
+        if (TileModel.MapObject is Domain.Buildings.ResidentialBuilding residentialBuilding)
+        {
+            IsBlinkingRed = residentialBuilding.HasBrokenUtilities;
+        }
+        else
+        {
+            IsBlinkingRed = false;
+        }
+        OnPropertyChanged(nameof(IsBlinkingRed));
+    }
+        /// <summary>
+        /// Тип местности клетки.
+        /// </summary>
+        public TerrainType TerrainType => TileModel.Terrain;
+
+        /// <summary>
+        /// Объект, размещённый на клетке (если есть).
+        /// </summary>
+        public MapObject MapObject => TileModel.MapObject;
 
         /// <summary>
         /// Команда клика по клетке.
@@ -118,4 +164,5 @@ namespace CitySimulatorWPF.ViewModels
         [RelayCommand]
         public void TileEnter() => IsMouseOver = true;
     }
+
 }

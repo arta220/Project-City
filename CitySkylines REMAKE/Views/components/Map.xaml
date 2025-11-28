@@ -1,116 +1,126 @@
 ﻿<UserControl x:Class="CitySimulatorWPF.Views.components.Map"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:conv="clr-namespace:CitySimulatorWPF.Converters"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800">
 
     <UserControl.Resources>
-        <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter" />
+        <conv:BlinkingColorConverter x:Key="BlinkingColorConverter" />
+        <!-- конвертер для мигания -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
         <!-- Простой стиль для гражданина -->
-        <Style x:Key="CitizenStyle" TargetType="Ellipse">
-            <Setter Property="Width" Value="6"/>
-            <Setter Property="Height" Value="6"/>
-            <Setter Property="Fill" Value="Red"/>
-            <Setter Property="Stroke" Value="DarkRed"/>
-            <Setter Property="StrokeThickness" Value="1"/>
+        <Style x:Key="CitizenStyle"
+               TargetType="Ellipse">
+            <Setter Property="Width"
+                    Value="6" />
+            <Setter Property="Height"
+                    Value="6" />
+            <Setter Property="Fill"
+                    Value="Red" />
+            <Setter Property="Stroke"
+                    Value="DarkRed" />
+            <Setter Property="StrokeThickness"
+                    Value="1" />
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer 
-        x:Name="MapScrollViewer"
-        HorizontalScrollBarVisibility="Hidden"
-        VerticalScrollBarVisibility="Hidden"
-        PreviewMouseWheel="MapScrollViewer_PreviewMouseWheel"
-        MouseDown="MapScrollViewer_MouseDown"
-        MouseMove="MapScrollViewer_MouseMove"
-        MouseUp="MapScrollViewer_MouseUp"
-        Background="LightGray">
+    <ScrollViewer x:Name="MapScrollViewer"
+                  HorizontalScrollBarVisibility="Hidden"
+                  VerticalScrollBarVisibility="Hidden"
+                  PreviewMouseWheel="MapScrollViewer_PreviewMouseWheel"
+                  MouseDown="MapScrollViewer_MouseDown"
+                  MouseMove="MapScrollViewer_MouseMove"
+                  MouseUp="MapScrollViewer_MouseUp"
+                  Background="LightGray">
 
-        <Grid x:Name="MapGrid" 
-              Width="1000" 
-              Height="1000" 
+        <Grid x:Name="MapGrid"
+              Width="1000"
+              Height="1000"
               RenderTransformOrigin="0.5,0.5">
 
             <Grid.RenderTransform>
                 <TransformGroup>
-                    <ScaleTransform x:Name="ScaleTransform"/>
-                    <TranslateTransform x:Name="TranslateTransform"/>
+                    <ScaleTransform x:Name="ScaleTransform" />
+                    <TranslateTransform x:Name="TranslateTransform" />
                 </TransformGroup>
             </Grid.RenderTransform>
 
-            <Grid>
-                <!-- Слой тайлов -->
-                <ItemsControl ItemsSource="{Binding Tiles}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="{Binding Height}" Columns="{Binding Width}" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+            <!-- УДАЛЕНО: лишний Grid -->
+            <!-- Слой тайлов -->
+            <ItemsControl ItemsSource="{Binding Tiles}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="{Binding Height}"
+                                     Columns="{Binding Width}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Border Background="{Binding TerrainType, Converter={StaticResource TerrainTypeToBrushConverter}}"/>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <!-- УДАЛЕНО: лишний Rectangle с TerrainBrush -->
+                            <Border Background="{Binding TerrainType, Converter={StaticResource TerrainTypeToBrushConverter}}" />
 
-                                <Rectangle Fill="{Binding TerrainBrush}"/>
+                            <!-- Превью для строительства -->
+                            <Rectangle Fill="#8800FF00"
+                                       Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                                <Rectangle Fill="#8800FF00"
-                               Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <!-- Мигающий прямоугольник для ЖКХ -->
+                            <Rectangle Fill="{Binding IsBlinkingRed, Converter={StaticResource BlinkingColorConverter}}"
+                                       Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                                <Rectangle Fill="Gray"
-                               Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding TileMouseDownCommand}" />
+                                </i:EventTrigger>
 
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding TileMouseDownCommand}" />
-                                    </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeftButtonUp">
+                                    <i:InvokeCommandAction Command="{Binding TileClickCommand}" />
+                                </i:EventTrigger>
 
-                                    <i:EventTrigger EventName="MouseLeftButtonUp">
-                                        <i:InvokeCommandAction Command="{Binding TileClickCommand}" />
-                                    </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseEnter">
+                                    <i:InvokeCommandAction Command="{Binding TileEnterCommand}" />
+                                </i:EventTrigger>
 
-                                    <i:EventTrigger EventName="MouseEnter">
-                                        <i:InvokeCommandAction Command="{Binding TileEnterCommand}" />
-                                    </i:EventTrigger>
+                                <i:EventTrigger EventName="MouseLeave">
+                                    <i:InvokeCommandAction Command="{Binding TileLeaveCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-                                    <i:EventTrigger EventName="MouseLeave">
-                                        <i:InvokeCommandAction Command="{Binding TileLeaveCommand}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+            <!-- Слой граждан (ПОВЕРХ тайлов) -->
+            <ItemsControl ItemsSource="{Binding Citizens}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-                <!-- Слой граждан (ПОВЕРХ тайлов) -->
-                <ItemsControl ItemsSource="{Binding Citizens}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style>
+                        <Setter Property="Canvas.Left"
+                                Value="{Binding PixelX}" />
+                        <Setter Property="Canvas.Top"
+                                Value="{Binding PixelY}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
 
-                    <ItemsControl.ItemContainerStyle>
-                        <Style>
-                            <Setter Property="Canvas.Left" Value="{Binding PixelX}"/>
-                            <Setter Property="Canvas.Top" Value="{Binding PixelY}"/>
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Ellipse Style="{StaticResource CitizenStyle}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-            </Grid>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Style="{StaticResource CitizenStyle}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </Grid>
     </ScrollViewer>

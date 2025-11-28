@@ -1,4 +1,6 @@
 ﻿using Domain.Base;
+using Domain.Buildings;
+using Domain.Enums;
 using Domain.Map;
 using Services.Interfaces;
 using Services.PlaceBuilding;
@@ -25,6 +27,7 @@ namespace Services
         private readonly IMapObjectPlacementService _placementService;
         private readonly ISimulationClock _clock;
         private readonly PlacementRepository _placementRepository;
+        private readonly IUtilityService _utilityService;
 
         /// <summary>
         /// Событие, вызываемое на каждом тике симуляции.
@@ -62,15 +65,18 @@ namespace Services
             MapModel mapModel,
             IMapObjectPlacementService placementService,
             ISimulationClock clock,
-            PlacementRepository placementRepository)
+            PlacementRepository placementRepository,
+            IUtilityService utilityService)
         {
             MapModel = mapModel ?? throw new ArgumentNullException(nameof(mapModel));
             _placementService = placementService ?? throw new ArgumentNullException(nameof(placementService));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _placementRepository = placementRepository ?? throw new ArgumentNullException(nameof(placementRepository));
+            _utilityService = utilityService;
 
             // Подписка на тики часов симуляции
             _clock.TickOccurred += OnTick;
+            _clock.TickOccurred += OnUtilityTick;
             _clock.Start();
         }
 
@@ -80,6 +86,23 @@ namespace Services
         private void OnTick(int tick)
         {
             TickOccurred?.Invoke(tick);
+        }
+
+        private void OnUtilityTick(int tick)
+        {
+            // Получаем только жилые здания для симуляции ЖКХ
+            var residentialBuildings = MapObjects.OfType<ResidentialBuilding>().ToList();
+            _utilityService.SimulateUtilitiesBreakdown(tick, residentialBuildings.Cast<Building>().ToList());
+        }
+
+        public Dictionary<UtilityType, int> GetBrokenUtilities(Building building)
+        {
+            return _utilityService.GetBrokenUtilities(building);
+        }
+
+        public void FixBuildingUtility(Building building, UtilityType utilityType)
+        {
+            _utilityService.FixUtility(building, utilityType);
         }
 
         /// <summary>
@@ -127,6 +150,29 @@ namespace Services
         public bool CanPlace(MapObject mapObject, Placement placement)
         {
             return _placementService.CanPlace(MapModel, mapObject, placement);
+        }
+
+        // Smirnov *
+        public void RemoveBuilding(MapObject mapObject)
+        {
+            // Получаем размещение объекта
+            var placement = _placementRepository.GetPlacement(mapObject);
+
+            // Убираем объект со всех тайлов в области размещения
+            for (int x = placement.Position.X; x < placement.Position.X + placement.Area.Width; x++)
+            {
+                for (int y = placement.Position.Y; y < placement.Position.Y + placement.Area.Height; y++)
+                {
+                    if (x < MapModel.Width && y < MapModel.Height &&
+                        MapModel[x, y].MapObject == mapObject)
+                    {
+                        MapModel[x, y].MapObject = null;
+                    }
+                }
+            }
+
+            // Удаляем из репозитория
+            _placementRepository.Remove(mapObject);
         }
     }
 }

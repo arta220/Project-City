@@ -10,6 +10,8 @@ using Domain.Map;
 using Services;
 using Services.CitizensSimulation;
 using System.Collections.ObjectModel;
+using System.Windows;
+using Services.Interfaces;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -57,6 +59,7 @@ namespace CitySimulatorWPF.ViewModels
         private readonly IMapTileService _mapTileService;
         private readonly MessageService _messageService;
         private readonly CitizenSimulationService _citizenSimulation;
+        private readonly IUtilityService _utilityService;
 
         /// <summary>
         /// Коллекция тайлов карты для привязки к UI.
@@ -79,7 +82,8 @@ namespace CitySimulatorWPF.ViewModels
                      ICitizenManagerService citizenManager,
                      IMapTileService mapTileService,
                      MessageService messageService,
-                     CitizenSimulationService citizenSimulation)
+                     CitizenSimulationService citizenSimulation,
+                     IUtilityService utilityService)
         {
             _simulation = simulation;
             _roadService = roadService;
@@ -87,6 +91,7 @@ namespace CitySimulatorWPF.ViewModels
             _mapTileService = mapTileService;
             _messageService = messageService;
             _citizenSimulation = citizenSimulation;
+            _utilityService = utilityService;
 
             _citizenManager.StartSimulation(_citizenSimulation);
             _citizenSimulation.Start();
@@ -103,6 +108,7 @@ namespace CitySimulatorWPF.ViewModels
                 });
 
             CreateHumanAndHome();
+            _utilityService = utilityService;
         }
 
         /// <summary>
@@ -185,6 +191,44 @@ namespace CitySimulatorWPF.ViewModels
         {
             _citizenManager.StopSimulation();
             _citizenSimulation.Stop();
+        }
+
+        private void ShowRepairDialog(Domain.Base.Building building, TileVM tile)
+        {
+            // Получаем сломанные коммунальные услуги через сервис ЖКХ
+            var brokenUtilities = _utilityService.GetBrokenUtilities(building);
+
+            if (!brokenUtilities.Any())
+            {
+                _messageService.ShowMessage("Нет сломанных коммунальных услуг");
+                return;
+            }
+
+            // Показываем список поломок
+            string message = "Что починить?\n";
+            int i = 1;
+            var utilitiesList = brokenUtilities.Keys.ToList();
+
+            foreach (var utility in utilitiesList)
+            {
+                message += $"{i}. {utility} - сломано с тика {brokenUtilities[utility]}\n";
+                i++;
+            }
+
+            message += "\nВведите номер (или 0 для отмены):";
+
+            string input = Microsoft.VisualBasic.Interaction.InputBox(message, "Ремонт коммуналки", "0");
+
+            if (int.TryParse(input, out int choice) && choice > 0 && choice <= utilitiesList.Count)
+            {
+                var utilityToFix = utilitiesList[choice - 1];
+                _utilityService.FixUtility(building, utilityToFix);
+
+                // Обновляем визуальное состояние
+                tile.UpdateBlinkingState();
+
+                _messageService.ShowMessage($"{utilityToFix} отремонтирован!");
+            }
         }
     }
 }

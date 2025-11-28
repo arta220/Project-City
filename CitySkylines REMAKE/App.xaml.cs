@@ -40,6 +40,7 @@ namespace CitySkylines_REMAKE
             // Map и генератор
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
+            services.AddSingleton<Services.Interfaces.IUtilityService, Services.Utilities.UtilityService>();
 
             services.AddSingleton<MapModel>(sp =>
             {

@@ -1,46 +1,85 @@
+using Domain.Enums;
 using Domain.Map;
+using System.ComponentModel;
 
 namespace Domain.Base
 {
     /// <summary>
-    /// Базовый класс для всех типов зданий на карте.
+    /// Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РґР»СЏ РІСЃРµС… С‚РёРїРѕРІ Р·РґР°РЅРёР№ РЅР° РєР°СЂС‚Рµ.
     /// </summary>
     /// <remarks>
-    /// Наследуется от <see cref="MapObject"/> и добавляет свойства этажности и максимальной вместимости.
-    /// Может быть унаследован для жилых, коммерческих, промышленных зданий и других типов.
+    /// РќР°СЃР»РµРґСѓРµС‚СЃСЏ РѕС‚ <see cref="MapObject"/> Рё РґРѕР±Р°РІР»СЏРµС‚ СЃРІРѕР№СЃС‚РІР° СЌС‚Р°Р¶РЅРѕСЃС‚Рё Рё РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ РІРјРµСЃС‚РёРјРѕСЃС‚Рё.
+    /// РњРѕР¶РµС‚ Р±С‹С‚СЊ СѓРЅР°СЃР»РµРґРѕРІР°РЅ РґР»СЏ Р¶РёР»С‹С…, РєРѕРјРјРµСЂС‡РµСЃРєРёС…, РїСЂРѕРјС‹С€Р»РµРЅРЅС‹С… Р·РґР°РЅРёР№ Рё РґСЂСѓРіРёС… С‚РёРїРѕРІ.
     /// </remarks>
     public abstract class Building : MapObject
     {
+        public event PropertyChangedEventHandler PropertyChanged;
         /// <summary>
-        /// Количество этажей в здании.
+        /// РљРѕР»РёС‡РµСЃС‚РІРѕ СЌС‚Р°Р¶РµР№ РІ Р·РґР°РЅРёРё.
         /// </summary>
         /// <remarks>
-        /// Используется для расчёта вместимости, визуализации и других механик, связанных с этажностью.
+        /// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СЂР°СЃС‡С‘С‚Р° РІРјРµСЃС‚РёРјРѕСЃС‚Рё, РІРёР·СѓР°Р»РёР·Р°С†РёРё Рё РґСЂСѓРіРёС… РјРµС…Р°РЅРёРє, СЃРІСЏР·Р°РЅРЅС‹С… СЃ СЌС‚Р°Р¶РЅРѕСЃС‚СЊСЋ.
         /// </remarks>
         public int Floors { get; }
 
         /// <summary>
-        /// Максимальное количество граждан или объектов, которые могут находиться в здании одновременно.
+        /// РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РіСЂР°Р¶РґР°РЅ РёР»Рё РѕР±СЉРµРєС‚РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РЅР°С…РѕРґРёС‚СЊСЃСЏ РІ Р·РґР°РЅРёРё РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ.
         /// </summary>
         /// <remarks>
-        /// Можно использовать для определения плотности населения, рабочих мест, студентов и т.д.
+        /// РњРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РїР»РѕС‚РЅРѕСЃС‚Рё РЅР°СЃРµР»РµРЅРёСЏ, СЂР°Р±РѕС‡РёС… РјРµСЃС‚, СЃС‚СѓРґРµРЅС‚РѕРІ Рё С‚.Рґ.
         /// </remarks>
         public int MaxOccupancy { get; }
+        public Dictionary<UtilityType, bool> UtilityStates { get; private set; } // Smirnov
+        public bool HasBrokenUtilities => UtilityStates.Values.Contains(false); // Smirnov
 
         /// <summary>
-        /// Создаёт здание с указанным количеством этажей, максимальной вместимостью и занимаемой площадью.
+        /// РЎРѕР·РґР°С‘С‚ Р·РґР°РЅРёРµ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РєРѕР»РёС‡РµСЃС‚РІРѕРј СЌС‚Р°Р¶РµР№, РјР°РєСЃРёРјР°Р»СЊРЅРѕР№ РІРјРµСЃС‚РёРјРѕСЃС‚СЊСЋ Рё Р·Р°РЅРёРјР°РµРјРѕР№ РїР»РѕС‰Р°РґСЊСЋ.
         /// </summary>
-        /// <param name="floors">Количество этажей.</param>
-        /// <param name="maxOccupancy">Максимальная вместимость здания.</param>
-        /// <param name="area">Площадь, занимаемая зданием на карте.</param>
+        /// <param name="floors">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌС‚Р°Р¶РµР№.</param>
+        /// <param name="maxOccupancy">РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РІРјРµСЃС‚РёРјРѕСЃС‚СЊ Р·РґР°РЅРёСЏ.</param>
+        /// <param name="area">РџР»РѕС‰Р°РґСЊ, Р·Р°РЅРёРјР°РµРјР°СЏ Р·РґР°РЅРёРµРј РЅР° РєР°СЂС‚Рµ.</param>
         /// <remarks>
-        /// Для создания конкретного типа здания рекомендуется наследовать этот класс
-        /// и задавать специфические свойства, такие как тип здания или функции (жилое, коммерческое и т.д.).
+        /// Р”Р»СЏ СЃРѕР·РґР°РЅРёСЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ С‚РёРїР° Р·РґР°РЅРёСЏ СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ РЅР°СЃР»РµРґРѕРІР°С‚СЊ СЌС‚РѕС‚ РєР»Р°СЃСЃ
+        /// Рё Р·Р°РґР°РІР°С‚СЊ СЃРїРµС†РёС„РёС‡РµСЃРєРёРµ СЃРІРѕР№СЃС‚РІР°, С‚Р°РєРёРµ РєР°Рє С‚РёРї Р·РґР°РЅРёСЏ РёР»Рё С„СѓРЅРєС†РёРё (Р¶РёР»РѕРµ, РєРѕРјРјРµСЂС‡РµСЃРєРѕРµ Рё С‚.Рґ.).
         /// </remarks>
         protected Building(int floors, int maxOccupancy, Area area) : base(area)
         {
             Floors = floors;
             MaxOccupancy = maxOccupancy;
+            InitializeUtilities(); // Smirnov
         }
+
+        // Smirnov
+        private void InitializeUtilities()
+        {
+            UtilityStates = new Dictionary<UtilityType, bool>
+            {
+                [UtilityType.Electricity] = true,
+                [UtilityType.Water] = true,
+                [UtilityType.Gas] = true,
+                [UtilityType.Waste] = true
+            };
+        }
+
+        // Smirnov
+        public void BreakUtility(UtilityType utilityType) 
+        {
+            UtilityStates[utilityType] = false;
+            OnPropertyChanged(nameof(HasBrokenUtilities));
+        }
+        // Smirnov
+        public void FixUtility(UtilityType utilityType)
+        {
+            UtilityStates[utilityType] = true;
+            OnPropertyChanged(nameof(HasBrokenUtilities)); 
+        }
+
+        // Smirnov
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public bool IsUtilityWorking(UtilityType utilityType) => UtilityStates[utilityType]; // Smirnov
     }
 }
