@@ -56,6 +56,13 @@
                 Background="LightCoral"
                 Margin="0,0,10,0"
                 Padding="5,2"/>
+            
+            <Button Content="🔨Удалить"
+                    Command="{Binding SetRemoveModeCommand}"
+                    ToolTip="Удаление зданий"
+                    Background="#FFA07A"
+                    Margin="0,0,10,0"
+                    Padding="5,2"/>
 
             <Button Content="📦 Ресурсы" 
                 Command="{Binding ShowResourcesInfoCommand}"

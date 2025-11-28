@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using Services.Graphing;
 using CitySimulatorWPF.Views.dialogs;
+using CitySkylines_REMAKE.ViewModels;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -33,6 +34,8 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         public BuildingPanelViewModel BuildingPanelVM { get; }
 
+        public HeaderPanelViewModel HeaderPanelVM { get; }
+
         /// <summary>
         /// ViewModel карты города.
         /// </summary>
@@ -43,11 +46,15 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         /// <param name="mapVM">ViewModel карты города.</param>
         /// <param name="buildingPanelVM">ViewModel панели строительства.</param>
-        public MainVM(MapVM mapVM, BuildingPanelViewModel buildingPanelVM, GraphService graphService)
+        public MainVM(
+            MapVM mapVM, 
+            BuildingPanelViewModel buildingPanelVM,
+            HeaderPanelViewModel headerPanelVM)
         {
             _graphService = graphService;
             MapVM = mapVM;
             BuildingPanelVM = buildingPanelVM;
+            HeaderPanelVM = headerPanelVM;
 
             // Подписка на событие выбора здания в панели
             BuildingPanelVM.BuildingSelected += building =>
@@ -56,16 +63,9 @@ namespace CitySimulatorWPF.ViewModels
                 MapVM.CurrentMode = MapInteractionMode.Build;
             };
 
-            BuildingPanelVM.RemoveModeChanged += (isActive) =>
+            HeaderPanelVM.RemoveModeOn += () =>
             {
-                if (isActive)
-                {
-                    MapVM.CurrentMode = MapInteractionMode.Remove;
-                }
-                else
-                {
-                    MapVM.CurrentMode = MapInteractionMode.None;
-                }
+                MapVM.CurrentMode = MapInteractionMode.Remove;
             };
         }
 
