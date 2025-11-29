@@ -1,4 +1,4 @@
-﻿namespace Services.SimulationClock
+﻿namespace Services.Time.Clock
 {
     public interface ISimulationClock
     {
@@ -8,5 +8,4 @@
         void Stop();
         void Update();
     }
-
 }

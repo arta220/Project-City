@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Base;
 using Domain.Buildings;
+using Domain.Buildings.EducationBuildings;
 using Domain.Citizens.States;
+using Domain.Enums;
 using Domain.Map;
-using System.Collections.Generic;
 
 namespace Domain.Citizens
 {
@@ -19,12 +21,14 @@ namespace Domain.Citizens
         /// <summary>
         /// Уровень образования жителя.
         /// </summary>
-        public EducationLevel Education { get; set; }
+        public EducationType EducationLevel { get; set; }
+        public EducationBuilding StudyPlace { get; set; }
 
         /// <summary>
         /// Текущая работа жителя.
         /// </summary>
         public Job CurrentJob { get; set; }
+        public Building WorkPlace { get; set; }
 
         /// <summary>
         /// Текущая позиция жителя на карте.
