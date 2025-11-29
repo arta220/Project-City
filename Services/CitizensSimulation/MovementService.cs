@@ -2,6 +2,7 @@
 using Domain.Citizens;
 using Domain.Map;
 using Services.PathFind;
+using Domain.Time;
 
 namespace Services.CitizensSimulation
 {
@@ -37,7 +38,7 @@ namespace Services.CitizensSimulation
         /// <param name="citizen">Гражданин, которого нужно переместить.</param>
         /// <param name="position">Целевая позиция.</param>
         /// <param name="tick">Номер текущего тика симуляции.</param>
-        public void Move(Citizen citizen, Position position, int tick)
+        public void Move(Citizen citizen, Position position, SimulationTime time)
         {
             if (citizen.CurrentPath.Count == 0 || citizen.TargetPosition != position)
             {

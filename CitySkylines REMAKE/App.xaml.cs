@@ -13,7 +13,8 @@ using Services.MapGenerator;
 using Services.NavigationMap;
 using Services.PathFind;
 using Services.PlaceBuilding;
-using Services.SimulationClock;
+using Services.Time;
+using Services.Time.Clock;
 using System.Windows;
 
 namespace CitySkylines_REMAKE
@@ -68,6 +69,7 @@ namespace CitySkylines_REMAKE
 
             // Симуляция и часы
             services.AddSingleton<ISimulationClock, SimulationClock>();
+            services.AddSingleton<ISimulationTimeService, SimulationTimeService>();
             services.AddSingleton<Simulation>();
 
             // Размещение объектов на карте

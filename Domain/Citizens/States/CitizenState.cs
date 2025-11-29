@@ -15,6 +15,10 @@
 
         // Дом
         GoingHome,
-        SearchingHome
+        SearchingHome,
+
+        // Поход в коммерческие здания
+        GoingToCommercial,
+        UsingCommercialService
     }
 }

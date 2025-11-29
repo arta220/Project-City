@@ -1,10 +1,11 @@
 ﻿using Domain.Citizens;
+using Domain.Time;
 
 namespace Services.Interfaces
 {
     public interface IPopulationService
     {
-        void TryReproduce(Citizen mom, Citizen dad);
-        void AgeCitizen(Citizen citizen);
+        void ProcessDemography(List<Citizen> citizens, SimulationTime time,
+            Action<Citizen> onCitizenBorn, Action<Citizen> onCitizenDied);
     }
 }

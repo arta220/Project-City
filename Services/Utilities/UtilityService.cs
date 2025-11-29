@@ -1,5 +1,7 @@
 ﻿using Domain.Buildings;
 using Domain.Enums;
+using Domain.Time;
+using Services.BuildingRegistry;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -7,18 +9,14 @@ using System.Linq;
 
 namespace Services.Utilities
 {
-    /// <summary>
-    /// Сервис имитации поломок коммунальных систем только в жилых домах.
-    /// </summary>
     public class UtilityService : IUtilityService
     {
         private readonly Random _random = new Random();
+        private readonly IBuildingRegistry _buildingRegistry;
 
-        // Хранит сломанные коммунальные системы и тик поломки для каждого жилого дома
         private readonly Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>> _brokenUtilities
             = new Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>>();
 
-        // Статистика по типам коммунальных систем
         private readonly Dictionary<UtilityType, int> _totalBreakdowns
             = Enum.GetValues(typeof(UtilityType))
                   .Cast<UtilityType>()
@@ -31,26 +29,27 @@ namespace Services.Utilities
 
         private readonly UtilityStatistics _statistics = new();
 
-        /// <summary>
-        /// Имитация поломок коммунальных систем для жилых домов
-        /// </summary>
-        public void SimulateUtilitiesBreakdown(int currentTick, List<ResidentialBuilding> residentialBuildings)
+        public UtilityService(IBuildingRegistry buildingRegistry)
         {
+            _buildingRegistry = buildingRegistry;
+        }
+
+        public void Update(SimulationTime time)
+        {
+            var residentialBuildings = _buildingRegistry.GetBuildings<ResidentialBuilding>().ToList();
+
             foreach (var building in residentialBuildings)
             {
                 if (_random.Next(100) < 5) // 5% шанс поломки
                 {
                     var brokenUtility = (UtilityType)_random.Next(Enum.GetValues(typeof(UtilityType)).Length);
-                    BreakUtility(building, brokenUtility, currentTick);
+                    BreakUtility(building, brokenUtility, time.TotalTicks);
                     RecordBreakdown(brokenUtility);
-                    UpdateStatistics(currentTick);
+                    UpdateStatistics(time.TotalTicks);
                 }
             }
         }
 
-        /// <summary>
-        /// Помечает систему как сломанную и сохраняет тик поломки
-        /// </summary>
         private void BreakUtility(ResidentialBuilding building, UtilityType utilityType, int currentTick)
         {
             building.Utilities.BreakUtility(utilityType);
@@ -61,9 +60,6 @@ namespace Services.Utilities
             _brokenUtilities[building][utilityType] = currentTick;
         }
 
-        /// <summary>
-        /// Чинит указанную систему в жилом доме
-        /// </summary>
         public void FixUtility(ResidentialBuilding building, UtilityType utilityType)
         {
             building.Utilities.FixUtility(utilityType);
@@ -78,9 +74,6 @@ namespace Services.Utilities
             RecordRepair(utilityType);
         }
 
-        /// <summary>
-        /// Возвращает словарь сломанных систем с тиком поломки
-        /// </summary>
         public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
         {
             return _brokenUtilities.ContainsKey(building)

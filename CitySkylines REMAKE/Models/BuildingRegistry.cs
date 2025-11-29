@@ -40,8 +40,13 @@ namespace CitySimulatorWPF.Models
                 "Assets/Icons/Apartment.png"
             ));
 
-            // Коммерческие
             var commercial = new BuildingCategory { Name = "Коммерческие" };
+            // Коммерческие
+            commercial.Objects.Add(new ObjectVM(
+                new PharmacyFactory(),
+                "Аптека",
+                "Assets/Icons/Pharmacy.png"
+            ));
 
             commercial.Objects.Add(new ObjectVM(
                 new ShopFactory(),
@@ -50,9 +55,27 @@ namespace CitySimulatorWPF.Models
             ));
 
             commercial.Objects.Add(new ObjectVM(
-                new OfficeFactory(),
-                "Офис",
-                "Assets/Icons/Office.png"
+                new SupermarketFactory(),
+                "Супермаркет",
+                "Assets/Icons/Supermarket.png"
+            ));
+
+            commercial.Objects.Add(new ObjectVM(
+                new CafeFactory(),
+                "Кафе",
+                "Assets/Icons/Cafe.png"
+            ));
+
+            commercial.Objects.Add(new ObjectVM(
+                new RestaurantFactory(),
+                "Ресторан",
+                "Assets/Icons/Restaurant.png"
+            ));
+
+            commercial.Objects.Add(new ObjectVM(
+                new GasStationFactory(),
+                "Заправка",
+                "Assets/Icons/GasStation.png"
             ));
 
             // Промышленные
