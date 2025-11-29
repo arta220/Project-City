@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Factories;
 using Domain.Infrastructure;
 using Domain.Map;
+using Domain.Transports.Water;
 
 namespace Domain.Factories
 {
@@ -28,24 +29,40 @@ namespace Domain.Factories
             );
     }
 
+    public class PharmacyFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Pharmacy(area: new Area(1, 1));
+    }
+
     public class ShopFactory : IMapObjectFactory
     {
         public MapObject Create() =>
-            new CommercialBuilding(
-                floors: 1,
-                maxOccupancy: 50,
-                area: new Area(3, 2)
-            );
+            new Shop(area: new Area(2, 2));
     }
 
-    public class OfficeFactory : IMapObjectFactory
+    public class SupermarketFactory : IMapObjectFactory
     {
         public MapObject Create() =>
-            new CommercialBuilding(
-                floors: 3,
-                maxOccupancy: 50,
-                area: new Area(3, 3)
-            );
+            new Supermarket(area: new Area(3, 3));
+    }
+
+    public class CafeFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Cafe(area: new Area(2, 2));
+    }
+
+    public class RestaurantFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Restaurant(area: new Area(3, 3));
+    }
+
+    public class GasStationFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new GasStation(area: new Area(2, 2));
     }
 
     public class FactoryBuildingFactory : IMapObjectFactory

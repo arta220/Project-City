@@ -110,6 +110,14 @@ namespace Services.CitizensSimulation
                         citizen.CurrentPath.Clear();
                     }
                     break;
+
+                case CitizenState.GoingToCommercial: // ve1ce - коммерция
+                    HandleGoingToCommercial(citizen, tick);
+                    break;
+
+                case CitizenState.UsingCommercialService:  // ve1ce - коммерция (сомневаюсь что это нужно)
+                    // Гражданин уже в здании, ничего не делаем - здание само обработает тик
+                    break;
             }
         }
 
