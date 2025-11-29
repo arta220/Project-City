@@ -97,7 +97,6 @@ namespace CitySimulatorWPF.ViewModels
             _pathService = pathService;
 
             _citizenManager.StartSimulation(_citizenSimulation);
-            _citizenSimulation.Start();
 
             _mapTileService.InitializeTiles(
                 _simulation.MapModel,
@@ -127,8 +126,8 @@ namespace CitySimulatorWPF.ViewModels
             var citizen = new Citizen
             {
                 Home = home,
-                Position = new Position(0, 0),
-                State = CitizenState.GoingHome
+                Position = new Position(15, 19),
+                State = CitizenState.Idle
             };
 
             _citizenSimulation.AddCitizen(citizen);
@@ -207,15 +206,6 @@ namespace CitySimulatorWPF.ViewModels
             {
                 // Возможные действия по клику, когда режим не выбран
             }
-        }
-
-        /// <summary>
-        /// Очищает ресурсы и останавливает симуляцию жителей.
-        /// </summary>
-        public void Cleanup()
-        {
-            _citizenManager.StopSimulation();
-            _citizenSimulation.Stop();
         }
 
         private void ShowRepairDialog(ResidentialBuilding building, TileVM tile)

@@ -1,12 +1,11 @@
-﻿using Domain.Base;
-using Domain.Buildings;
+﻿using Domain.Buildings.EducationBuildings;
 using Domain.Citizens;
 using Domain.Citizens.States;
 using Domain.Map;
+using Domain.Time;
 using Services.BuildingRegistry;
 using Services.Interfaces;
-using System.Collections.Generic; 
-using System.Linq;
+using Services.Time;
 
 namespace Services.CitizensSimulation
 {
@@ -32,30 +31,20 @@ namespace Services.CitizensSimulation
         private readonly ICitizenMovementService _movement;
         private readonly IJobService _jobService;
         private readonly IEducationService _educationService;
-        private readonly IPopulationService _populationService;
-        private readonly System.Random _random; // ve1ce - коммерция
+        private readonly ISimulationTimeService _timeService;
 
-        /// <summary>
-        /// Создаёт контроллер граждан с зависимостями на сервисы симуляции.
-        /// </summary>
-        /// <param name="buildingRegistry">Сервис для получения размещений зданий.</param>
-        /// <param name="movementService">Сервис перемещения граждан по карте.</param>
-        /// <param name="jobService">Сервис для обновления работы граждан.</param>
-        /// <param name="educationService">Сервис для обновления обучения граждан.</param>
-        /// <param name="populationService">Сервис для управления возрастом и демографией граждан.</param>
         public CitizenController(
-              IBuildingRegistry buildingRegistry,
-              ICitizenMovementService movementService,
-              IJobService jobService,
-              IEducationService educationService,
-              IPopulationService populationService)
+            IBuildingRegistry buildingRegistry,
+            ICitizenMovementService movementService,
+            IJobService jobService,
+            IEducationService educationService,
+            ISimulationTimeService timeService)
         {
             _buildingRegistry = buildingRegistry;
             _movement = movementService;
             _jobService = jobService;
             _educationService = educationService;
-            _populationService = populationService;
-            _random = new System.Random(); // ve1ce - коммерция
+            _timeService = timeService;
         }
 
         /// <summary>
@@ -63,42 +52,57 @@ namespace Services.CitizensSimulation
         /// </summary>
         /// <param name="citizen">Гражданин, состояние которого необходимо обновить.</param>
         /// <param name="tick">Текущий тик симуляции.</param>
-        public void UpdateCitizen(Citizen citizen, int tick)
+        public void UpdateCitizen(Citizen citizen, SimulationTime time)
         {
+            Placement? placement;
+            bool found;
+            Position pos;
+
             switch (citizen.State)
             {
+
                 case CitizenState.Idle:
-                    DecideNextAction(citizen, tick);
+                    DecideNextAction(citizen);
                     break;
 
                 case CitizenState.GoingToWork:
-                    _movement.Move(citizen, new Position(0, 0), tick); // Пока нет реализации работы жителя
+                    _movement.Move(citizen, new Position(0, 0), time); // Пока нет реализации работы жителя
                     break;
 
                 case CitizenState.Working:
-                    _jobService.UpdateWork(citizen, tick);
+                    _jobService.UpdateWork(citizen, time);
                     break;
 
                 case CitizenState.GoingToSchool:
-                    _movement.Move(citizen, new Position(0, 0), tick); // Пока нет реализации учёбы
-                    break;
-
-                case CitizenState.Studying:
-                    _educationService.UpdateEducation(citizen, tick);
-                    break;
-
-                case CitizenState.GoingHome:
-                    var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.Home);
+                    (placement, found) = _buildingRegistry.TryGetPlacement(citizen.StudyPlace);
 
                     if (!found || placement is null)
                     {
-                        citizen.State = CitizenState.SearchingHome; // ну если дом удалили надо типа найти новый
+                        citizen.State = CitizenState.Idle;
                         break;
                     }
 
-                    Position pos = ((Placement)placement).Position;
+                    pos = placement.Value.Position;
 
-                    _movement.Move(citizen, pos, tick);
+                    _movement.Move(citizen, pos, time);
+                    break;
+
+                case CitizenState.Studying:
+                    _educationService.UpdateEducation(citizen, time);
+                    break;
+
+                case CitizenState.GoingHome:
+                    (placement, found) = _buildingRegistry.TryGetPlacement(citizen.Home);
+
+                    if (!found || placement is null)
+                    {
+                        citizen.State = CitizenState.Idle;
+                        break;
+                    }
+
+                    pos = placement.Value.Position;
+
+                    _movement.Move(citizen, pos, time);
 
                     if (citizen.Position.Equals(pos))
                     {
@@ -115,119 +119,106 @@ namespace Services.CitizensSimulation
                     // Гражданин уже в здании, ничего не делаем - здание само обработает тик
                     break;
             }
-
-            _populationService.AgeCitizen(citizen);
         }
 
         /// <summary>
         /// Определяет следующую цель гражданина в зависимости от текущих условий.
         /// </summary>
-        private void DecideNextAction(Citizen citizen, int tick)// ve1ce - коммерция
+        /// <param name="citizen">Гражданин, для которого нужно определить действие.</param>
+        /// <param name="tick">Текущий тик симуляции.</param>
+        private void DecideNextAction(Citizen citizen)
         {
-            // Сбрасываем предыдущую цель когда решаем новое действие
-            citizen.CurrentPath.Clear();
-
-            // Случайное решение пойти в коммерческое здание (15% chance)
-            if (_random.Next(100) < 15)
+            if (!(_buildingRegistry.TryGetPlacement(citizen.Home)).found)
             {
-                var commercialBuildings = GetAvailableCommercialBuildings();
-                if (commercialBuildings.Any())
-                {
-                    var targetBuilding = commercialBuildings[_random.Next(commercialBuildings.Count)];
-
-                    // Получаем позицию здания из реестра
-                    var (placement, found) = _buildingRegistry.TryGetPlacement(targetBuilding as MapObject);
-                    if (found && placement.HasValue)
-                    {
-                        citizen.State = CitizenState.GoingToCommercial;
-
-                        // Центр здания
-                        var centerPosition = new Position(
-                            placement.Value.Position.X + placement.Value.Area.Width / 2,
-                            placement.Value.Position.Y + placement.Value.Area.Height / 2
-                        );
-                        citizen.TargetPosition = centerPosition;
-                        return;
-                    }
-                }
-            }
-
-            // Логика для других действий...
-        }
-
-        /// <summary>
-        /// Обрабатывает перемещение гражданина к коммерческому зданию.
-        /// </summary>
-        private void HandleGoingToCommercial(Citizen citizen, int tick) // ve1ce - коммерция
-        {
-            var targetBuildings = GetCommercialBuildingAtPosition(citizen.TargetPosition);
-
-            if (!targetBuildings.Any())
-            {
-                citizen.State = CitizenState.Idle;
-                citizen.CurrentPath.Clear();
+                citizen.State = CitizenState.SearchingHome;
                 return;
             }
 
-            _movement.Move(citizen, citizen.TargetPosition, tick);
+            var timeOfDay = _timeService.GetTimeOfDay();
+            var isWeekend = _timeService.IsWeekend();
+            var isAtHome = IsAtHome(citizen);
 
-            if (citizen.Position.Equals(citizen.TargetPosition))
+            if (!isAtHome && (timeOfDay == TimeOfDay.Evening || _timeService.IsNightTime()))
             {
-                var commercialBuildings = GetCommercialBuildingAtPosition(citizen.TargetPosition);
-                if (commercialBuildings.Any())
+                citizen.State = CitizenState.GoingHome;
+                return;
+            }
+
+            if (timeOfDay == TimeOfDay.Morning && !isWeekend && isAtHome)
+            {
+                if (NeedsEducation(citizen) && !IsAtSchool(citizen))
                 {
-                    var targetBuilding = commercialBuildings.First();
-                    targetBuilding.EnqueueCitizen(citizen);
-                    citizen.State = CitizenState.UsingCommercialService;
-                    citizen.CurrentPath.Clear();
+                    citizen.State = CitizenState.GoingToSchool;
+                    return;
                 }
-                else
+                else if (HasJob(citizen) && !IsAtWork(citizen))
                 {
-                    citizen.State = CitizenState.Idle;
+                    citizen.State = CitizenState.GoingToWork;
+                    return;
                 }
+            }
+
+            if ((citizen.State == CitizenState.Working || citizen.State == CitizenState.Studying) &&
+                timeOfDay == TimeOfDay.Evening && !isAtHome)
+            {
+                citizen.State = CitizenState.GoingHome;
+                return;
+            }
+
+            if (citizen.State == CitizenState.GoingToWork && IsAtWork(citizen))
+            {
+                citizen.State = CitizenState.Working;
+                return;
+            }
+
+            if (citizen.State == CitizenState.GoingToSchool && IsAtSchool(citizen))
+            {
+                citizen.State = CitizenState.Studying;
+                return;
+            }
+
+            if (isAtHome)
+            {
+                citizen.State = CitizenState.Idle;
+                return;
             }
         }
 
-        /// <summary>
-        /// Получает список доступных коммерческих зданий.
-        /// </summary>
-        private List<IServiceBuilding> GetAvailableCommercialBuildings() // ve1ce - коммерция
+        private bool IsAtHome(Citizen citizen)
         {
-            var allBuildings = _buildingRegistry.GetAllBuildings();
-            var commercialBuildings = new List<IServiceBuilding>();
+            var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.Home);
 
-            foreach (var building in allBuildings)
-            {
-                if (building is IServiceBuilding serviceBuilding && serviceBuilding.CanAcceptMoreVisitors)
-                {
-                    commercialBuildings.Add(serviceBuilding);
-                }
-            }
+            if (!found || placement == null)
+                return false;
 
-            return commercialBuildings;
+            Position pos = ((Placement)placement).Position;
+
+            return citizen.Position.Equals(pos);
         }
 
-        /// <summary>
-        /// Получает коммерческие здания в указанной позиции.
-        /// </summary>
-        private List<IServiceBuilding> GetCommercialBuildingAtPosition(Position position) // ve1ce - коммерция
+        private bool IsAtWork(Citizen citizen)
         {
-            var allBuildings = _buildingRegistry.GetAllBuildings();
-            var commercialBuildings = new List<IServiceBuilding>();
+            var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.WorkPlace);
+            if (!found || placement == null)
+                return false;
 
-            foreach (var building in allBuildings)
-            {
-                if (building is IServiceBuilding serviceBuilding)
-                {
-                    var (placement, found) = _buildingRegistry.TryGetPlacement(building);
-                    if (found && placement.HasValue && placement.Value.Contains(position))
-                    {
-                        commercialBuildings.Add(serviceBuilding);
-                    }
-                }
-            }
+            Position pos = ((Placement)placement).Position;
 
-            return commercialBuildings;
+            return citizen.Position.Equals(pos);
         }
+
+        private bool IsAtSchool(Citizen citizen)
+        {
+            var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.StudyPlace);
+            if (!found || placement == null)
+                return false;
+
+            Position pos = ((Placement)placement).Position;
+
+            return citizen.Position.Equals(pos);
+        }
+
+        private bool HasJob(Citizen citizen) => citizen.WorkPlace != null;
+        private bool NeedsEducation(Citizen citizen) => citizen.StudyPlace != null;
     }
 }
