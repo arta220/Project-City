@@ -55,6 +55,9 @@ namespace Services.CitizensSimulation
             {
                 var selectedSchool = availableSchools.First();
                 selectedSchool.AddStudent(citizen);
+
+                citizen.StudyPlace.RemoveStudent(citizen);
+
                 citizen.StudyPlace = selectedSchool;
             }
         }

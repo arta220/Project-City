@@ -17,8 +17,10 @@
         GoingHome,
         SearchingHome,
 
-        // Поход в коммерческие здания
+        // Коммерческие состояния
         GoingToCommercial,
-        UsingCommercialService
+        WaitingInCommercialQueue,
+        UsingCommercialService,
+        LeavingCommercial
     }
 }

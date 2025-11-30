@@ -1,24 +1,20 @@
 using Domain.Base;
-using Domain.Citizens;
-using Domain.Citizens.States;
 using Domain.Enums;
 using Domain.Map;
-using System.Collections.Generic;
 
 namespace Domain.Buildings
 {
     public abstract class CommercialBuilding : Building, IServiceBuilding
     {
-        protected Queue<Citizen> visitorQueue = new Queue<Citizen>();
-        protected Dictionary<Citizen, int> citizensInService = new Dictionary<Citizen, int>();
-
         public int ServiceTimeInTicks { get; protected set; }
         public int MaxQueueLength { get; protected set; }
         public int WorkerCount { get; protected set; }
         public abstract CommercialType CommercialType { get; }
 
-        public int CurrentVisitors => citizensInService.Count;
-        public bool CanAcceptMoreVisitors => CurrentVisitors < MaxOccupancy && visitorQueue.Count < MaxQueueLength;
+        public int CurrentVisitors { get; private set; }
+        public int CurrentQueue { get; private set; }
+
+        public bool CanAcceptMoreVisitors => CurrentVisitors < MaxOccupancy && CurrentQueue < MaxQueueLength;
 
         protected CommercialBuilding(Area area, int serviceTime, int maxQueue, int workerCount)
             : base(1, CalculateMaxOccupancy(workerCount), area)
@@ -30,42 +26,47 @@ namespace Domain.Buildings
 
         private static int CalculateMaxOccupancy(int workerCount)
         {
-            // Везде 3 посетителя на работника
             return workerCount * 3;
         }
 
-        public virtual void EnqueueCitizen(Citizen citizen)
+        public bool TryEnter()
         {
-            if (CanAcceptMoreVisitors)
+            if (CurrentVisitors < MaxOccupancy)
             {
-                visitorQueue.Enqueue(citizen);
+                CurrentVisitors++;
+                return true;
             }
+            return false;
         }
 
-        public virtual void Tick(int currentTick)
+        public void Leave()
         {
-            // Обработка завершения обслуживания
-            var completedCitizens = new List<Citizen>();
-            foreach (var kvp in citizensInService)
-            {
-                if (currentTick >= kvp.Value)
-                {
-                    completedCitizens.Add(kvp.Key);
-                }
-            }
+            if (CurrentVisitors > 0)
+                CurrentVisitors--;
+        }
 
-            foreach (var citizen in completedCitizens)
+        public bool TryJoinQueue()
+        {
+            if (CurrentQueue < MaxQueueLength)
             {
-                citizensInService.Remove(citizen);
-                citizen.State = CitizenState.Idle;
+                CurrentQueue++;
+                return true;
             }
+            return false;
+        }
 
-            // Добавление новых граждан из очереди
-            while (visitorQueue.Count > 0 && citizensInService.Count < MaxOccupancy)
+        public void LeaveQueue()
+        {
+            if (CurrentQueue > 0)
+                CurrentQueue--;
+        }
+
+        public void ProcessQueue()
+        {
+            while (CurrentQueue > 0 && CurrentVisitors < MaxOccupancy)
             {
-                var citizen = visitorQueue.Dequeue();
-                int completionTick = currentTick + ServiceTimeInTicks;
-                citizensInService[citizen] = completionTick;
+                CurrentQueue--;
+                CurrentVisitors++;
             }
         }
     }

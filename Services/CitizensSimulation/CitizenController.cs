@@ -1,5 +1,4 @@
-﻿using Domain.Buildings.EducationBuildings;
-using Domain.Citizens;
+﻿using Domain.Citizens;
 using Domain.Citizens.States;
 using Domain.Map;
 using Domain.Time;
@@ -111,12 +110,19 @@ namespace Services.CitizensSimulation
                     }
                     break;
 
-                case CitizenState.GoingToCommercial: // ve1ce - коммерция
-                    HandleGoingToCommercial(citizen, tick);
+
+                /// КОММЕРЧЕСКИЕ ЗДАНИЯ
+                /// 
+                case CitizenState.WaitingInCommercialQueue:
+                    HandleWaitingInCommercialQueue(citizen, time);
                     break;
 
-                case CitizenState.UsingCommercialService:  // ve1ce - коммерция (сомневаюсь что это нужно)
-                    // Гражданин уже в здании, ничего не делаем - здание само обработает тик
+                case CitizenState.UsingCommercialService:
+                    HandleUsingCommercialService(citizen, time);
+                    break;
+
+                case CitizenState.LeavingCommercial:
+                    HandleLeavingCommercial(citizen, time);
                     break;
             }
         }

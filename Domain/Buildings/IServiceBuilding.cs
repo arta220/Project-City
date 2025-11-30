@@ -1,15 +1,21 @@
-﻿using Domain.Citizens;
+﻿using Domain.Enums;
 using Domain.Map;
-using Domain.Enums;
 
 namespace Domain.Buildings
 {
     public interface IServiceBuilding
     {
-        void EnqueueCitizen(Citizen citizen);
-        void Tick(int currentTick);
+        bool TryEnter();
+        void Leave();
+        bool TryJoinQueue();
+        void LeaveQueue();
+        void ProcessQueue();
         int CurrentVisitors { get; }
+        int CurrentQueue { get; }
         bool CanAcceptMoreVisitors { get; }
         CommercialType CommercialType { get; }
+        int ServiceTimeInTicks { get; }
+        int MaxOccupancy { get; }
+        int MaxQueueLength { get; }
     }
 }
