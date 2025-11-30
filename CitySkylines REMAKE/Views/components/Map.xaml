@@ -28,6 +28,21 @@
             <Setter Property="StrokeThickness"
                     Value="1" />
         </Style>
+
+        <!-- Стиль для автомобиля -->
+        <Style x:Key="CarStyle"
+               TargetType="Rectangle">
+            <Setter Property="Width"
+                    Value="8" />
+            <Setter Property="Height"
+                    Value="4" />
+            <Setter Property="Fill"
+                    Value="Blue" />
+            <Setter Property="Stroke"
+                    Value="DarkBlue" />
+            <Setter Property="StrokeThickness"
+                    Value="1" />
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer x:Name="MapScrollViewer"
@@ -140,6 +155,30 @@
                 </ItemsControl>
 
             </Grid>
+
+            <!-- Слой личного транспорта (машины) поверх тайлов, вместе с гражданами -->
+            <ItemsControl ItemsSource="{Binding Cars}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style>
+                        <Setter Property="Canvas.Left"
+                                Value="{Binding PixelX}" />
+                        <Setter Property="Canvas.Top"
+                                Value="{Binding PixelY}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Style="{StaticResource CarStyle}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </Grid>
     </ScrollViewer>
