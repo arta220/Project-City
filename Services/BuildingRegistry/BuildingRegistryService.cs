@@ -20,26 +20,15 @@ namespace Services.BuildingRegistry
     {
         private readonly PlacementRepository _placementRepository;
 
-        /// <summary>
-        /// Инициализирует сервис с использованием репозитория размещений.
-        /// </summary>
-        /// <param name="placementRepository">Репозиторий, хранящий информацию о всех размещённых объектах.</param>
         public BuildingRegistryService(PlacementRepository placementRepository)
         {
             _placementRepository = placementRepository;
         }
 
-        /// <summary>
-        /// Возвращает все здания, зарегистрированные в системе.
-        /// </summary>
-        /// <returns>Коллекция всех объектов MapObject (зданий) на карте.</returns>
-        public IEnumerable<MapObject> GetAllBuildings() => _placementRepository.GetAll();
+        public IEnumerable<T> GetBuildings<T>() => _placementRepository.GetAll().OfType<T>();
 
-        /// <summary>
-        /// Получает текущее размещение (позицию и площадь) указанного здания на карте.
-        /// </summary>
-        /// <param name="building">Здание, для которого необходимо узнать размещение.</param>
-        /// <returns>Структура Placement с координатами и размером здания.</returns>
-        public Placement GetPlacement(MapObject building) => _placementRepository.GetPlacement(building);
+        public (Placement? placement, bool found) TryGetPlacement<T>(T building)
+            where T : Building 
+            => _placementRepository.TryGetPlacement(building);
     }
 }

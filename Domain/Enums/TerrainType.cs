@@ -5,5 +5,7 @@
         Water,
         Plain,
         Mountain,
+        Forest,
+        Meadow
     }
 }

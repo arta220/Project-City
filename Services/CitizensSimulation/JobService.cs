@@ -1,6 +1,7 @@
 ﻿using Services.Interfaces;
 using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Time;
 
 namespace Services.CitizensSimulation
 {
@@ -11,7 +12,7 @@ namespace Services.CitizensSimulation
             throw new NotImplementedException();
         }
 
-        public void UpdateWork(Citizen citizen, int tick)
+        public void UpdateWork(Citizen citizen, SimulationTime time)
         {
             throw new NotImplementedException();
         }

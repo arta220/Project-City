@@ -1,5 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CitySkylines_REMAKE.Models.Enums;
+using CommunityToolkit.Mvvm.Input;
+using System.Windows;
+using System.Windows.Input;
+using Services.Graphing;
+using CitySimulatorWPF.Views.dialogs;
+using CitySkylines_REMAKE.ViewModels;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -21,10 +27,14 @@ namespace CitySimulatorWPF.ViewModels
     /// </remarks>
     public partial class MainVM : ObservableObject
     {
+
+        private readonly GraphService _graphService;
         /// <summary>
         /// Панель выбора зданий.
         /// </summary>
         public BuildingPanelViewModel BuildingPanelVM { get; }
+
+        public HeaderPanelViewModel HeaderPanelVM { get; }
 
         /// <summary>
         /// ViewModel карты города.
@@ -36,10 +46,16 @@ namespace CitySimulatorWPF.ViewModels
         /// </summary>
         /// <param name="mapVM">ViewModel карты города.</param>
         /// <param name="buildingPanelVM">ViewModel панели строительства.</param>
-        public MainVM(MapVM mapVM, BuildingPanelViewModel buildingPanelVM)
+        public MainVM(
+            MapVM mapVM, 
+            BuildingPanelViewModel buildingPanelVM,
+            HeaderPanelViewModel headerPanelVM,
+            GraphService graphService)
         {
+            _graphService = graphService;
             MapVM = mapVM;
             BuildingPanelVM = buildingPanelVM;
+            HeaderPanelVM = headerPanelVM;
 
             // Подписка на событие выбора здания в панели
             BuildingPanelVM.BuildingSelected += building =>
@@ -48,16 +64,9 @@ namespace CitySimulatorWPF.ViewModels
                 MapVM.CurrentMode = MapInteractionMode.Build;
             };
 
-            BuildingPanelVM.RemoveModeChanged += (isActive) =>
+            HeaderPanelVM.RemoveModeOn += () =>
             {
-                if (isActive)
-                {
-                    MapVM.CurrentMode = MapInteractionMode.Remove;
-                }
-                else
-                {
-                    MapVM.CurrentMode = MapInteractionMode.None;
-                }
+                MapVM.CurrentMode = MapInteractionMode.Remove;
             };
         }
     }

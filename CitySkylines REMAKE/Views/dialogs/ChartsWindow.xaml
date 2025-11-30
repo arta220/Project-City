@@ -1,0 +1,46 @@
+﻿<Window x:Class="CitySimulatorWPF.Views.dialogs.ChartsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        Title="Графики статистики"
+        Height="600"
+        Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Левая панель - выбор системы -->
+        <StackPanel Grid.Column="0"
+                    Background="#F5F5F5">
+            <TextBlock Text="Системы:"
+                       FontWeight="Bold"
+                       Margin="10,10,10,5" />
+
+            <ListBox ItemsSource="{Binding AvailableGraphs}"
+                     SelectedItem="{Binding SelectedProvider}"
+                     DisplayMemberPath="SystemName"
+                     Margin="10,0,10,10" />
+        </StackPanel>
+
+        <!-- Правая панель - график -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="{Binding SelectedProvider.GraphTitle}"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Margin="10" />
+
+            <oxy:PlotView Grid.Row="1"
+                          Model="{Binding CurrentPlot}"
+                          Margin="10" />
+        </Grid>
+    </Grid>
+</Window>

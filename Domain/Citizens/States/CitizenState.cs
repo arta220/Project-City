@@ -15,5 +15,12 @@
 
         // Дом
         GoingHome,
+        SearchingHome,
+
+        // Коммерческие состояния
+        GoingToCommercial,
+        WaitingInCommercialQueue,
+        UsingCommercialService,
+        LeavingCommercial
     }
 }

@@ -1,17 +1,20 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
+using CitySkylines_REMAKE.ViewModels;
 using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.BuildingRegistry;
 using Services.CitizensSimulation;
+using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
 using Services.NavigationMap;
 using Services.PathFind;
 using Services.PlaceBuilding;
-using Services.SimulationClock;
+using Services.Time;
+using Services.Time.Clock;
 using System.Windows;
 
 namespace CitySkylines_REMAKE
@@ -19,6 +22,7 @@ namespace CitySkylines_REMAKE
     public partial class App : Application
     {
         private ServiceProvider? _serviceProvider;
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -33,12 +37,17 @@ namespace CitySkylines_REMAKE
             mainWindow.Show();
         }
 
+
         private void ConfigureServices(IServiceCollection services)
         {
             // Map и генератор
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<Services.Interfaces.IUtilityService, Services.Utilities.UtilityService>();
+
+            services.AddSingleton<GraphService>();
+
+            services.AddTransient<ChartsWindowViewModel>();
 
             services.AddSingleton<MapModel>(sp =>
             {
@@ -60,6 +69,7 @@ namespace CitySkylines_REMAKE
 
             // Симуляция и часы
             services.AddSingleton<ISimulationClock, SimulationClock>();
+            services.AddSingleton<ISimulationTimeService, SimulationTimeService>();
             services.AddSingleton<Simulation>();
 
             // Размещение объектов на карте
@@ -98,9 +108,17 @@ namespace CitySkylines_REMAKE
                 var tileService = sp.GetRequiredService<IMapTileService>();
                 return new RoadConstructionService(tileService.Tiles);
             });
+
+            services.AddSingleton<IPathConstructionService, PathConstructionService>(sp =>
+            {
+                var tileService = sp.GetRequiredService<IMapTileService>();
+                return new PathConstructionService(tileService.Tiles);
+            });
+
             services.AddSingleton<MessageService, MessageService>();
 
             // ViewModels
+            services.AddTransient<HeaderPanelViewModel>();
             services.AddTransient<BuildingPanelViewModel>();
             services.AddTransient<MainVM>();
             services.AddTransient<MapVM>();

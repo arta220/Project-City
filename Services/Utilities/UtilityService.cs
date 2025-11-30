@@ -1,38 +1,58 @@
-﻿using System;
+﻿using Domain.Buildings;
+using Domain.Enums;
+using Domain.Time;
+using Services.BuildingRegistry;
+using Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Base;
-using Domain.Enums;
-using Services.Interfaces;
 
-// Smirnov
 namespace Services.Utilities
 {
     public class UtilityService : IUtilityService
     {
         private readonly Random _random = new Random();
-        private readonly Dictionary<Building, Dictionary<UtilityType, int>> _brokenUtilities = new();
+        private readonly IBuildingRegistry _buildingRegistry;
 
-        public void SimulateUtilitiesBreakdown(int currentTick, List<Building> buildings)
+        private readonly Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>> _brokenUtilities
+            = new Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>>();
+
+        private readonly Dictionary<UtilityType, int> _totalBreakdowns
+            = Enum.GetValues(typeof(UtilityType))
+                  .Cast<UtilityType>()
+                  .ToDictionary(u => u, u => 0);
+
+        private readonly Dictionary<UtilityType, int> _totalRepairs
+            = Enum.GetValues(typeof(UtilityType))
+                  .Cast<UtilityType>()
+                  .ToDictionary(u => u, u => 0);
+
+        private readonly UtilityStatistics _statistics = new();
+
+        public UtilityService(IBuildingRegistry buildingRegistry)
         {
-            var residentialBuildings = buildings.Where(b => b is Domain.Buildings.ResidentialBuilding).ToList();
+            _buildingRegistry = buildingRegistry;
+        }
+
+        public void Update(SimulationTime time)
+        {
+            var residentialBuildings = _buildingRegistry.GetBuildings<ResidentialBuilding>().ToList();
 
             foreach (var building in residentialBuildings)
             {
-                if (_random.Next(100) < 15) // 15% шанс для каждого здания
+                if (_random.Next(100) < 5) // 5% шанс поломки
                 {
-                    var brokenUtility = (UtilityType)_random.Next(4);
-
-                    BreakUtility(building, brokenUtility, currentTick);
+                    var brokenUtility = (UtilityType)_random.Next(Enum.GetValues(typeof(UtilityType)).Length);
+                    BreakUtility(building, brokenUtility, time.TotalTicks);
+                    RecordBreakdown(brokenUtility);
+                    UpdateStatistics(time.TotalTicks);
                 }
             }
         }
 
-        public void BreakUtility(Building building, UtilityType utilityType, int currentTick)
+        private void BreakUtility(ResidentialBuilding building, UtilityType utilityType, int currentTick)
         {
-            building.BreakUtility(utilityType);
+            building.Utilities.BreakUtility(utilityType);
 
             if (!_brokenUtilities.ContainsKey(building))
                 _brokenUtilities[building] = new Dictionary<UtilityType, int>();
@@ -40,23 +60,61 @@ namespace Services.Utilities
             _brokenUtilities[building][utilityType] = currentTick;
         }
 
-        public void FixUtility(Building building, UtilityType utilityType)
+        public void FixUtility(ResidentialBuilding building, UtilityType utilityType)
         {
-            building.FixUtility(utilityType);
+            building.Utilities.FixUtility(utilityType);
 
-            if (_brokenUtilities.ContainsKey(building))
+            if (_brokenUtilities.TryGetValue(building, out var dict))
             {
-                _brokenUtilities[building].Remove(utilityType);
-                if (!_brokenUtilities[building].Any())
+                dict.Remove(utilityType);
+                if (dict.Count == 0)
                     _brokenUtilities.Remove(building);
             }
+
+            RecordRepair(utilityType);
         }
 
-        public Dictionary<UtilityType, int> GetBrokenUtilities(Building building)
+        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
         {
             return _brokenUtilities.ContainsKey(building)
-                ? _brokenUtilities[building]
+                ? new Dictionary<UtilityType, int>(_brokenUtilities[building])
                 : new Dictionary<UtilityType, int>();
         }
+
+        private void RecordBreakdown(UtilityType utilityType) => _totalBreakdowns[utilityType]++;
+        private void RecordRepair(UtilityType utilityType) => _totalRepairs[utilityType]++;
+
+        private void UpdateStatistics(int currentTick)
+        {
+            foreach (UtilityType utilityType in Enum.GetValues(typeof(UtilityType)))
+            {
+                var dataPoint = new UtilityDataPoint(
+                    currentTick,
+                    _totalBreakdowns[utilityType],
+                    _totalRepairs[utilityType]
+                );
+
+                switch (utilityType)
+                {
+                    case UtilityType.Electricity:
+                        _statistics.ElectricityHistory.Add(dataPoint);
+                        break;
+                    case UtilityType.Water:
+                        _statistics.WaterHistory.Add(dataPoint);
+                        break;
+                    case UtilityType.Gas:
+                        _statistics.GasHistory.Add(dataPoint);
+                        break;
+                    case UtilityType.Waste:
+                        _statistics.WasteHistory.Add(dataPoint);
+                        break;
+                }
+            }
+
+            var totalRepairs = _totalRepairs.Values.Sum();
+            _statistics.RepairHistory.Add(new UtilityDataPoint(currentTick, 0, totalRepairs));
+        }
+
+        public UtilityStatistics GetStatistics() => _statistics;
     }
 }

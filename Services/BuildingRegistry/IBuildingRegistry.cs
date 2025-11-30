@@ -5,8 +5,8 @@ namespace Services.BuildingRegistry
 {
     public interface IBuildingRegistry
     {
-        IEnumerable<MapObject> GetAllBuildings();
-        Placement GetPlacement(MapObject building);
+        IEnumerable<T> GetBuildings<T>();
+        (Placement? placement, bool found) TryGetPlacement<T>(T building) where T : Building;
     }
 
 }
