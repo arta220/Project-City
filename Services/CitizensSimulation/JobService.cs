@@ -14,7 +14,7 @@ namespace Services.CitizensSimulation
 
         public void UpdateWork(Citizen citizen, SimulationTime time)
         {
-            throw new NotImplementedException();
+ //           throw new NotImplementedException();
         }
     }
 }

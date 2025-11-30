@@ -113,17 +113,17 @@ namespace Services.CitizensSimulation
 
                 /// КОММЕРЧЕСКИЕ ЗДАНИЯ
                 /// 
-                case CitizenState.WaitingInCommercialQueue:
-                    HandleWaitingInCommercialQueue(citizen, time);
-                    break;
+                //case CitizenState.WaitingInCommercialQueue:
+                //    HandleWaitingInCommercialQueue(citizen, time);
+                //    break;
 
-                case CitizenState.UsingCommercialService:
-                    HandleUsingCommercialService(citizen, time);
-                    break;
+                //case CitizenState.UsingCommercialService:
+                //    HandleUsingCommercialService(citizen, time);
+                //    break;
 
-                case CitizenState.LeavingCommercial:
-                    HandleLeavingCommercial(citizen, time);
-                    break;
+                //case CitizenState.LeavingCommercial:
+                //    HandleLeavingCommercial(citizen, time);
+                //    break;
             }
         }
 

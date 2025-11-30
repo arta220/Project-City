@@ -94,7 +94,8 @@ namespace CitySimulatorWPF.ViewModels
                      MessageService messageService,
                      CitizenSimulationService citizenSimulation,
                      TransportSimulationService transportSimulation,
-                     IUtilityService utilityService)
+                     IUtilityService utilityService,
+                     IPathConstructionService pathService)
         {
             _simulation = simulation;
             _roadService = roadService;

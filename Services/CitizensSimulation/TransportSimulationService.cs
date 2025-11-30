@@ -1,7 +1,5 @@
-using Domain.Map;
 using Domain.Transports.Ground;
-using Services.SimulationClock;
-using System;
+using Services.Time.Clock;
 using System.Collections.ObjectModel;
 
 namespace Services.CitizensSimulation
