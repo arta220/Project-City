@@ -6,11 +6,12 @@
         Idle,
 
         // Работа
+        SearchingWork,
         GoingToWork,
         Working,
         
         // Учёба
-        GoingToSchool,
+        GoingToStudy,
         Studying,
 
         // Дом
@@ -21,6 +22,9 @@
         GoingToCommercial,
         WaitingInCommercialQueue,
         UsingCommercialService,
-        LeavingCommercial
+        LeavingCommercial,
+
+        InTransport,
+        GoingToTransport
     }
 }

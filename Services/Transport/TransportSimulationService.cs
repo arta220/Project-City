@@ -1,14 +1,12 @@
+using Domain.Common.Time;
 using Domain.Transports.Ground;
+using Services.Common;
 using Services.Time.Clock;
 using System.Collections.ObjectModel;
 
 namespace Services.Transport
 {
-    /// <summary>
-    /// Сервис симуляции личного транспорта (машин).
-    /// По аналогии с CitizenSimulationService обновляет все машины на каждом тике.
-    /// </summary>
-    public class TransportSimulationService
+    public class TransportSimulationService : IUpdatable
     {
         private readonly TransportController _controller;
         private readonly ISimulationClock _clock;
@@ -27,40 +25,25 @@ namespace Services.Transport
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
-        public void Start()
-        {
-            _clock.TickOccurred += UpdateAll;
-        }
-
-        public void Stop()
-        {
-            _clock.TickOccurred -= UpdateAll;
-        }
-
         public void AddCar(PersonalCar car)
         {
-            if (car == null) throw new ArgumentNullException(nameof(car));
-
+            if (car == null) return;
             Cars.Add(car);
             CarAdded?.Invoke(car);
         }
 
         public void RemoveCar(PersonalCar car)
         {
-            if (Cars.Remove(car))
-            {
-                CarRemoved?.Invoke(car);
-            }
+            if (car == null) return;
+            Cars.Remove(car);
+            CarRemoved?.Invoke(car);
         }
 
-        /// <summary>
-        /// Обновляет все машины на текущем тике, используя контроллер поведения.
-        /// </summary>
-        public void UpdateAll(int tick)
+        public void Update(SimulationTime time)
         {
             foreach (var car in Cars)
             {
-                _controller.UpdateCar(car, tick);
+                _controller.UpdateCar(car, time);
                 CarUpdated?.Invoke(car);
             }
         }

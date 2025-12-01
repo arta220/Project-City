@@ -1,6 +1,7 @@
-using Domain.Citizens.States;
+using Domain.Common.Time;
 using Domain.Transports.Ground;
 using Domain.Transports.States;
+using Services.BuildingRegistry;
 
 namespace Services.Transport
 {
@@ -11,15 +12,19 @@ namespace Services.Transport
     public class TransportController
     {
         private readonly TransportMovementService _movementService;
-
+        private readonly IBuildingRegistry _buildingRegistry;
         /// <summary>
         /// Сколько тиков машина должна простоять у работы, прежде чем поедет домой.
         /// Значение задаётся через конструктор, чтобы можно было настраивать "длину рабочего дня".
         /// </summary>
         private readonly int _ticksToStayAtWork;
 
-        public TransportController(TransportMovementService movementService, int ticksToStayAtWork)
+        public TransportController(
+            TransportMovementService movementService, 
+            IBuildingRegistry buildingRegistry,
+            int ticksToStayAtWork)
         {
+            _buildingRegistry = buildingRegistry;
             _movementService = movementService;
             _ticksToStayAtWork = ticksToStayAtWork;
         }
@@ -27,71 +32,48 @@ namespace Services.Transport
         /// <summary>
         /// Обновляет состояние и позицию машины на текущем тике симуляции.
         /// </summary>
-        public void UpdateCar(PersonalCar car, int tick)
+        public void UpdateCar(PersonalCar car, SimulationTime time)
         {
-            switch (car.State)
+            if (car.TargetPosition != null)
             {
-                case TransportState.IdleAtHome:
-                    // Простая логика: как только симуляция идёт, машина поедет на работу
-                    if (car.WorkPosition != default)
+                _movementService.Move(car, car.TargetPosition);
+
+                if (car.Position.Equals(car.TargetPosition))
+                {
+                    car.CurrentPath.Clear();
+
+                    switch (car.State)
                     {
-                        car.State = TransportState.DrivingToWork;
-                        _movementService.Move(car, car.WorkPosition);
+                        case TransportState.DrivingToWork:
+                            car.State = TransportState.ParkedAtWork;
+                            break;
+                        case TransportState.DrivingHome:
+                            car.State = TransportState.IdleAtHome;
+                            break;
                     }
-                    break;
-
-                case TransportState.DrivingToWork:
-                    _movementService.Move(car, car.WorkPosition);
-
-                    if (car.Position.Equals(car.WorkPosition))
-                    {
-                        car.CurrentPath.Clear();
-                        car.State = TransportState.ParkedAtWork;
-
-                        if (car.Owner != null)
-                        {
-                            car.Owner.State = CitizenState.Working;
-                        }
-                    }
-                    break;
-
-                case TransportState.ParkedAtWork:
-                    // Машина стоит у работы; по прошествии нужного числа тиков едет домой.
-                    car.TicksAtWork++;
-
-                    if (car.TicksAtWork >= _ticksToStayAtWork)
-                    {
-                        car.TicksAtWork = 0;
-                        car.State = TransportState.DrivingHome;
-                        _movementService.Move(car, car.HomePosition);
-
-                        if (car.Owner != null)
-                        {
-                            car.Owner.State = CitizenState.GoingHome;
-                        }
-                    }
-                    break;
-
-                case TransportState.DrivingHome:
-                    _movementService.Move(car, car.HomePosition);
-
-                    if (car.Position.Equals(car.HomePosition))
-                    {
-                        car.CurrentPath.Clear();
-                        car.State = TransportState.IdleAtHome;
-
-                        if (car.Owner != null)
-                        {
-                            car.Owner.State = CitizenState.Idle;
-                        }
-                    }
-                    break;
+                }
             }
 
-            // Если есть владелец, "везём" его вместе с машиной
             if (car.Owner != null)
             {
                 car.Owner.Position = car.Position;
+            }
+
+            if (car.State == TransportState.ParkedAtWork)
+            {
+                car.TicksAtWork++;
+                if (car.TicksAtWork >= _ticksToStayAtWork)
+                {
+                    car.TicksAtWork = 0;
+                    car.State = TransportState.DrivingHome;
+
+                    if (car.Owner != null)
+                    {
+                        var (placement, found) = _buildingRegistry.TryGetPlacement(car.Owner.Home);
+                        if (found && placement != null)
+                            car.TargetPosition = placement.Value.Position;
+                    }
+                }
             }
         }
     }

@@ -1,13 +1,16 @@
 ﻿using Domain.Buildings.Residential;
+using Domain.Citizens;
 using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Common.Time;
 using Domain.Map;
+using Domain.Transports.Ground;
 using Services.CitizensSimulation;
 using Services.Common;
 using Services.Interfaces;
 using Services.PlaceBuilding;
 using Services.Time;
+using Services.Transport;
 using Services.Utilities;
 
 namespace Services
@@ -25,6 +28,9 @@ namespace Services
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
 
+        private readonly CitizenSimulationService _citizenSimulationService;
+        private readonly TransportSimulationService _transportSimulationService;
+
         private readonly List<IUpdatable> _updatableServices = new();
 
         public event Action<SimulationTime> TimeChanged;
@@ -41,16 +47,19 @@ namespace Services
             ISimulationTimeService timeService,
             PlacementRepository placementRepository,
             CitizenSimulationService citizenSimulationService,
+            TransportSimulationService transportSimulationService,
             IUtilityService utilityService)
         {
             MapModel = mapModel;
             _placementService = placementService;
             _timeService = timeService;
             _placementRepository = placementRepository;
-
+            _citizenSimulationService = citizenSimulationService;
+            _transportSimulationService = transportSimulationService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
+            _updatableServices.Add(transportSimulationService);
 
             _timeService.TimeChanged += OnTimeChanged;
         }
@@ -92,5 +101,9 @@ namespace Services
         public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);
 
         public bool CanPlace(MapObject mapObject, Placement placement) => _placementService.CanPlace(MapModel, mapObject, placement);
+        public void AddCitizen(Citizen citizen) => _citizenSimulationService.AddCitizen(citizen);
+        public void RemoveCitizen(Citizen citizen) => _citizenSimulationService.RemoveCitizen(citizen);
+        public void AddTransport(PersonalCar car) => _transportSimulationService.AddCar(car);
+        public void RemoveTransport(PersonalCar car) => _transportSimulationService.RemoveCar(car);
     }
 }

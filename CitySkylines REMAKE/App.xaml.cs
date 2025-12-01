@@ -11,6 +11,8 @@ using Services.Citizens.Job;
 using Services.Citizens.Movement;
 using Services.Citizens.Population;
 using Services.CitizensSimulation;
+using Services.CitizensSimulation.CitizenSchedule;
+using Services.CitizensSimulation.StateHandlers;
 using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
@@ -50,15 +52,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
-
             services.AddSingleton<GraphService>();
-
             services.AddTransient<ChartsWindowViewModel>();
 
             services.AddSingleton<MapModel>(sp =>
             {
                 var generator = sp.GetRequiredService<IMapGenerator>();
-                return generator.GenerateMap(50, 50); // размер карты по умолчанию
+                return generator.GenerateMap(50, 50);
             });
 
             // Реестр зданий
@@ -82,40 +82,51 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ConstructionValidator>();
             services.AddSingleton<IMapObjectPlacementService, MapObjectPlacementService>();
 
-            // Сервисы граждан через интерфейсы
+            // Сервисы граждан
+            services.AddSingleton<IFindEducationService, FindEducationService>();
             services.AddSingleton<IEducationService, EducationService>();
-            services.AddSingleton<IJobService, JobService>();
-            services.AddSingleton<IPopulationService, PopulationService>();
+            services.AddSingleton<IFindJobService, FindJobService>();
+            services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
             services.AddSingleton<ICitizenMovementService, MovementService>();
+            services.AddSingleton<IPopulationService, PopulationService>();
+
+            // Обработчики состояний граждан
+            services.AddSingleton<ICitizenStateHandler, IdleStateHandler>();
+            services.AddSingleton<ICitizenStateHandler, GoingToWorkStateHandler>();
+            services.AddSingleton<ICitizenStateHandler, GoingToStudyStateHandler>();
+            services.AddSingleton<ICitizenStateHandler, GoingToTransportStateHandler>();
+            services.AddSingleton<ICitizenStateHandler, GoingHomeStateHandler>();
+            services.AddSingleton<ICitizenStateHandler, InTransportStateHandler>();
+            services.AddSingleton<ICitizenStateHandler, StudyingStateHandler>();
+            services.AddSingleton<ICitizenStateHandler, SearchingWorkStateHandler>();
+
+            // Контроллер граждан получает все обработчики через IEnumerable
+            services.AddSingleton<CitizenController>();
 
             // Контроллер и менеджеры граждан
-            services.AddSingleton<CitizenController>();
             services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
 
-            // Транспорт: движение, контроллер и симуляция машин
+            //  Транспорт 
             services.AddSingleton<TransportMovementService>();
-
-            // Контроллер транспорта с настраиваемой "длиной рабочего дня" в тиках.
             services.AddSingleton<TransportController>(sp =>
             {
+                var registry = sp.GetRequiredService<IBuildingRegistry>();
                 var movement = sp.GetRequiredService<TransportMovementService>();
-                int workDayLengthTicks = 50; // Здесь можно изменить длительность в тиках или вынести в конфиг.
-                return new TransportController(movement, workDayLengthTicks);
+                int workDayLengthTicks = 50;
+                return new TransportController(movement, registry, workDayLengthTicks);
             });
-
             services.AddSingleton<TransportSimulationService>();
             services.AddSingleton<ICarManagerService, CarManagerService>();
 
             // Сервисы работы с картой
             services.AddSingleton<IMapTileService, MapTileService>();
-            services.AddSingleton<IRoadConstructionService, RoadConstructionService>(sp =>
+            services.AddSingleton<IRoadConstructionService>(sp =>
             {
                 var tileService = sp.GetRequiredService<IMapTileService>();
                 return new RoadConstructionService(tileService.Tiles);
             });
-
-            services.AddSingleton<IPathConstructionService, PathConstructionService>(sp =>
+            services.AddSingleton<IPathConstructionService>(sp =>
             {
                 var tileService = sp.GetRequiredService<IMapTileService>();
                 return new PathConstructionService(tileService.Tiles);
@@ -132,6 +143,7 @@ namespace CitySkylines_REMAKE
             // MainWindow
             services.AddSingleton<MainWindow>();
         }
+
 
         protected override void OnExit(ExitEventArgs e)
         {

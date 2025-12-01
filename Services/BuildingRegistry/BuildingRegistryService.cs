@@ -27,8 +27,6 @@ namespace Services.BuildingRegistry
 
         public IEnumerable<T> GetBuildings<T>() => _placementRepository.GetAll().OfType<T>();
 
-        public (Placement? placement, bool found) TryGetPlacement<T>(T building)
-            where T : Building 
-            => _placementRepository.TryGetPlacement(building);
+        public (Placement? placement, bool found) TryGetPlacement(MapObject building) => _placementRepository.TryGetPlacement(building);
     }
 }

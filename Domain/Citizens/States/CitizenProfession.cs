@@ -1,6 +1,6 @@
 ﻿namespace Domain.Citizens.States
 {
-    public enum CitizenJob
+    public enum CitizenProfession
     {
         Seller,
         Doctor,
