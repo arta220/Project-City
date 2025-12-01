@@ -1,3 +1,4 @@
+using Domain.Citizens.States;
 using Domain.Common.Base;
 using Domain.Enums;
 using Domain.Map;
@@ -6,6 +7,7 @@ namespace Domain.Buildings
 {
     public abstract class CommercialBuilding : Building, IServiceBuilding
     {
+        public Dictionary<CitizenProfession, int> Vacancies { get; } = new();
         public int ServiceTimeInTicks { get; protected set; }
         public int MaxQueueLength { get; protected set; }
         public int WorkerCount { get; protected set; }
@@ -23,6 +25,23 @@ namespace Domain.Buildings
             MaxQueueLength = maxQueue;
             WorkerCount = workerCount;
         }
+
+        public bool HasVacancy(CitizenProfession profession)
+        => Vacancies.ContainsKey(profession) && Vacancies[profession] > 0;
+
+        public void AssignWorker(CitizenProfession profession)
+        {
+            if (HasVacancy(profession))
+                Vacancies[profession]--;
+        }
+
+        public void RemoveWorker(CitizenProfession profession)
+        {
+            if (Vacancies.ContainsKey(profession))
+                Vacancies[profession]++;
+        }
+
+
 
         private static int CalculateMaxOccupancy(int workerCount)
         {

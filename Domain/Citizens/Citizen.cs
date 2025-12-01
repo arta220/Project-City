@@ -28,11 +28,12 @@ namespace Domain.Citizens
         /// <summary>
         /// Текущая работа жителя.
         /// </summary>
-        public CitizenJob CurrentJob { get; set; }
+        public CitizenProfession Profession { get; set; }
         public Building WorkPlace { get; set; }
 
-        public PersonalCar? Car { get; set; }
-        public bool HasCar => Car != null;
+        public Transport CurrentTransport { get; set; }
+        public PersonalCar PersonalCar { get; set; }
+        public bool HasCar => PersonalCar != null;
         /// <summary>
         /// Текущая позиция жителя на карте.
         /// </summary>

@@ -141,7 +141,7 @@ namespace CitySimulatorWPF.ViewModels
             var citizen = new Citizen
             {
                 Home = home,
-                Position = homePosition,
+                Position = new Position(20, 25),
                 State = CitizenState.Idle
             };
 
@@ -156,9 +156,9 @@ namespace CitySimulatorWPF.ViewModels
                 name: "Car 1",
                 capacity: 4,
                 speed: 1.0f,
-                startPosition: homePosition)
+                startPosition: new Position(17, 16))
             {
-                Owner = citizen,
+                Owner = null,
                 State = TransportState.DrivingToWork
             };
 
