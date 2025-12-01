@@ -99,9 +99,10 @@ namespace CitySkylines_REMAKE
             // Контроллер транспорта с настраиваемой "длиной рабочего дня" в тиках.
             services.AddSingleton<TransportController>(sp =>
             {
+                var registry = sp.GetRequiredService<IBuildingRegistry>();
                 var movement = sp.GetRequiredService<TransportMovementService>();
                 int workDayLengthTicks = 50; // Здесь можно изменить длительность в тиках или вынести в конфиг.
-                return new TransportController(movement, workDayLengthTicks);
+                return new TransportController(movement, registry, workDayLengthTicks);
             });
 
             services.AddSingleton<TransportSimulationService>();

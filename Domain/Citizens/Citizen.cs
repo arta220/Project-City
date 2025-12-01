@@ -5,6 +5,7 @@ using Domain.Citizens.States;
 using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Map;
+using Domain.Transports.Ground;
 
 namespace Domain.Citizens
 {
@@ -30,6 +31,8 @@ namespace Domain.Citizens
         public CitizenJob CurrentJob { get; set; }
         public Building WorkPlace { get; set; }
 
+        public PersonalCar? Car { get; set; }
+        public bool HasCar => Car != null;
         /// <summary>
         /// Текущая позиция жителя на карте.
         /// </summary>

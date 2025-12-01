@@ -1,7 +1,10 @@
 ﻿using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Common.Base;
 using Domain.Common.Time;
 using Domain.Map;
+using Domain.Transports.Ground;
+using Domain.Transports.States;
 using Services.BuildingRegistry;
 using Services.Citizens.Education;
 using Services.Citizens.Movement;
@@ -10,22 +13,6 @@ using Services.Time;
 
 namespace Services.CitizensSimulation
 {
-    /// <summary>
-    /// Контроллер для управления поведением граждан в симуляции.
-    /// Отвечает за обновление состояния граждан, перемещение по карте, работу, обучение и старение.
-    /// </summary>
-    /// <remarks>
-    /// Контекст использования:
-    /// - Используется внутри <see cref="CitizenSimulationService"/> для обновления каждого гражданина на каждом тике симуляции.
-    /// - Использует <see cref="IBuildingRegistry"/> для получения позиций зданий (дом, работа, школа и др.).
-    /// - Использует сервисы движения, работы, образования и демографии (<see cref="ICitizenMovementService"/>, <see cref="IJobService"/>, <see cref="IEducationService"/>, <see cref="IPopulationService"/>).
-    /// - MapVM косвенно получает обновлённые позиции граждан через <see cref="CitizenManagerService"/>.
-    /// 
-    /// Возможные расширения:
-    /// - Реализовать фактическую логику поиска работы и школы.
-    /// - Добавить события или callback'и для визуальных эффектов (например, анимация движения на карте).
-    /// - Поддерживать дополнительные состояния граждан (развлечения, покупки, болезни и т.п.).
-    /// </remarks>
     public class CitizenController
     {
         private readonly IBuildingRegistry _buildingRegistry;
@@ -48,26 +35,16 @@ namespace Services.CitizensSimulation
             _timeService = timeService;
         }
 
-        /// <summary>
-        /// Обновляет состояние указанного гражданина на текущем тике симуляции.
-        /// </summary>
-        /// <param name="citizen">Гражданин, состояние которого необходимо обновить.</param>
-        /// <param name="tick">Текущий тик симуляции.</param>
         public void UpdateCitizen(Citizen citizen, SimulationTime time)
         {
-            Placement? placement;
-            bool found;
-            Position pos;
-
             switch (citizen.State)
             {
-
                 case CitizenState.Idle:
                     DecideNextAction(citizen);
                     break;
 
                 case CitizenState.GoingToWork:
-                    _movement.Move(citizen, new Position(0, 0), time); // Пока нет реализации работы жителя
+                    UpdateGoingTo(citizen, time, citizen.WorkPlace);
                     break;
 
                 case CitizenState.Working:
@@ -75,17 +52,7 @@ namespace Services.CitizensSimulation
                     break;
 
                 case CitizenState.GoingToSchool:
-                    (placement, found) = _buildingRegistry.TryGetPlacement(citizen.StudyPlace);
-
-                    if (!found || placement is null)
-                    {
-                        citizen.State = CitizenState.Idle;
-                        break;
-                    }
-
-                    pos = placement.Value.Position;
-
-                    _movement.Move(citizen, pos, time);
+                    UpdateGoingTo(citizen, time, citizen.StudyPlace);
                     break;
 
                 case CitizenState.Studying:
@@ -93,58 +60,24 @@ namespace Services.CitizensSimulation
                     break;
 
                 case CitizenState.GoingHome:
-                    (placement, found) = _buildingRegistry.TryGetPlacement(citizen.Home);
-
-                    if (!found || placement is null)
-                    {
-                        citizen.State = CitizenState.Idle;
-                        break;
-                    }
-
-                    pos = placement.Value.Position;
-
-                    _movement.Move(citizen, pos, time);
-
-                    if (citizen.Position.Equals(pos))
-                    {
-                        citizen.State = CitizenState.Idle;
-                        citizen.CurrentPath.Clear();
-                    }
+                    UpdateGoingTo(citizen, time, citizen.Home);
                     break;
 
+                case CitizenState.GoingToTransport:
+                    UpdateGoingTo(citizen, time, citizen.Car!);
+                    break;
 
-                /// КОММЕРЧЕСКИЕ ЗДАНИЯ
-                /// 
-                //case CitizenState.WaitingInCommercialQueue:
-                //    HandleWaitingInCommercialQueue(citizen, time);
-                //    break;
-
-                //case CitizenState.UsingCommercialService:
-                //    HandleUsingCommercialService(citizen, time);
-                //    break;
-
-                //case CitizenState.LeavingCommercial:
-                //    HandleLeavingCommercial(citizen, time);
-                //    break;
+                case CitizenState.InTransport:
+                    UpdateInTransport(citizen, time);
+                    break;
             }
         }
 
-        /// <summary>
-        /// Определяет следующую цель гражданина в зависимости от текущих условий.
-        /// </summary>
-        /// <param name="citizen">Гражданин, для которого нужно определить действие.</param>
-        /// <param name="tick">Текущий тик симуляции.</param>
         private void DecideNextAction(Citizen citizen)
         {
-            if (!(_buildingRegistry.TryGetPlacement(citizen.Home)).found)
-            {
-                citizen.State = CitizenState.SearchingHome;
-                return;
-            }
-
             var timeOfDay = _timeService.GetTimeOfDay();
             var isWeekend = _timeService.IsWeekend();
-            var isAtHome = IsAtHome(citizen);
+            var isAtHome = IsAt(citizen, citizen.Home);
 
             if (!isAtHome && (timeOfDay == TimeOfDay.Evening || _timeService.IsNightTime()))
             {
@@ -154,32 +87,26 @@ namespace Services.CitizensSimulation
 
             if (timeOfDay == TimeOfDay.Morning && !isWeekend && isAtHome)
             {
-                if (NeedsEducation(citizen) && !IsAtSchool(citizen))
+                if (NeedsEducation(citizen) && !IsAt(citizen, citizen.StudyPlace))
                 {
                     citizen.State = CitizenState.GoingToSchool;
                     return;
                 }
-                else if (HasJob(citizen) && !IsAtWork(citizen))
+
+                if (HasJob(citizen) && !IsAt(citizen, citizen.WorkPlace))
                 {
-                    citizen.State = CitizenState.GoingToWork;
+                    citizen.State = citizen.HasCar ? CitizenState.GoingToTransport : CitizenState.GoingToWork;
                     return;
                 }
             }
 
-            if ((citizen.State == CitizenState.Working || citizen.State == CitizenState.Studying) &&
-                timeOfDay == TimeOfDay.Evening && !isAtHome)
-            {
-                citizen.State = CitizenState.GoingHome;
-                return;
-            }
-
-            if (citizen.State == CitizenState.GoingToWork && IsAtWork(citizen))
+            if (citizen.State == CitizenState.GoingToWork && IsAt(citizen, citizen.WorkPlace))
             {
                 citizen.State = CitizenState.Working;
                 return;
             }
 
-            if (citizen.State == CitizenState.GoingToSchool && IsAtSchool(citizen))
+            if (citizen.State == CitizenState.GoingToSchool && IsAt(citizen, citizen.StudyPlace))
             {
                 citizen.State = CitizenState.Studying;
                 return;
@@ -188,45 +115,58 @@ namespace Services.CitizensSimulation
             if (isAtHome)
             {
                 citizen.State = CitizenState.Idle;
-                return;
             }
         }
 
-        private bool IsAtHome(Citizen citizen)
+        private bool IsAt(Citizen citizen, MapObject obj)
         {
-            var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.Home);
-
-            if (!found || placement == null)
-                return false;
-
-            Position pos = ((Placement)placement).Position;
-
-            return citizen.Position.Equals(pos);
-        }
-
-        private bool IsAtWork(Citizen citizen)
-        {
-            var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.WorkPlace);
-            if (!found || placement == null)
-                return false;
-
-            Position pos = ((Placement)placement).Position;
-
-            return citizen.Position.Equals(pos);
-        }
-
-        private bool IsAtSchool(Citizen citizen)
-        {
-            var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.StudyPlace);
-            if (!found || placement == null)
-                return false;
-
-            Position pos = ((Placement)placement).Position;
-
-            return citizen.Position.Equals(pos);
+            var (placement, found) = _buildingRegistry.TryGetPlacement(obj);
+            return found && placement != null && citizen.Position.Equals(placement.Value.Position);
         }
 
         private bool HasJob(Citizen citizen) => citizen.WorkPlace != null;
         private bool NeedsEducation(Citizen citizen) => citizen.StudyPlace != null;
+
+        private void UpdateGoingTo(Citizen citizen, SimulationTime time, MapObject to)
+        {
+            var (placement, found) = _buildingRegistry.TryGetPlacement(to);
+
+            if (!found || placement == null)
+            {
+                citizen.State = CitizenState.Idle;
+                citizen.CurrentPath.Clear();
+                return;
+            }
+
+            var pos = placement.Value.Position;
+            _movement.Move(citizen, pos, time);
+
+            if (to is PersonalCar car && citizen.Position.Equals(car.Position))
+            {
+                citizen.State = CitizenState.InTransport;
+            }
+        }
+
+        private void UpdateInTransport(Citizen citizen, SimulationTime time)
+        {
+            if (citizen.Car == null)
+            {
+                citizen.State = CitizenState.Idle;
+                return;
+            }
+
+            citizen.Position = citizen.Car.Position;
+
+            if (citizen.Car.State == TransportState.ParkedAtWork)
+            {
+                citizen.State = CitizenState.GoingToWork;
+            }
+            else if (citizen.Car.State == TransportState.IdleAtHome)
+            {
+                citizen.State = CitizenState.Idle;
+            }
+        }
+
+
     }
 }

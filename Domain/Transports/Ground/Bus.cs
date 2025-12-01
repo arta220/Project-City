@@ -1,17 +1,13 @@
 using Domain.Common.Base;
+using Domain.Map;
 using System;
 
 namespace Domain.Ground
 {
     public class Bus : Transport
     {
-        public Bus(string name, int capacity, float speed) : base(name, capacity, speed)
+        public Bus(Area area, string name, int capacity, float speed) : base(area, name, capacity, speed)
         {
-        }
-
-        public override void Move()
-        {
-            Console.WriteLine("Автобус едет по своему маршруту.");
         }
     }
 }

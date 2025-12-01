@@ -21,6 +21,9 @@
         GoingToCommercial,
         WaitingInCommercialQueue,
         UsingCommercialService,
-        LeavingCommercial
+        LeavingCommercial,
+
+        InTransport,
+        GoingToTransport
     }
 }

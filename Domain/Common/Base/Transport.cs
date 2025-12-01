@@ -1,18 +1,18 @@
+using Domain.Map;
+
 namespace Domain.Common.Base
 {
-    public abstract class Transport
+    public abstract class Transport : MapObject
     {
-        public string Name { get; set; }
-        public int Capacity { get; set; }
-        public float Speed { get; set; }
-
-        public Transport(string name, int capacity, float speed)
+        protected Transport(Area area, string name, int capacity, float speed) : base(area)
         {
             Name = name;
             Capacity = capacity;
             Speed = speed;
         }
 
-        public abstract void Move();
+        public string Name { get; set; }
+        public int Capacity { get; set; }
+        public float Speed { get; set; }
     }
 }

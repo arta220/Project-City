@@ -13,6 +13,7 @@ using Services.Transport;
 using Services.Utilities;
 using Domain.Buildings.Residential;
 using Domain.Common.Enums;
+using Domain.Transports.Ground;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -60,8 +61,6 @@ namespace CitySimulatorWPF.ViewModels
         private readonly ICarManagerService _carManager;
         private readonly IMapTileService _mapTileService;
         private readonly MessageService _messageService;
-        private readonly CitizenSimulationService _citizenSimulation;
-        private readonly TransportSimulationService _transportSimulation;
         private readonly IUtilityService _utilityService;
         private readonly IPathConstructionService _pathService;
 
@@ -103,15 +102,14 @@ namespace CitySimulatorWPF.ViewModels
             _carManager = carManager;
             _mapTileService = mapTileService;
             _messageService = messageService;
-            _citizenSimulation = citizenSimulation;
-            _transportSimulation = transportSimulation;
+
             _utilityService = utilityService;
             _pathService = pathService;
 
-            _citizenManager.StartSimulation(_citizenSimulation);
+            _citizenManager.StartSimulation(citizenSimulation);
 
-            _carManager.StartSimulation(_transportSimulation);
-            _transportSimulation.Start();
+            _carManager.StartSimulation(transportSimulation);
+
 
             _mapTileService.InitializeTiles(
                 _simulation.MapModel,
@@ -147,25 +145,24 @@ namespace CitySimulatorWPF.ViewModels
                 State = CitizenState.Idle
             };
 
-            _citizenSimulation.AddCitizen(citizen);
+            _simulation.AddCitizen(citizen);
 
             // Создаём личную машину для этого жителя.
             // Дом — это homePosition, "работу" для примера зададим вручную.
             var workPosition = new Position(35, 35);
 
-            var car = new Domain.Transports.Ground.PersonalCar(
+            var car = new PersonalCar(
+                new Area(1, 1),
                 name: "Car 1",
                 capacity: 4,
                 speed: 1.0f,
                 startPosition: homePosition)
             {
-                HomePosition = homePosition,
-                WorkPosition = workPosition,
                 Owner = citizen,
                 State = TransportState.DrivingToWork
             };
 
-            _transportSimulation.AddCar(car);
+            _simulation.AddTransport(car);
         }
 
         /// <summary>
