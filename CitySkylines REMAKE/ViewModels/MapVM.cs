@@ -1,7 +1,6 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Domain.Buildings;
 using Domain.Citizens;
 using Domain.Citizens.States;
 using Domain.Factories;
@@ -10,9 +9,10 @@ using Domain.Transports.States;
 using Services;
 using Services.CitizensSimulation;
 using System.Collections.ObjectModel;
-using Services.Interfaces;
-using Domain.Enums;
-using Domain.Infrastructure;
+using Services.Transport;
+using Services.Utilities;
+using Domain.Buildings.Residential;
+using Domain.Common.Enums;
 
 namespace CitySimulatorWPF.ViewModels
 {

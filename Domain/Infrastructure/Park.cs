@@ -1,5 +1,6 @@
 ﻿using Domain.Map;
-using Domain.Enums;
+using Domain.Common.Enums;
+using Domain.Common.Base;
 
 namespace Domain.Base
 {

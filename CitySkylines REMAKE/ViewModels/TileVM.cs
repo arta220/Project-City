@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Domain.Base;
-using Domain.Buildings;
-using Domain.Enums;
 using Domain.Map;
 using System.Windows.Threading;
-using Domain.Buildings;
+using Domain.Common.Enums;
+using Domain.Common.Base;
+using Domain.Buildings.Residential;
 
 namespace CitySimulatorWPF.ViewModels
 {

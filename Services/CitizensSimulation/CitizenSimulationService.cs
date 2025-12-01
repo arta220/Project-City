@@ -1,5 +1,7 @@
 ﻿using Domain.Citizens;
-using Domain.Time;
+using Domain.Common.Time;
+using Services.Citizens.Population;
+using Services.Common;
 using Services.Interfaces;
 using System.Collections.ObjectModel;
 

@@ -1,5 +1,4 @@
 ﻿using Domain.Enums;
-using Domain.Map;
 
 namespace Domain.Buildings
 {

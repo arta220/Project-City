@@ -1,5 +1,5 @@
-using Domain.Base;
 using Domain.Citizens;
+using Domain.Common.Base;
 using Domain.Map;
 using Domain.Transports.States;
 using System.Collections.Generic;

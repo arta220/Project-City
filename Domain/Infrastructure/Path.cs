@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Domain.Base;
-using Domain.Enums;
+using Domain.Common.Base;
+using Domain.Common.Enums;
 using Domain.Map;
 
 namespace Domain.Infrastructure

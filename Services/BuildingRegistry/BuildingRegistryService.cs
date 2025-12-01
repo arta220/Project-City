@@ -1,4 +1,4 @@
-﻿using Domain.Base;
+﻿using Domain.Common.Base;
 using Domain.Map;
 using Services.PlaceBuilding;
 

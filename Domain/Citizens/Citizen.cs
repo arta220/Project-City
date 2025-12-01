@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Domain.Base;
-using Domain.Buildings;
 using Domain.Buildings.EducationBuildings;
+using Domain.Buildings.Residential;
 using Domain.Citizens.States;
-using Domain.Enums;
+using Domain.Common.Base;
+using Domain.Common.Enums;
 using Domain.Map;
 
 namespace Domain.Citizens
@@ -27,7 +27,7 @@ namespace Domain.Citizens
         /// <summary>
         /// Текущая работа жителя.
         /// </summary>
-        public Job CurrentJob { get; set; }
+        public CitizenJob CurrentJob { get; set; }
         public Building WorkPlace { get; set; }
 
         /// <summary>

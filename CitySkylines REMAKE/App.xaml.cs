@@ -6,6 +6,10 @@ using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.BuildingRegistry;
+using Services.Citizens.Education;
+using Services.Citizens.Job;
+using Services.Citizens.Movement;
+using Services.Citizens.Population;
 using Services.CitizensSimulation;
 using Services.Graphing;
 using Services.Interfaces;
@@ -15,6 +19,8 @@ using Services.PathFind;
 using Services.PlaceBuilding;
 using Services.Time;
 using Services.Time.Clock;
+using Services.Transport;
+using Services.Utilities;
 using System.Windows;
 
 namespace CitySkylines_REMAKE
@@ -43,7 +49,7 @@ namespace CitySkylines_REMAKE
             // Map и генератор
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
-            services.AddSingleton<Services.Interfaces.IUtilityService, Services.Utilities.UtilityService>();
+            services.AddSingleton<IUtilityService, UtilityService>();
 
             services.AddSingleton<GraphService>();
 

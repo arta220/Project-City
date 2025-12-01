@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
+using Domain.Common.Enums;
 using Domain.Enums;
 using Domain.Infrastructure;
 

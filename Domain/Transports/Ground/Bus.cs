@@ -1,4 +1,4 @@
-using Domain.Base;
+using Domain.Common.Base;
 using System;
 
 namespace Domain.Ground

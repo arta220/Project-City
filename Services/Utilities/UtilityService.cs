@@ -1,8 +1,7 @@
-﻿using Domain.Buildings;
-using Domain.Enums;
-using Domain.Time;
+﻿using Domain.Buildings.Residential;
+using Domain.Common.Enums;
+using Domain.Common.Time;
 using Services.BuildingRegistry;
-using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

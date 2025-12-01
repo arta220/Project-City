@@ -1,12 +1,14 @@
-﻿using Domain.Base;
-using Domain.Buildings;
-using Domain.Enums;
+﻿using Domain.Buildings.Residential;
+using Domain.Common.Base;
+using Domain.Common.Enums;
+using Domain.Common.Time;
 using Domain.Map;
-using Domain.Time;
 using Services.CitizensSimulation;
+using Services.Common;
 using Services.Interfaces;
 using Services.PlaceBuilding;
 using Services.Time;
+using Services.Utilities;
 
 namespace Services
 {

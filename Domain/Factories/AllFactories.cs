@@ -1,10 +1,11 @@
 ﻿using Domain.Base;
 using Domain.Buildings;
-using Domain.Enums;
+using Domain.Buildings.Residential;
+using Domain.Common.Base;
+using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Infrastructure;
 using Domain.Map;
-using Domain.Transports.Water;
 
 namespace Domain.Factories
 {
