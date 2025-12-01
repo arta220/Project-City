@@ -9,7 +9,6 @@ namespace Services.Utilities
     {
         void FixUtility(ResidentialBuilding building, UtilityType utilityType);
         Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building);
-
         UtilityStatistics GetStatistics();
     }
 }
