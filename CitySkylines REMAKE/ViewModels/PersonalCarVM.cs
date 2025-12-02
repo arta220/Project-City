@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Common.Base;
 using Domain.Transports.Ground;
 
 namespace CitySimulatorWPF.ViewModels
@@ -11,7 +12,7 @@ namespace CitySimulatorWPF.ViewModels
         /// <summary>
         /// Модель автомобиля.
         /// </summary>
-        public PersonalCar Car { get; }
+        public Transport Car { get; }
 
         [ObservableProperty]
         private int _x;
@@ -25,7 +26,7 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty]
         private int _pixelY;
 
-        public PersonalCarVM(PersonalCar car)
+        public PersonalCarVM(Transport car)
         {
             Car = car;
             UpdatePosition();

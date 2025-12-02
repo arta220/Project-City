@@ -32,6 +32,10 @@ namespace Services.CitizensSimulation.StateHandlers
             var pos = placement.Value.Position;
             _movementService.Move(citizen, pos, time);
         }
+        protected void MoveTo(Citizen citizen, Position target, SimulationTime time)
+        {
+            _movementService.Move(citizen, target, time);
+        }
 
         public abstract bool CanHandle(CitizenState state);
         public abstract void Update(Citizen citizen, SimulationTime time);

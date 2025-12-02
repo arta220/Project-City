@@ -1,10 +1,10 @@
 using CitySimulatorWPF.ViewModels;
-using Domain.Transports.Ground;
-using Services.CitizensSimulation;
-using Services.Transport;
+using Domain.Common.Base;
+using Services.TransportSimulation;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Data;
 
 namespace CitySimulatorWPF.Services
 {
@@ -16,14 +16,18 @@ namespace CitySimulatorWPF.Services
         void StopSimulation();
     }
 
-    /// <summary>
-    /// Сервис, который связывает симуляцию машин с их визуальными представлениями.
-    /// </summary>
     public class CarManagerService : ICarManagerService
     {
         private TransportSimulationService? _simulation;
 
-        public ObservableCollection<PersonalCarVM> Cars { get; } = new();
+        private readonly ObservableCollection<PersonalCarVM> _cars;
+        public ObservableCollection<PersonalCarVM> Cars => _cars;
+
+        public CarManagerService()
+        {
+            _cars = new ObservableCollection<PersonalCarVM>();
+            BindingOperations.EnableCollectionSynchronization(_cars, new object());
+        }
 
         public void StartSimulation(TransportSimulationService simulation)
         {
@@ -31,43 +35,43 @@ namespace CitySimulatorWPF.Services
 
             _simulation = simulation;
 
-            foreach (var car in _simulation.Cars)
+            foreach (var car in _simulation.Transports)
             {
-                Cars.Add(new PersonalCarVM(car));
+                _cars.Add(new PersonalCarVM(car));
             }
 
-            _simulation.CarAdded += OnCarAdded;
-            _simulation.CarRemoved += OnCarRemoved;
-            _simulation.CarUpdated += OnCarUpdated;
+            _simulation.TransportAdded += OnCarAdded;
+            _simulation.TransportRemoved += OnCarRemoved;
+            _simulation.TransportUpdated += OnCarUpdated;
         }
 
         public void StopSimulation()
         {
             if (_simulation == null) return;
 
-            _simulation.CarAdded -= OnCarAdded;
-            _simulation.CarRemoved -= OnCarRemoved;
-            _simulation.CarUpdated -= OnCarUpdated;
+            _simulation.TransportAdded -= OnCarAdded;
+            _simulation.TransportRemoved -= OnCarRemoved;
+            _simulation.TransportUpdated -= OnCarUpdated;
 
-            Cars.Clear();
+            _cars.Clear();
             _simulation = null;
         }
 
-        private void OnCarAdded(PersonalCar car)
+        private void OnCarAdded(Transport car)
         {
-            Cars.Add(new PersonalCarVM(car));
+            _cars.Add(new PersonalCarVM(car));
         }
 
-        private void OnCarRemoved(PersonalCar car)
+        private void OnCarRemoved(Transport car)
         {
-            var vm = Cars.FirstOrDefault(c => c.Car == car);
+            var vm = _cars.FirstOrDefault(c => c.Car == car);
             if (vm != null)
-                Cars.Remove(vm);
+                _cars.Remove(vm);
         }
 
-        private void OnCarUpdated(PersonalCar car)
+        private void OnCarUpdated(Transport car)
         {
-            var vm = Cars.FirstOrDefault(c => c.Car == car);
+            var vm = _cars.FirstOrDefault(c => c.Car == car);
             vm?.UpdatePosition();
         }
     }

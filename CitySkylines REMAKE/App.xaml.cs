@@ -21,7 +21,8 @@ using Services.PathFind;
 using Services.PlaceBuilding;
 using Services.Time;
 using Services.Time.Clock;
-using Services.Transport;
+using Services.TransportSimulation;
+using Services.TransportSimulation.StateHandlers;
 using Services.Utilities;
 using System.Windows;
 
@@ -76,7 +77,6 @@ namespace CitySkylines_REMAKE
             // Симуляция и часы
             services.AddSingleton<ISimulationClock, SimulationClock>();
             services.AddSingleton<ISimulationTimeService, SimulationTimeService>();
-            services.AddSingleton<Simulation>();
 
             // Размещение объектов на карте
             services.AddSingleton<ConstructionValidator>();
@@ -99,25 +99,41 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ICitizenStateHandler, InTransportStateHandler>();
             services.AddSingleton<ICitizenStateHandler, StudyingStateHandler>();
             services.AddSingleton<ICitizenStateHandler, SearchingWorkStateHandler>();
+            services.AddSingleton<JobController>();
+            services.AddSingleton<ICitizenStateHandler, WorkingStateHandler>();
 
-            // Контроллер граждан получает все обработчики через IEnumerable
+            // Контроллер граждан
             services.AddSingleton<CitizenController>();
-
-            // Контроллер и менеджеры граждан
             services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
 
-            //  Транспорт 
+            // Транспорт
             services.AddSingleton<TransportMovementService>();
-            services.AddSingleton<TransportController>(sp =>
+
+            // Регистрация обработчиков состояний транспорта
+            services.AddSingleton<ITransportStateHandler, IdleAtHomeStateHandler>();
+            services.AddSingleton<ITransportStateHandler, DrivingToWorkStateHandler>();
+            services.AddSingleton<ITransportStateHandler, ParkedAtWorkStateHandler>();
+            services.AddSingleton<ITransportStateHandler, DrivingHomeStateHandler>();
+
+            // Контроллер транспорта получает все хендлеры через IEnumerable
+            services.AddSingleton<PersonalTransportController>(sp =>
             {
-                var registry = sp.GetRequiredService<IBuildingRegistry>();
-                var movement = sp.GetRequiredService<TransportMovementService>();
-                int workDayLengthTicks = 50;
-                return new TransportController(movement, registry, workDayLengthTicks);
+                var handlers = sp.GetRequiredService<IEnumerable<ITransportStateHandler>>();
+                return new PersonalTransportController(handlers);
             });
-            services.AddSingleton<TransportSimulationService>();
+
+            services.AddSingleton<TransportSimulationService>(sp =>
+            {
+                var controller = sp.GetRequiredService<PersonalTransportController>();
+                var clock = sp.GetRequiredService<ISimulationClock>();
+                return new TransportSimulationService(controller);
+            });
+
+            // Менеджер машин
             services.AddSingleton<ICarManagerService, CarManagerService>();
+
+            services.AddSingleton<MessageService, MessageService>();
 
             // Сервисы работы с картой
             services.AddSingleton<IMapTileService, MapTileService>();
@@ -132,7 +148,7 @@ namespace CitySkylines_REMAKE
                 return new PathConstructionService(tileService.Tiles);
             });
 
-            services.AddSingleton<MessageService, MessageService>();
+            services.AddSingleton<Simulation>();
 
             // ViewModels
             services.AddTransient<HeaderPanelViewModel>();
@@ -143,6 +159,7 @@ namespace CitySkylines_REMAKE
             // MainWindow
             services.AddSingleton<MainWindow>();
         }
+
 
 
         protected override void OnExit(ExitEventArgs e)

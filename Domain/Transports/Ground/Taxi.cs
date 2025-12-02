@@ -1,12 +1,14 @@
-using Domain.Common.Base;
 using Domain.Map;
+using Domain.Common.Base;
 
-namespace Domain.Ground
+namespace Domain.Transports.Ground
 {
     public class Taxi : Transport
     {
-        public Taxi(Area area, string name, int capacity, float speed) : base(area, name, capacity, speed)
+        public Taxi(Area area, float speed) : base(area, speed)
         {
+            Type = TransportType.Taxi;
+            Capacity = 4;
         }
     }
 }
