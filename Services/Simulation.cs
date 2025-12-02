@@ -10,7 +10,7 @@ using Services.Common;
 using Services.Interfaces;
 using Services.PlaceBuilding;
 using Services.Time;
-using Services.Transport;
+using Services.TransportSimulation;
 using Services.Utilities;
 
 namespace Services
@@ -101,9 +101,19 @@ namespace Services
         public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);
 
         public bool CanPlace(MapObject mapObject, Placement placement) => _placementService.CanPlace(MapModel, mapObject, placement);
-        public void AddCitizen(Citizen citizen) => _citizenSimulationService.AddCitizen(citizen);
+        public void AddCitizen(Citizen citizen)
+        {
+            _citizenSimulationService.AddCitizen(citizen);
+            _placementRepository.Register(citizen, new Placement(citizen.Position, citizen.Area));
+        }
+
+        public void AddTransport(Transport transport)
+        {
+            _transportSimulationService.AddTransport(transport);
+            _placementRepository.Register(transport, new Placement(transport.Position, transport.Area));
+        }
+
         public void RemoveCitizen(Citizen citizen) => _citizenSimulationService.RemoveCitizen(citizen);
-        public void AddTransport(PersonalCar car) => _transportSimulationService.AddCar(car);
-        public void RemoveTransport(PersonalCar car) => _transportSimulationService.RemoveCar(car);
+        public void RemoveTransport(Transport car) => _transportSimulationService.RemoveTransport(car);
     }
 }

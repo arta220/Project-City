@@ -1,19 +1,21 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Buildings;
+using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Common.Base;
+using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Map;
+using Domain.Transports.Ground;
 using Domain.Transports.States;
 using Services;
 using Services.CitizensSimulation;
-using System.Collections.ObjectModel;
-using Services.Transport;
+using Services.TransportSimulation;
 using Services.Utilities;
-using Domain.Buildings.Residential;
-using Domain.Common.Enums;
-using Domain.Transports.Ground;
+using System.Collections.ObjectModel;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -124,46 +126,81 @@ namespace CitySimulatorWPF.ViewModels
                     return true;
                 });
 
-            CreateHumanAndHome();
+            CreateTestScenario();
             _utilityService = utilityService;
         }
 
-        /// <summary>
-        /// Создаёт начальное жилище, жителя и его личную машину.
-        /// Машина везёт жителя от дома до "работы".
-        /// </summary>
-        private void CreateHumanAndHome()
+        private void CreateTestPopulation(int count = 5)
         {
-            var homePosition = new Position(25, 25);
-            var home = new ResidentialBuilding(1, 1, new Area(1, 1));
-            _simulation.TryPlace(home, new Placement(homePosition, home.Area));
+            var rand = new Random();
 
-            var citizen = new Citizen
+            for (int i = 0; i < count; i++)
             {
+                var homeArea = new Area(1, 1);
+                var homePos = new Position(rand.Next(0, Width), rand.Next(0, Height));
+                var home = new ResidentialBuilding(1, 1, homeArea);
+                _simulation.TryPlace(home, new Placement(homePos, home.Area));
+
+                var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
+                {
+                    Age = rand.Next(18, 60),
+                    Home = home,
+                    Position = new Position(homePos.X, homePos.Y),
+                    State = CitizenState.GoingHome
+                };
+                _simulation.AddCitizen(citizen);
+
+                var workArea = new Area(1, 1);
+                var workPos = new Position(rand.Next(0, Width), rand.Next(0, Height));
+                var work = new Pharmacy(workArea);
+                _simulation.TryPlace(work, new Placement(workPos, work.Area));
+                citizen.WorkPlace = work;
+
+                var car = new PersonalCar(new Area(1, 1), speed: 1.0f, owner: citizen)
+                {
+                    State = TransportState.IdleAtHome,
+                    Position = new Position(homePos.X, homePos.Y)
+                };
+                citizen.PersonalCar = car;
+                _simulation.AddTransport(car);
+
+                car.Route.Clear();
+                car.Route.Add(workPos);
+            }
+        }
+        private void CreateTestScenario()
+        {
+            var homeArea = new Area(1, 1);
+            var homePos = new Position(5, 5);
+            var home = new ResidentialBuilding(1, 1, homeArea);
+            _simulation.TryPlace(home, new Placement(homePos, home.Area));
+
+            var workArea = new Area(1, 1);
+            var workPos = new Position(20, 20);
+            var work = new Pharmacy(workArea);
+            _simulation.TryPlace(work, new Placement(workPos, work.Area));
+
+            var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
+            {
+                Age = 25,
                 Home = home,
-                Position = new Position(20, 25),
-                State = CitizenState.Idle
+                WorkPlace = work,
+                Position = new Position(4, 5),
+                State = CitizenState.GoingToWork
             };
+
+            var car = new PersonalCar(new Area(1, 1), speed: 1.0f, owner: citizen)
+            {
+                State = TransportState.IdleAtHome,
+                Position = new Position(2, 2)
+            };
+            citizen.PersonalCar = car;
 
             _simulation.AddCitizen(citizen);
-
-            // Создаём личную машину для этого жителя.
-            // Дом — это homePosition, "работу" для примера зададим вручную.
-            var workPosition = new Position(35, 35);
-
-            var car = new PersonalCar(
-                new Area(1, 1),
-                name: "Car 1",
-                capacity: 4,
-                speed: 1.0f,
-                startPosition: new Position(17, 16))
-            {
-                Owner = null,
-                State = TransportState.DrivingToWork
-            };
-
             _simulation.AddTransport(car);
         }
+
+
 
         /// <summary>
         /// Обрабатывает начало строительства на тайле.

@@ -31,12 +31,23 @@ namespace Services.MapGenerator
         {
             var map = new MapModel(width, height);
 
-            GenerateTerrain(map);
-            GenerateResources(map);
+            GenerateSimpleTerrain(map); // чисто для проверки работы всяких штук
+            //GenerateTerrain(map);
+            //GenerateResources(map);
 
             return map;
         }
 
+        private void GenerateSimpleTerrain(MapModel map)
+        {
+            for (int x = 0; x < map.Width; x++)
+            {
+                for (int y = 0; y < map.Height; y++)
+                {
+                    map[x, y] = new TileModel() { Terrain = TerrainType.Plain};
+                }
+            }
+        }
         /// <summary>
         /// Инициализирует тайлы карты рельефом:
         /// водой, равнинами, лугами, лесом, горами и рекой.

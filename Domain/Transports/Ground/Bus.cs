@@ -1,13 +1,14 @@
-using Domain.Common.Base;
 using Domain.Map;
-using System;
+using Domain.Common.Base;
 
-namespace Domain.Ground
+namespace Domain.Transports.Ground
 {
     public class Bus : Transport
     {
-        public Bus(Area area, string name, int capacity, float speed) : base(area, name, capacity, speed)
+        public Bus(Area area, float speed) : base(area, speed)
         {
+            Type = TransportType.Bus;
+            Capacity = 40;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Map;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Map;
 
 namespace Domain.Common.Base
 {
@@ -9,7 +10,7 @@ namespace Domain.Common.Base
     /// Содержит информацию о занимаемой площади объекта.
     /// Может быть унаследован для создания зданий, дорог, парков и других объектов.
     /// </remarks>
-    public abstract class MapObject
+    public abstract class MapObject : ObservableObject
     {
         /// <summary>
         /// Площадь, занимаемая объектом на карте.

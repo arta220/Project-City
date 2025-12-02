@@ -19,15 +19,19 @@ namespace Services.CitizensSimulation.StateHandlers
 
             citizen.Position = citizen.PersonalCar.Position;
 
-            switch (citizen.PersonalCar.State)
+            if (citizen.TargetPosition != null &&
+                citizen.PersonalCar.State != TransportState.DrivingToTarget)
             {
-                case TransportState.ParkedAtWork:
-                    citizen.State = CitizenState.GoingToWork;
-                    break;
-                case TransportState.IdleAtHome:
-                    citizen.State = CitizenState.Idle;
-                    break;
+                citizen.PersonalCar.TargetPosition = citizen.TargetPosition;
+                citizen.PersonalCar.State = TransportState.DrivingToTarget;
+            }
+
+            if (citizen.PersonalCar.Position.Equals(citizen.PersonalCar.TargetPosition))
+            {
+                citizen.State = CitizenState.Idle;
+                citizen.CurrentTransport = null;
             }
         }
+
     }
 }
