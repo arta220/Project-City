@@ -12,7 +12,6 @@ using Services.Citizens.Movement;
 using Services.Citizens.Population;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
-using Services.CitizensSimulation.StateHandlers;
 using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
@@ -90,17 +89,18 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ICitizenMovementService, MovementService>();
             services.AddSingleton<IPopulationService, PopulationService>();
 
+            services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
             // Обработчики состояний граждан
-            services.AddSingleton<ICitizenStateHandler, IdleStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingToWorkStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingToStudyStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingToTransportStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingHomeStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, InTransportStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, StudyingStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, SearchingWorkStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, IdleStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, GoingToWorkStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, GoingToStudyStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, GoingToTransportStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, GoingHomeStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, InTransportStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, StudyingStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, SearchingWorkStateHandler>();
             services.AddSingleton<JobController>();
-            services.AddSingleton<ICitizenStateHandler, WorkingStateHandler>();
+            //services.AddSingleton<ICitizenStateHandler, WorkingStateHandler>();
 
             // Контроллер граждан
             services.AddSingleton<CitizenController>();

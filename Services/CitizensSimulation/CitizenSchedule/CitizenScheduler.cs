@@ -1,7 +1,9 @@
 ﻿using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Citizens.Tasks;
 using Domain.Common.Base;
 using Domain.Common.Time;
+using Domain.Map;
 using Services.BuildingRegistry;
 using Services.Time;
 
@@ -9,56 +11,74 @@ namespace Services.CitizensSimulation.CitizenSchedule
 {
     public class CitizenScheduler : ICitizenScheduler
     {
-        private readonly ISimulationTimeService _timeService;
-        private readonly IBuildingRegistry _buildingRegistry;
+        private readonly ISimulationTimeService _time;
+        private readonly IBuildingRegistry _registry;
 
-        public CitizenScheduler(
-            ISimulationTimeService timeService,
-            IBuildingRegistry buildingRegistry)
+        public CitizenScheduler(ISimulationTimeService time, IBuildingRegistry registry)
         {
-            _timeService = timeService;
-            _buildingRegistry = buildingRegistry;
+            _time = time;
+            _registry = registry;
         }
 
-        public CitizenState Decide(Citizen citizen, CitizenState current, SimulationTime time)
-            => DecideNextAction(citizen, current);
-
-        private CitizenState DecideNextAction(Citizen citizen, CitizenState current)
+        public void UpdateSchedule(Citizen citizen)
         {
-            var timeOfDay = _timeService.GetTimeOfDay();
-            var isWeekend = _timeService.IsWeekend();
-            var isAtHome = IsAt(citizen, citizen.Home);
+            // Если уже есть задачи — не пересчитываем расписание
+            if (citizen.CurrentTask != null || citizen.Tasks.Count > 0)
+                return;
 
-            if (!isAtHome && (timeOfDay == TimeOfDay.Evening || _timeService.IsNightTime()))
-                return CitizenState.GoingHome;
+            var tod = _time.GetTimeOfDay();
+            bool weekend = _time.IsWeekend();
 
-            if (timeOfDay == TimeOfDay.Morning && !isWeekend && isAtHome)
+            // Вечер — домой
+            if ((_time.IsNightTime() || tod == TimeOfDay.Evening)
+                && !IsAt(citizen, citizen.Home))
             {
-                if (NeedsEducation(citizen) && !IsAt(citizen, citizen.StudyPlace))
-                    return CitizenState.GoingToStudy;
+                citizen.State = CitizenState.GoingHome;
 
-                if (HasJob(citizen) && !IsAt(citizen, citizen.WorkPlace))
-                    return citizen.HasCar ? CitizenState.GoingToTransport : CitizenState.GoingToWork;
+                citizen.Tasks.Enqueue(new CitizenTask(
+                    CitizenTaskType.MoveToPosition,
+                    GetEntrance(citizen.Home)));
+
+                return;
             }
 
-            if (current == CitizenState.GoingToWork && IsAt(citizen, citizen.WorkPlace))
-                return CitizenState.Working;
+            // Утро — работа
+            if (tod == TimeOfDay.Morning && !weekend && citizen.WorkPlace != null)
+            {
+                if (!IsAt(citizen, citizen.WorkPlace))
+                {
+                    citizen.State = CitizenState.GoingWork;
 
-            if (current == CitizenState.GoingToStudy && IsAt(citizen, citizen.StudyPlace))
-                return CitizenState.Studying;
+                    citizen.Tasks.Enqueue(new CitizenTask(
+                        CitizenTaskType.MoveToPosition,
+                        GetEntrance(citizen.WorkPlace)));
 
-            return CitizenState.Idle;
+                    citizen.Tasks.Enqueue(new CitizenTask(
+                        CitizenTaskType.Work,
+                        GetEntrance(citizen.WorkPlace)));
+
+                    return;
+                }
+                else
+                {
+                    citizen.State = CitizenState.Working;
+                    return;
+                }
+            }
+
+            citizen.State = CitizenState.Idle;
         }
 
-        private bool IsAt(Citizen citizen, MapObject obj)
+        private bool IsAt(Citizen citizen, MapObject building)
         {
-            var (placement, found) = _buildingRegistry.TryGetPlacement(obj);
-            return found &&
-                   placement != null &&
-                   citizen.Position.Equals(placement.Value.Position);
+            var (placement, ok) = _registry.TryGetPlacement(building);
+            return ok && citizen.Position == placement.Value.Entrance;
         }
 
-        private bool HasJob(Citizen citizen) => citizen.WorkPlace != null;
-        private bool NeedsEducation(Citizen citizen) => citizen.StudyPlace != null;
+        private Position GetEntrance(MapObject building)
+        {
+            var (placement, _) = _registry.TryGetPlacement(building);
+            return placement.Value.Entrance;
+        }
     }
 }

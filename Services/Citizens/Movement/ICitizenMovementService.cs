@@ -6,6 +6,8 @@ namespace Services.Citizens.Movement
 {
     public interface ICitizenMovementService
     {
-        void Move(Citizen citizen, Position position, SimulationTime time);
+        void SetTarget(Citizen citizen, Position target);
+        void PlayMovement(Citizen citizen, SimulationTime time);
+        void RecalculatePath(Citizen citizen);
     }
 }

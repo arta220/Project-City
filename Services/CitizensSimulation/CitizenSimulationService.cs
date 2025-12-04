@@ -1,8 +1,9 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
+using Services.Citizens.Movement;
 using Services.Citizens.Population;
+using Services.CitizensSimulation.CitizenSchedule;
 using Services.Common;
-using Services.Interfaces;
 using System.Collections.ObjectModel;
 
 namespace Services.CitizensSimulation
@@ -14,7 +15,9 @@ namespace Services.CitizensSimulation
     {
         private int _lastProcessedYear = -1;
         private readonly CitizenController _controller;
+        private readonly ICitizenScheduler _scheduler;
         private readonly IPopulationService _populationService;
+        private readonly ICitizenMovementService _movementService;
         public ObservableCollection<Citizen> Citizens { get; } = new();
 
         public Action<Citizen> CitizenAdded;
@@ -23,8 +26,12 @@ namespace Services.CitizensSimulation
 
         public CitizenSimulationService(
             CitizenController controller,
-            IPopulationService populationService)
+            IPopulationService populationService,
+            ICitizenScheduler scheduler,
+            ICitizenMovementService movementService)
         {
+            _movementService = movementService;
+            _scheduler = scheduler;
             _controller = controller;
             _populationService = populationService;
         }
@@ -32,16 +39,19 @@ namespace Services.CitizensSimulation
         {
             foreach (var citizen in Citizens)
             {
+                _scheduler.UpdateSchedule(citizen);
                 _controller.UpdateCitizen(citizen, time);
                 CitizenUpdated?.Invoke(citizen);
-                _populationService.ProcessDemography(Citizens.ToList(), time, CitizenAdded, CitizenRemoved);
 
                 if (time.Year != _lastProcessedYear)
                 {
+                    _populationService.ProcessDemography(
+                        Citizens.ToList(), time, CitizenAdded, CitizenRemoved);
                     _lastProcessedYear = time.Year;
                 }
             }
         }
+
         public void AddCitizen(Citizen citizen)
         {
             if (citizen == null) return;
