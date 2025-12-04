@@ -3,6 +3,7 @@ using Domain.Common.Time;
 using Domain.Transports.Ground;
 using Services.Common;
 using Services.Time.Clock;
+using System;
 using System.Collections.ObjectModel;
 
 namespace Services.TransportSimulation
@@ -10,11 +11,13 @@ namespace Services.TransportSimulation
     public class TransportSimulationService : IUpdatable
     {
         private readonly PersonalTransportController _controller;
+        private bool _isPaused = true;
 
         public TransportSimulationService(PersonalTransportController controller)
         {
             _controller = controller;
         }
+
         public ObservableCollection<Transport> Transports { get; } = new();
 
         public event Action<Transport>? TransportAdded;
@@ -35,14 +38,32 @@ namespace Services.TransportSimulation
 
         public void Update(SimulationTime time)
         {
+            if (_isPaused) return;
+
             foreach (var transport in Transports)
             {
-                if (transport is PersonalCar car) // ПРОСТО ВРЕМЕННАЯ ПРОВЕРКА ПОТОМ НАД ЧОТО СДЕЛАТЬ   
+                if (transport is PersonalCar car) // временная проверка
                 {
                     _controller.UpdateTransport(car, time);
                     TransportUpdated?.Invoke(transport);
                 }
             }
+        }
+
+        /// <summary>
+        /// Возобновляет симуляцию транспорта.
+        /// </summary>
+        public void Resume()
+        {
+            _isPaused = false;
+        }
+
+        /// <summary>
+        /// Ставит симуляцию транспорта на паузу.
+        /// </summary>
+        public void Pause()
+        {
+            _isPaused = true;
         }
     }
 }

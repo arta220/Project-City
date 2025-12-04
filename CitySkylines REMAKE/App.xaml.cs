@@ -90,17 +90,8 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IPopulationService, PopulationService>();
 
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
-            // Обработчики состояний граждан
-            //services.AddSingleton<ICitizenStateHandler, IdleStateHandler>();
-            //services.AddSingleton<ICitizenStateHandler, GoingToWorkStateHandler>();
-            //services.AddSingleton<ICitizenStateHandler, GoingToStudyStateHandler>();
-            //services.AddSingleton<ICitizenStateHandler, GoingToTransportStateHandler>();
-            //services.AddSingleton<ICitizenStateHandler, GoingHomeStateHandler>();
-            //services.AddSingleton<ICitizenStateHandler, InTransportStateHandler>();
-            //services.AddSingleton<ICitizenStateHandler, StudyingStateHandler>();
-            //services.AddSingleton<ICitizenStateHandler, SearchingWorkStateHandler>();
             services.AddSingleton<JobController>();
-            //services.AddSingleton<ICitizenStateHandler, WorkingStateHandler>();
+
 
             // Контроллер граждан
             services.AddSingleton<CitizenController>();
@@ -116,7 +107,6 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ITransportStateHandler, ParkedAtWorkStateHandler>();
             services.AddSingleton<ITransportStateHandler, DrivingHomeStateHandler>();
 
-            // Контроллер транспорта получает все хендлеры через IEnumerable
             services.AddSingleton<PersonalTransportController>(sp =>
             {
                 var handlers = sp.GetRequiredService<IEnumerable<ITransportStateHandler>>();

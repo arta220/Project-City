@@ -25,13 +25,17 @@ namespace Services.Citizens.Movement
         public void SetTarget(Citizen citizen, Position target)
         {
             citizen.TargetPosition = target;
-            citizen.CurrentPath.Clear();
 
-            var path = _pathFinder.FindPath(citizen.Position, target);
-            if (path == null) return;
+            var path = _pathFinder.FindPath(citizen.Position, target)?.ToList();
+            if (path == null || path.Count == 0)
+                return;
 
-            foreach (var p in path)
-                citizen.CurrentPath.Enqueue(p);
+            lock (citizen.CurrentPath)
+            {
+                citizen.CurrentPath.Clear();
+                foreach (var p in path)
+                    citizen.CurrentPath.Enqueue(p);
+            }
         }
     }
 }
