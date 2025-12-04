@@ -8,6 +8,10 @@ namespace Domain.Common.Enums
 {
     public enum ResourseType
     {
+        //Фармацевтичсекая промышленность
+        Chemicals,
+        Medicine
+
         // Здесь можно добавить другие типы ресурсов для заводов по мере необходимости
     }
 }

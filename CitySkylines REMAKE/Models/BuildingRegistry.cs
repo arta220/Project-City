@@ -2,6 +2,7 @@ using CitySimulatorWPF.ViewModels;
 using Domain.Base;
 using Domain.Enums;
 using Domain.Factories;
+using Domain.Factories.Factory;
 using Domain.Map;
 using System.Collections.ObjectModel;
 
@@ -82,15 +83,9 @@ namespace CitySimulatorWPF.Models
             var industrial = new BuildingCategory { Name = "Промышленные" };
 
             industrial.Objects.Add(new ObjectVM(
-                new FactoryBuildingFactory(),
-                "Завод",
-                "Assets/Icons/Factory.png"
-            ));
-
-            industrial.Objects.Add(new ObjectVM(
-                new WarehouseFactory(),
-                "Склад",
-                "Assets/Icons/Warehouse.png"
+                new PharmaceuticalFactoryFactory(),
+                "Фармацевтический Завод",
+                "Assets/Icons/PharmaceuticalFactory.png"
             ));
 
             // Инфраструктура

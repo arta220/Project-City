@@ -66,25 +66,30 @@ namespace Domain.Factories
             new GasStation(area: new Area(2, 2));
     }
 
-    public class FactoryBuildingFactory : IMapObjectFactory
-    {
-        public MapObject Create() =>
-            new IndustrialBuilding(
-                floors: 1,
-                maxOccupancy: 50,
-                area: new Area(5, 5)
-            );
-    }
+    
 
-    public class WarehouseFactory : IMapObjectFactory
-    {
-        public MapObject Create() =>
-            new IndustrialBuilding(
-                floors: 1,
-                maxOccupancy: 10,
-                area: new Area(4, 6)
-            );
-    }
+    // Для заводов сделал отдельую папку
+
+    //public class FactoryBuildingFactory : IMapObjectFactory
+    //{
+    //    public MapObject Create() =>
+    //        new IndustrialBuilding(
+    //            floors: 1,
+    //            maxOccupancy: 50,
+    //            area: new Area(5, 5)
+    //        );
+    //}
+
+    //public class WarehouseFactory : IMapObjectFactory
+    //{
+    //    public MapObject Create() =>
+    //        new IndustrialBuilding(
+    //            floors: 1,
+    //            maxOccupancy: 10,
+    //            area: new Area(4, 6)
+    //        );
+    //}
+    
 
     public class UrbanParkFactory : IMapObjectFactory
     {
