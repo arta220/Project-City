@@ -71,12 +71,10 @@ namespace Domain.Buildings
         /// <summary>
         /// Добавить новый цех.
         /// </summary>
-        /// <returns> Созданный цех (необязательно его получать) </returns>
-        public Workshop AddWorkshop(Enum input, Enum output, int coeff = 1)
+        public void AddWorkshop(Enum input, Enum output, int coeff = 1)
         {
             var ws = new Workshop(this, input, output, coeff);
             Workshops.Add(ws);
-            return ws;
         }
 
         /// <summary>

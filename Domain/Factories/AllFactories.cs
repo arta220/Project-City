@@ -73,13 +73,19 @@ namespace Domain.Factories
     /// </summary>
     public class FactoryBuildingFactory : IMapObjectFactory
     {
-        public MapObject Create() =>
-            new IndustrialBuilding(
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 50,
                 area: new Area(5, 5)
             );
-    }
+        
+            //TODO: Создавать цеха и складывать их в здание
+
+            return building;
+        }
+}
 
     /// <summary>
     /// Складское здание
@@ -87,12 +93,18 @@ namespace Domain.Factories
     /// </summary>
     public class WarehouseFactory : IMapObjectFactory
     {
-        public MapObject Create() =>
-            new IndustrialBuilding(
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 10,
                 area: new Area(4, 6)
             );
+
+            //TODO: Создавать цеха и складывать их в здание
+
+            return building;
+        }
     }
     #endregion
 
