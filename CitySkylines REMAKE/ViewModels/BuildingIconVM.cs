@@ -30,8 +30,8 @@ namespace CitySimulatorWPF.ViewModels
             CanvasLeft = placement.Position.X * tileSize;
             CanvasTop = placement.Position.Y * tileSize;
 
-            Width = placement.Area.Width * tileSize;
-            Height = placement.Area.Height * tileSize;
+            Width  = placement.Area.Height * tileSize;
+            Height = placement.Area.Width  * tileSize;
         }
     }
 }

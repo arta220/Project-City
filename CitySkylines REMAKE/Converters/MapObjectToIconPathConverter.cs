@@ -4,6 +4,8 @@ using System.Windows.Data;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Common.Base;
+using Domain.Base;
+using Domain.Common.Enums;
 
 namespace CitySimulatorWPF.Converters
 {
@@ -17,9 +19,16 @@ namespace CitySimulatorWPF.Converters
             if (value is not MapObject mapObject)
                 return null;
 
-            if (mapObject is ResidentialBuilding)
-                return "/Icons/HighResidentialBuilding.png";
+            // TODO: подогнать тоже через enum
+            // Жилые здания: маленький/высотный дом по количеству этажей
+            if (mapObject is ResidentialBuilding residential)
+            {
+                return residential.Floors <= 2
+                    ? "/Icons/SmallResidentialBuilding.png"
+                    : "/Icons/HighResidentialBuilding.png";
+            }
 
+            // Коммерческие здания по типу
             if (mapObject is CommercialBuilding commercial)
             {
                 return commercial.CommercialType switch
@@ -34,9 +43,37 @@ namespace CitySimulatorWPF.Converters
                 };
             }
 
-            // Временный fallback: для любых других объектов показываем одну тестовую иконку,
-            // чтобы убедиться, что биндинг и конвертер вообще работают.
-            return "/Icons/Shop.png";
+            // Промышленные здания по типу
+            if (mapObject is IndustrialBuilding industrial)
+            {
+                return industrial.Type switch
+                {
+                    IndustrialBuildingType.Factory   => "/Icons/Factory.png",
+                    IndustrialBuildingType.Warehouse => "/Icons/Warehouse.png",
+                    _ => null
+                };
+            }
+
+            // Парки по типу
+            if (mapObject is Park park)
+            {
+                return park.Type switch
+                {
+                    ParkType.UrbanPark        => "/Icons/UrbanPark.png",
+                    ParkType.BotanicalGarden  => "/Icons/BotanGarden.png",
+                    ParkType.Playground       => "/Icons/ChildPlayground.png",
+                    ParkType.Square           => "/Icons/Square.png",
+                    ParkType.RecreationArea   => "/Icons/RestArea.png",
+                    _ => null
+                };
+            }
+
+            // Дорога
+            // if (mapObject is Road)
+            //     return "/Icons/Road.png";
+
+            // Для остальных типов пока иконку не задаём
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,4 +1,4 @@
-﻿using Domain.Base;
+using Domain.Base;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Common.Base;
@@ -72,7 +72,8 @@ namespace Domain.Factories
             new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 50,
-                area: new Area(5, 5)
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
             );
     }
 
@@ -82,7 +83,8 @@ namespace Domain.Factories
             new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 10,
-                area: new Area(4, 6)
+                area: new Area(4, 6),
+                type: IndustrialBuildingType.Warehouse
             );
     }
 
