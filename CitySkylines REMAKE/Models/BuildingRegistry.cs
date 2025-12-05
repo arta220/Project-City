@@ -78,6 +78,7 @@ namespace CitySimulatorWPF.Models
                 "Assets/Icons/GasStation.png"
             ));
 
+            #region Industrial Buildings ViewModels
             // Промышленные
             var industrial = new BuildingCategory { Name = "Промышленные" };
 
@@ -92,6 +93,7 @@ namespace CitySimulatorWPF.Models
                 "Склад",
                 "Assets/Icons/Warehouse.png"
             ));
+            #endregion
 
             // Инфраструктура
             var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
