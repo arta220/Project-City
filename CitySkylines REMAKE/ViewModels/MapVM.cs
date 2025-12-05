@@ -29,6 +29,13 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty]
         private MapInteractionMode _currentMode = MapInteractionMode.None;
 
+        /// <summary>
+        /// Выбранная на карте машина. Используется для подсветки маршрута
+        /// и отображения простой панели статуса транспорта.
+        /// </summary>
+        [ObservableProperty]
+        private PersonalCarVM _selectedCar;
+
         private readonly Simulation _simulation;
         private readonly IRoadConstructionService _roadService;
         private readonly ICitizenManagerService _citizenManager;
@@ -86,6 +93,11 @@ namespace CitySimulatorWPF.ViewModels
             StartSimulationAfterUIReady();
         }
 
+        partial void OnSelectedCarChanged(PersonalCarVM value)
+        {
+            UpdateRouteHighlight();
+        }
+
         private void StartSimulationAfterUIReady()
         {
             if (_simulationStarted) return;
@@ -96,6 +108,33 @@ namespace CitySimulatorWPF.ViewModels
                 _citizenManager.ResumeSimulation();
                 _carManager.ResumeSimulation();
             }, DispatcherPriority.Background);
+        }
+
+        private void UpdateRouteHighlight()
+        {
+            // Сбрасываем подсветку на всех плитках
+            foreach (var tile in Tiles)
+            {
+                tile.IsRouteHighlighted = false;
+            }
+
+            if (SelectedCar == null)
+                return;
+
+            var car = SelectedCar.Car;
+
+            // Подсвечиваем клетки по текущему маршруту машины
+            if (car.CurrentPath != null && car.CurrentPath.Count > 0)
+            {
+                foreach (var pos in car.CurrentPath)
+                {
+                    var tile = Tiles.FirstOrDefault(t => t.X == pos.X && t.Y == pos.Y);
+                    if (tile != null)
+                    {
+                        tile.IsRouteHighlighted = true;
+                    }
+                }
+            }
         }
 
         private void CreateTestScenario()

@@ -88,6 +88,10 @@
                                 <Rectangle Fill="#8800FF00"
                                            Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
+                                <!-- Подсветка маршрута выбранной машины -->
+                                <Rectangle Fill="Yellow"
+                                           Visibility="{Binding IsRouteHighlighted, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
                                 <!-- Есть объект (здание и т.п.) -->
                                 <Rectangle Fill="Gray"
                                            Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}" />

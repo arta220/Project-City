@@ -1,4 +1,5 @@
-﻿using Domain.Common.Enums;
+﻿using Domain.Base;
+using Domain.Common.Enums;
 using Domain.Map;
 using Services.BuildingRegistry;
 
@@ -57,8 +58,9 @@ namespace Services.NavigationMap
         /// </summary>
         /// <param name="p">Текущая позиция.</param>
         /// <param name="goal">Целевая позиция.</param>
+        /// <param name="roadsOnly">Если true, разрешаем движение только по дорогам.</param>
         /// <returns>True, если плитка проходима; иначе false.</returns>
-        public bool IsWalkable(Position p, Position goal)
+        public bool IsWalkable(Position p, Position goal, bool roadsOnly = false)
         {
             if (!_map.IsPositionInBounds(p))
                 return false;
@@ -67,6 +69,17 @@ namespace Services.NavigationMap
                 return true;
 
             var tile = _map[p];
+
+            if (roadsOnly)
+            {
+                // Для транспорта: можно ехать только по клеткам, где построена дорога (объект Road)
+                if (tile.MapObject is Road)
+                    return true;
+
+                return false;
+            }
+
+            // Обычные правила для пешеходов
             if (tile.MapObject != null)
                 return false;
 

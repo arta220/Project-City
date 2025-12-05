@@ -11,14 +11,14 @@ namespace Services.PathFind
             _navigationMap = navigationMap;
         }
      
-        public List<Position> FindPath(Position start, Position goal)
+        public List<Position> FindPath(Position start, Position goal, bool roadsOnly = false)
         {
             var result = new List<Position>();
 
             if (start.Equals(goal))
                 return result;
 
-            if (!_navigationMap.IsWalkable(goal, goal))
+            if (!_navigationMap.IsWalkable(goal, goal, roadsOnly))
                 return result;
 
             var openSet = new PriorityQueue<Node, int>();
@@ -40,7 +40,7 @@ namespace Services.PathFind
 
                 foreach (var neighbor in GetNeighbors(current))
                 {
-                    if (!_navigationMap.IsWalkable(neighbor, goal) || closedSet.Contains(neighbor))
+                    if (!_navigationMap.IsWalkable(neighbor, goal, roadsOnly) || closedSet.Contains(neighbor))
                         continue;
 
                     int tentativeG = gScore[current] + _navigationMap.GetTileCost(neighbor);

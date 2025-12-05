@@ -30,6 +30,12 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty] private bool _isPreviewTile = false;
         [ObservableProperty] private bool _isMouseOver = false;
 
+        /// <summary>
+        /// Маршрут выбранной машины проходит через эту клетку.
+        /// Используется для визуализации пути (отладка A* и дорог).
+        /// </summary>
+        [ObservableProperty] private bool _isRouteHighlighted = false;
+
         private DispatcherTimer _blinkTimer;
 
         public bool HasObject => TileModel.MapObject != null;
