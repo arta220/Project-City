@@ -7,6 +7,7 @@ using Domain.Map;
 using Domain.Transports.Ground;
 using Services.CitizensSimulation;
 using Services.Common;
+using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.PlaceBuilding;
 using Services.Time;
@@ -27,6 +28,7 @@ namespace Services
         private readonly ISimulationTimeService _timeService;
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
+        private readonly IIndustrialProductionService _productionService;
 
         private readonly CitizenSimulationService _citizenSimulationService;
         private readonly TransportSimulationService _transportSimulationService;
@@ -48,7 +50,8 @@ namespace Services
             PlacementRepository placementRepository,
             CitizenSimulationService citizenSimulationService,
             TransportSimulationService transportSimulationService,
-            IUtilityService utilityService)
+            IUtilityService utilityService,
+            IIndustrialProductionService productionService)
         {
             MapModel = mapModel;
             _placementService = placementService;
@@ -56,10 +59,13 @@ namespace Services
             _placementRepository = placementRepository;
             _citizenSimulationService = citizenSimulationService;
             _transportSimulationService = transportSimulationService;
+            _utilityService = utilityService;
+            _productionService = productionService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
+            _updatableServices.Add(productionService);
 
             _timeService.TimeChanged += OnTimeChanged;
         }
