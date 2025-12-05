@@ -53,6 +53,7 @@ namespace Domain.Buildings
                     foundInMaterials = true;
                 }
                 // Если не найдено в MaterialsBank, проверка ProductsBank (продукты могут быть использованы как материалы)
+                // TODO: сомнительное обращение к списку продукции завода как к списку сырья. скорее всего удалить в будущем
                 else if (_parent.ProductsBank.TryGetValue(InputMaterial, out amount) && amount > 0)
                 {
                     foundInMaterials = false;
