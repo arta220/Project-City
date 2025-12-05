@@ -1,5 +1,6 @@
 ﻿using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Common.Base;
 using Domain.Common.Time;
 using Services.Interfaces;
 
@@ -17,15 +18,41 @@ namespace Services.CitizensSimulation.StateHandlers
 
         public void Update(Citizen citizen, SimulationTime time)
         {
-            var v = _jobService.FindJob(citizen.Profession);
+            // 1. Ищем работу через сервис
+            var availableJobs = _jobService.FindJob(citizen.Profession)
+                                      .Cast<Building>()
+                                      .Where(job => IsJobSuitable(citizen, job))
+                                      .ToList();
 
-            if (v.Count() > 0)
+            if (availableJobs.Any())
             {
-                citizen.WorkPlace = v.First();
-                // можно добавить избирательность для жителя, в зависимости от расстояния, зарплат и тп
-                //но эт не моё
+                // 2. Берем первую найденную работу
+                var job = availableJobs.First() as Building;
+                // 3. Пытаемся наняться
+                if (job.Hire(citizen))
+                {
+                    return;
+                }
             }
+
+            // 4. Если работу не нашли или не смогли наняться
             citizen.State = CitizenState.Idle;
+        }
+
+        private bool IsJobSuitable(Citizen citizen, Building job)
+        {
+            // Есть ли вакансия
+            if (!job.HasVacancy(citizen.Profession))
+                return false;
+
+            // Подходит ли по возрасту
+            // Если MaxAges не содержит профессию - ограничений нет
+            if (job.MaxAges.ContainsKey(citizen.Profession))
+            {
+                return citizen.Age <= job.MaxAges[citizen.Profession];
+            }
+
+            return true;
         }
     }
 }
