@@ -93,6 +93,20 @@ namespace CitySimulatorWPF.Models
                 "Склад",
                 "Assets/Icons/Warehouse.png"
             ));
+
+            //Фармацевтический завод
+            industrial.Objects.Add(new ObjectVM(
+                new PharmaceuticalFactoryFactory(),
+                "Фармацевтический завод",
+                "Assets/Icons/PharmaceuticalFactory.png"
+            ));
+
+            //Завод по переработке отходов и вторичной переработке
+            industrial.Objects.Add(new ObjectVM(
+                new RecyclingPlantFactoryFactory(),
+                "Завод по переработке отходов и вторичной переработке",
+                "Assets/Icons/RecyclingPlantFactory.png"
+            ));
             #endregion
 
             // Инфраструктура

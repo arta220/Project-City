@@ -106,6 +106,34 @@ namespace Domain.Factories
             return building;
         }
     }
+
+    /// <summary>
+    /// Фармацевтический завод
+    /// </summary>
+    public class PharmaceuticalFactoryFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var factory = new IndustrialBuilding(2, 80, new Area(5, 5));
+            factory.AddWorkshop(ResourceType.Chemicals, ResourceType.Medicine, 2);
+            factory.MaterialsBank[ResourceType.Chemicals] = 100;
+            return factory;
+        }
+    }
+
+    /// <summary>
+    /// Завод по переработке отходов и вторичной переработке
+    /// </summary>
+    public class RecyclingPlantFactoryFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var factory = new IndustrialBuilding(floors: 1, maxOccupancy: 60, area: new Area(4, 4));           
+            factory.AddWorkshop(input: ResourceType.PlasticWaste,output: ResourceType.Plastic,coeff: 3);
+            factory.MaterialsBank[ResourceType.PlasticWaste] = 100;
+            return factory;
+        }
+    }
     #endregion
 
     public class UrbanParkFactory : IMapObjectFactory
