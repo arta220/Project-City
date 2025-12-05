@@ -45,7 +45,7 @@ namespace CitySimulatorWPF.Models
             commercial.Objects.Add(new ObjectVM(
                 new PharmacyFactory(),
                 "Аптека",
-                ""
+                "/Icons/Pharmacy.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
@@ -57,25 +57,25 @@ namespace CitySimulatorWPF.Models
             commercial.Objects.Add(new ObjectVM(
                 new SupermarketFactory(),
                 "Супермаркет",
-                ""
+                "/Icons/Supermarket.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new CafeFactory(),
                 "Кафе",
-                ""
+                "/Icons/Cafe.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new RestaurantFactory(),
                 "Ресторан",
-                ""
+                "/Icons/Restaurant.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new GasStationFactory(),
                 "Заправка",
-                ""
+                "/Icons/GasStation.png"
             ));
 
             // Промышленные
