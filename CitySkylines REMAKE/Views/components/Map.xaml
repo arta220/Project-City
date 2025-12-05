@@ -149,7 +149,8 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse Style="{StaticResource CitizenStyle}"/>
+                            <Ellipse Style="{StaticResource CitizenStyle}"
+                                     Fill="{Binding CitizenColor}"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -175,7 +176,8 @@
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Rectangle Style="{StaticResource CarStyle}" />
+                        <Rectangle Style="{StaticResource CarStyle}"
+                                   Fill="{Binding CarColor}" />
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

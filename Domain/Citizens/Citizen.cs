@@ -19,9 +19,26 @@ namespace Domain.Citizens
         public EducationBuilding StudyPlace { get; set; }
         public CitizenProfession Profession { get; set; }
         public Building WorkPlace { get; set; }
+
+        /// <summary>
+        /// Текущий транспорт, в котором находится житель (если он едет).
+        /// </summary>
         public Transport CurrentTransport { get; set; }
+
+        /// <summary>
+        /// Личная машина жителя. Если null, житель ходит только пешком.
+        /// </summary>
         public PersonalCar PersonalCar { get; set; }
+
+        /// <summary>
+        /// Простой флаг, есть ли у жителя машина.
+        /// </summary>
         public bool HasCar => PersonalCar != null;
+
+        /// <summary>
+        /// Житель находится внутри транспорта (едет), если CurrentTransport не равен null.
+        /// </summary>
+        public bool IsInTransport => CurrentTransport != null;
 
         public CitizenState State { get; set; }
         public Queue<CitizenTask> Tasks { get; set; } = new();

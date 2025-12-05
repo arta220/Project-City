@@ -33,6 +33,25 @@ namespace Services.CitizensSimulation.CitizenSchedule
             if ((_time.IsNightTime() || tod == TimeOfDay.Evening)
                 && !IsAt(citizen, citizen.Home))
             {
+                // Если у жителя есть машина, он находится на работе и машина тоже там — едем домой на машине
+                if (citizen.HasCar && citizen.WorkPlace != null && IsAt(citizen, citizen.WorkPlace))
+                {
+                    citizen.State = CitizenState.GoingHome;
+
+                    // 1. Дойти пешком до машины (считаем, что она припаркована у работы)
+                    citizen.Tasks.Enqueue(new CitizenTask(
+                        CitizenTaskType.WalkToCar,
+                        citizen.PersonalCar.Position));
+
+                    // 2. Сесть в машину, а целевая точка для машины — вход в дом
+                    citizen.Tasks.Enqueue(new CitizenTask(
+                        CitizenTaskType.EnterCar,
+                        GetEntrance(citizen.Home)));
+
+                    return;
+                }
+
+                // Иначе — обычное поведение: пешком до дома
                 citizen.State = CitizenState.GoingHome;
 
                 citizen.Tasks.Enqueue(new CitizenTask(
@@ -45,6 +64,25 @@ namespace Services.CitizensSimulation.CitizenSchedule
             // Утро — работа
             if (tod == TimeOfDay.Morning && !weekend && citizen.WorkPlace != null)
             {
+                // Если у жителя есть машина и он сейчас дома — едем на работу на машине
+                if (citizen.HasCar && citizen.Home != null && IsAt(citizen, citizen.Home))
+                {
+                    citizen.State = CitizenState.GoingWork;
+
+                    // 1. Дойти пешком до машины (считаем, что она стоит рядом с домом)
+                    citizen.Tasks.Enqueue(new CitizenTask(
+                        CitizenTaskType.WalkToCar,
+                        citizen.PersonalCar.Position));
+
+                    // 2. Сесть в машину, а целевая точка для машины — вход в работу
+                    citizen.Tasks.Enqueue(new CitizenTask(
+                        CitizenTaskType.EnterCar,
+                        GetEntrance(citizen.WorkPlace)));
+
+                    return;
+                }
+
+                // Иначе — обычное поведение: пешком до работы
                 if (!IsAt(citizen, citizen.WorkPlace))
                 {
                     citizen.State = CitizenState.GoingWork;

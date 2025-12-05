@@ -44,6 +44,7 @@ namespace CitySimulatorWPF.ViewModels
         {
             Citizen = citizen;
             UpdatePosition();
+            UpdateColor();
 
             Citizen.PropertyChanged += OnCitizenPropertyChanged;
         }
@@ -54,13 +55,41 @@ namespace CitySimulatorWPF.ViewModels
             {
                 UpdatePosition();
             }
+
+            if (e.PropertyName == nameof(Citizen.CurrentTransport) ||
+                e.PropertyName == nameof(Citizen.State))
+            {
+                UpdateColor();
+            }
         }
+
         public void UpdatePosition()
         {
             X = Citizen.Position.X;
             Y = Citizen.Position.Y;
             PixelX = X * 20;
             PixelY = Y * 20;
+        }
+
+        private void UpdateColor()
+        {
+            // Простейшая логика подсветки жителя:
+            // - едет в транспорте: красный
+            // - идёт на работу или домой пешком: оранжевый
+            // - в остальных случаях: зелёный
+            if (Citizen.IsInTransport)
+            {
+                CitizenColor = "Red";
+            }
+            else if (Citizen.State == CitizenState.GoingWork ||
+                     Citizen.State == CitizenState.GoingHome)
+            {
+                CitizenColor = "Orange";
+            }
+            else
+            {
+                CitizenColor = "Green";
+            }
         }
     }
 }
