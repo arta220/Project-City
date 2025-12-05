@@ -89,12 +89,18 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ICitizenMovementService, MovementService>();
             services.AddSingleton<IPopulationService, PopulationService>();
 
+            services.AddSingleton<IJobBehaviour, UtilityWorkerBehaviour>();
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
             services.AddSingleton<JobController>();
 
 
             // Контроллер граждан
-            services.AddSingleton<CitizenController>();
+            services.AddSingleton<CitizenController>(provider =>
+            new CitizenController(
+                provider.GetRequiredService<ICitizenMovementService>(),
+                provider.GetRequiredService<IBuildingRegistry>(),
+                provider.GetRequiredService<JobController>(),
+                provider.GetRequiredService<IUtilityService>()));
             services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
 

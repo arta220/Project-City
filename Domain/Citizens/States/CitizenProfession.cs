@@ -4,6 +4,7 @@
     {
         Seller,
         Doctor,
+        UtilityWorker,
         // ... 
     }
 }
