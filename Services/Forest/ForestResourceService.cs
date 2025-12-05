@@ -27,6 +27,7 @@ namespace Services.Forest
         // Настройки
         private const int FactoryRadius = 5;           // радиус влияния завода (тайлы)
         private const float WoodLossPerTick = 2f;      // сколько дерева теряется за тик
+        private const int MaxFactoryInfluence = 5;    // максимум учитываемых заводов вокруг клетки
 
         public ForestResourceService(MapModel map)
         {
@@ -47,22 +48,18 @@ namespace Services.Forest
             int width = _map.Width;
             int height = _map.Height;
 
-            // 1. Собираем тайлы с заводами
+            // 1. Собираем все тайлы с заводами
             var factoryTiles = new List<TileModel>();
 
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    var tile = _map[x, y];
-
-                    if (IsFactoryTile(tile))
-                        factoryTiles.Add(tile);
+                    var t = _map[x, y];
+                    if (IsFactoryTile(t))
+                        factoryTiles.Add(t);
                 }
             }
-
-            if (factoryTiles.Count == 0)
-                return;
 
             int radiusSq = FactoryRadius * FactoryRadius;
 
@@ -77,7 +74,7 @@ namespace Services.Forest
                         tile.ResourceType != NaturalResourceType.Wood)
                         continue;
 
-                    // Считаем, сколько заводов в радиусе
+                    // --- считаем, сколько заводов в радиусе ---
                     int factoryCount = 0;
 
                     foreach (var factory in factoryTiles)
@@ -90,39 +87,65 @@ namespace Services.Forest
                             factoryCount++;
                     }
 
-                    // потолок влияния: максимум 3 заводов учитываем
-                    const int MaxFactoryInfluence = 3;
                     factoryCount = Math.Min(factoryCount, MaxFactoryInfluence);
 
-                    // Если рядом нет ни одного завода — пропускаем
-                    if (factoryCount == 0)
-                        continue;
-
-                    // 2.1. Ресурс ещё есть — уменьшаем
-                    if (tile.ResourceAmount > 0)
+                    // ===== 1. ВЫРУБКА ЛЕСА (если есть заводы и дерево > 0) =====
+                    if (factoryCount > 0 && tile.ResourceAmount > 0)
                     {
-                        // скорость вырубки пропорциональна количеству заводов
                         float loss = WoodLossPerTick * factoryCount;
                         tile.ResourceAmount -= loss;
 
                         if (tile.ResourceAmount < 0)
                             tile.ResourceAmount = 0;
 
-                        if (tile.ResourceAmount == 0 && tile.DepletedTick == null)
+                        // при активной вырубке таймер восстановления сбрасываем
+                        tile.DepletedTick = null;
+                    }
+
+                    // ===== 2. ВОССТАНОВЛЕНИЕ С НУЛЯ =====
+                    // Условие: ресурс == 0. Восстанавливаем через RegenDelayTicks
+                    // даже если заводы рядом остались.
+                    if (tile.ResourceAmount <= 0)
+                    {
+                        if (!tile.DepletedTick.HasValue)
                             tile.DepletedTick = currentTick;
 
+                        int ticksSince = currentTick - tile.DepletedTick.Value;
+
+                        if (ticksSince >= tile.RegenDelayTicks)
+                        {
+                            tile.ResourceAmount = tile.MaxResourceAmount;
+                            tile.DepletedTick = null;
+                        }
+
+                        // ресурс 0 — дальше этот тайл сейчас не трогаем
                         continue;
                     }
 
-                    // 2.2. Ресурс исчерпан — ждём задержку и восстанавливаем СРАЗУ до максимума
-                    if (tile.IsResourceDepleted && tile.DepletedTick.HasValue)
+                    // ===== 3. ВОССТАНОВЛЕНИЕ, ЕСЛИ ЛЕС ПОКАЛЕЧЕН И ЗАВОДОВ НЕТ =====
+                    // Условие: 0 < ресурс < максимум, рядом НЕТ заводов.
+                    if (factoryCount == 0 &&
+                        tile.ResourceAmount < tile.MaxResourceAmount)
                     {
-                        int ticksSinceDepleted = currentTick - tile.DepletedTick.Value;
+                        if (!tile.DepletedTick.HasValue)
+                            tile.DepletedTick = currentTick;
 
-                        if (ticksSinceDepleted >= tile.RegenDelayTicks)
+                        int ticksSince = currentTick - tile.DepletedTick.Value;
+
+                        if (ticksSince >= tile.RegenDelayTicks)
                         {
                             tile.ResourceAmount = tile.MaxResourceAmount;
-                            tile.DepletedTick = null; // цикл завершён
+                            tile.DepletedTick = null;
+                        }
+                    }
+                    else
+                    {
+                        // либо лес полный, либо рядом снова появились заводы —
+                        // таймер восстановления сбрасываем
+                        if (tile.ResourceAmount >= tile.MaxResourceAmount ||
+                            factoryCount > 0)
+                        {
+                            tile.DepletedTick = null;
                         }
                     }
                 }
