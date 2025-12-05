@@ -57,9 +57,41 @@ namespace Domain.Map
         /// </summary>
         public NaturalResourceType ResourceType { get; set; } = NaturalResourceType.None;
 
+        private float _resourceAmount;
+
         /// <summary>
-        /// Количество ресурсов имеющихся у клетки
+        /// Текущее количество ресурса, имеющегося у клетки.
+        /// Для корректного обновления UI изменяется через SetProperty.
         /// </summary>
-        public float ResourceAmount { get; set; } = 0;
+        public float ResourceAmount
+        {
+            get => _resourceAmount;
+            set => SetProperty(ref _resourceAmount, value);
+        }
+
+        /// <summary>
+        /// Максимальное (изначальное) количество ресурса на клетке.
+        /// Используется для последующего восстановления ресурса (например, дерева в лесу).
+        /// </summary>
+        public float MaxResourceAmount { get; set; }
+
+        /// <summary>
+        /// Тик симуляции, на котором ресурс был полностью исчерпан.
+        /// Null, если ресурс ещё ни разу не исчерпывался.
+        /// </summary>
+        public int? DepletedTick { get; set; }
+
+        /// <summary>
+        /// Задержка восстановления ресурса в тиках после полного истощения.
+        /// По истечении этого времени ресурс начинает постепенно восполняться.
+        /// </summary>
+        public int RegenDelayTicks { get; set; } = 200;
+
+        /// <summary>
+        /// Признак того, что ресурс на клетке исчерпан (количество &lt;= 0, при наличии типа ресурса).
+        /// </summary>
+        public bool IsResourceDepleted =>
+            ResourceType != NaturalResourceType.None &&
+            ResourceAmount <= 0;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Citizens;
@@ -128,6 +129,7 @@ namespace CitySimulatorWPF.ViewModels
 
             CreateTestScenario();
             _utilityService = utilityService;
+
         }
 
         private void CreateTestPopulation(int count = 5)
@@ -313,6 +315,20 @@ namespace CitySimulatorWPF.ViewModels
 
                 _messageService.ShowMessage($"{utilityToFix} отремонтирован!");
             }
+        }
+
+        private bool _showResources = true;
+
+        public bool ShowResources
+        {
+            get => _showResources;
+            set => SetProperty(ref _showResources, value);
+        }
+
+        [RelayCommand]
+        private void ToggleResources()
+        {
+            ShowResources = !ShowResources;
         }
     }
 }

@@ -31,9 +31,9 @@ namespace Services.MapGenerator
         {
             var map = new MapModel(width, height);
 
-            GenerateSimpleTerrain(map); // чисто для проверки работы всяких штук
-            //GenerateTerrain(map);
-            //GenerateResources(map);
+            //GenerateSimpleTerrain(map); // чисто для проверки работы всяких штук
+            GenerateTerrain(map);
+            GenerateResources(map);
 
             return map;
         }
@@ -165,7 +165,9 @@ namespace Services.MapGenerator
                     {
                         Position = new Position(x, y),
                         ResourceType = NaturalResourceType.None,
-                        ResourceAmount = 0
+                        ResourceAmount = 0,
+                        MaxResourceAmount = 0,
+                        DepletedTick = null,
                     };
 
                     // 1) Водная рамка по периметру карты
@@ -257,7 +259,6 @@ namespace Services.MapGenerator
                     // --- Руды в горах ---
                     if (tile.Terrain == TerrainType.Mountain)
                     {
-                        // Небольшой узор через модуль суммы координат
                         int pattern = (x + y) % 3;
 
                         if (pattern == 0)
@@ -271,12 +272,31 @@ namespace Services.MapGenerator
                             tile.ResourceAmount = 120 + ((x * 11 + y * 5) % 80);
                         }
 
+                        // для полноты: фиксируем максимум (руд мы не планируем восстанавливать, но пусть будет)
+                        tile.MaxResourceAmount = tile.ResourceAmount;
+                        tile.DepletedTick = null;
+
                         continue;
                     }
+
+                    // --- Дерево в лесу ---
                     if (tile.Terrain == TerrainType.Forest)
                     {
                         tile.ResourceType = NaturalResourceType.Wood;
-                        tile.ResourceAmount = 100 + ((x * 7 + y * 5) % 80);
+
+                        // базовое количество дерева
+                        float amount = 100 + ((x * 7 + y * 5) % 80);
+
+                        tile.ResourceAmount = amount;
+                        tile.MaxResourceAmount = amount;
+
+                        // ресурс ещё ни разу не исчерпывался
+                        tile.DepletedTick = null;
+
+                        // сколько тиков ждать после полного обнуления, прежде чем начинать восстановление
+                        tile.RegenDelayTicks = 20;
+
+                        continue;
                     }
 
                     // --- Нефть и газ на равнинах и лугах ---
@@ -290,7 +310,6 @@ namespace Services.MapGenerator
                         if (x < 4 || y < 4 || x > map.Width - 5 || y > map.Height - 5)
                             continue;
 
-                        // "Узоры" – детерминированное распределение
                         if ((x + 2 * y) % 11 == 0)
                         {
                             tile.ResourceType = NaturalResourceType.Oil;
@@ -300,6 +319,13 @@ namespace Services.MapGenerator
                         {
                             tile.ResourceType = NaturalResourceType.Gas;
                             tile.ResourceAmount = 160 + ((x * 19 + y * 3) % 120);
+                        }
+
+                        // для нефти/газа тоже фиксируем максимум
+                        if (tile.ResourceType != NaturalResourceType.None)
+                        {
+                            tile.MaxResourceAmount = tile.ResourceAmount;
+                            tile.DepletedTick = null;
                         }
                     }
                 }

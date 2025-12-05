@@ -80,6 +80,27 @@
 
             <TextBlock Text="👤" FontSize="20" Margin="0,0,3,0" VerticalAlignment="Center" FontWeight="Bold" />
             <TextBlock Text="{Binding CitizenCount}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" />
+            <Button Margin="5"
+                    Padding="5,2"
+                    Command="{Binding DataContext.MapVM.ToggleResourcesCommand,
+                          RelativeSource={RelativeSource AncestorType=Window}}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <!-- Текст по умолчанию, когда ресурсы показываются -->
+                        <Setter Property="Content"
+                                Value="Скрыть ресурсы" />
+                        <Style.Triggers>
+                            <!-- Если ShowResources == False, меняем текст -->
+                            <DataTrigger Value="False"
+                                         Binding="{Binding DataContext.MapVM.ShowResources,
+                                               RelativeSource={RelativeSource AncestorType=Window}}">
+                                <Setter Property="Content"
+                                        Value="Показать ресурсы" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
         </StackPanel>
 
         <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0">

@@ -44,7 +44,7 @@ namespace CitySimulatorWPF.ViewModels
         /// <summary>
         /// Есть ли на клетке природный ресурс.
         /// </summary>
-        public bool HasResource => TileModel.ResourceType != NaturalResourceType.None;
+        public bool HasResource => TileModel.ResourceType != NaturalResourceType.None && TileModel.ResourceAmount > 0;
 
         /// <summary>
         /// Количество природного ресурса на клетке.
@@ -90,6 +90,14 @@ namespace CitySimulatorWPF.ViewModels
                                 UpdateBlinkingState();
                         };
                     }
+                }
+                // добавляем реакцию на ресурсы
+                else if (e.PropertyName == nameof(TileModel.ResourceAmount) ||
+                         e.PropertyName == nameof(TileModel.ResourceType))
+                {
+                    OnPropertyChanged(nameof(ResourceAmount));
+                    OnPropertyChanged(nameof(ResourceType));
+                    OnPropertyChanged(nameof(HasResource));
                 }
             };
 

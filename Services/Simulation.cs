@@ -7,6 +7,7 @@ using Domain.Map;
 using Domain.Transports.Ground;
 using Services.CitizensSimulation;
 using Services.Common;
+using Services.Forest;
 using Services.Interfaces;
 using Services.PlaceBuilding;
 using Services.Time;
@@ -48,7 +49,8 @@ namespace Services
             PlacementRepository placementRepository,
             CitizenSimulationService citizenSimulationService,
             TransportSimulationService transportSimulationService,
-            IUtilityService utilityService)
+            IUtilityService utilityService,
+            IForestResourceService forestResourceService)
         {
             MapModel = mapModel;
             _placementService = placementService;
@@ -60,6 +62,7 @@ namespace Services
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
+            _updatableServices.Add(forestResourceService);
 
             _timeService.TimeChanged += OnTimeChanged;
         }

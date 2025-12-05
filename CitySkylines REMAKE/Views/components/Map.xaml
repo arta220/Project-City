@@ -12,6 +12,7 @@
     <UserControl.Resources>
         <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter"/>
         <conv:ResourceTypeToBrushConverter x:Key="ResourceTypeToBrushConverter" />
+        <conv:ResourceVisibilityConverter x:Key="ResourceVisibilityConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Простой стиль для гражданина -->
@@ -97,8 +98,19 @@
                                          Height="8"
                                          HorizontalAlignment="Center"
                                          VerticalAlignment="Center"
-                                         Fill="{Binding ResourceType, Converter={StaticResource ResourceTypeToBrushConverter}}"
-                                         Visibility="{Binding HasResource, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                         Fill="{Binding ResourceType, Converter={StaticResource ResourceTypeToBrushConverter}}">
+
+                                    <!-- Видимость: есть ресурс И включён флаг ShowResources -->
+                                    <Ellipse.Visibility>
+                                        <MultiBinding Converter="{StaticResource ResourceVisibilityConverter}">
+                                            <!-- 0: есть ли вообще ресурс на тайле -->
+                                            <Binding Path="HasResource" />
+                                            <!-- 1: глобальный флаг показа ресурсов из MapVM -->
+                                            <Binding Path="DataContext.ShowResources"
+                                                     RelativeSource="{RelativeSource AncestorType=UserControl}" />
+                                        </MultiBinding>
+                                    </Ellipse.Visibility>
+                                </Ellipse>
 
                                 <!-- НОВОЕ: подсказка с информацией о тайле -->
                                 <Grid.ToolTip>

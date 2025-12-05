@@ -13,6 +13,7 @@ using Services.Citizens.Population;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.CitizensSimulation.StateHandlers;
+using Services.Forest;
 using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
@@ -77,6 +78,9 @@ namespace CitySkylines_REMAKE
             // Симуляция и часы
             services.AddSingleton<ISimulationClock, SimulationClock>();
             services.AddSingleton<ISimulationTimeService, SimulationTimeService>();
+
+            // НОВОЕ: сервис лесных ресурсов
+            services.AddSingleton<IForestResourceService, ForestResourceService>();
 
             // Размещение объектов на карте
             services.AddSingleton<ConstructionValidator>();
