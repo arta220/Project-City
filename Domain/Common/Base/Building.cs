@@ -1,3 +1,4 @@
+using Domain.Buildings.Disaster;
 using Domain.Map;
 
 namespace Domain.Common.Base
@@ -9,11 +10,13 @@ namespace Domain.Common.Base
     {
         public int Floors { get; }
         public int MaxOccupancy { get; }
+        public DisasterManager Disasters { get; }
 
         protected Building(int floors, int maxOccupancy, Area area) : base(area)
         {
             Floors = floors;
             MaxOccupancy = maxOccupancy;
+            Disasters = new DisasterManager();
         }
     }
 }

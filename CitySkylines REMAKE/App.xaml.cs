@@ -13,6 +13,7 @@ using Services.Citizens.Population;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.CitizensSimulation.StateHandlers;
+using Services.Disasters;
 using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
@@ -53,6 +54,7 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
+            services.AddSingleton<IDisasterService, DisasterService>();
             services.AddSingleton<GraphService>();
             services.AddTransient<ChartsWindowViewModel>();
 

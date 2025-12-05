@@ -13,9 +13,11 @@ using Domain.Transports.Ground;
 using Domain.Transports.States;
 using Services;
 using Services.CitizensSimulation;
+using Services.Disasters;
 using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -65,6 +67,7 @@ namespace CitySimulatorWPF.ViewModels
         private readonly MessageService _messageService;
         private readonly IUtilityService _utilityService;
         private readonly IPathConstructionService _pathService;
+        private readonly IDisasterService _disasterService;
 
         /// <summary>
         /// Коллекция тайлов карты для привязки к UI.
@@ -96,7 +99,8 @@ namespace CitySimulatorWPF.ViewModels
                      CitizenSimulationService citizenSimulation,
                      TransportSimulationService transportSimulation,
                      IUtilityService utilityService,
-                     IPathConstructionService pathService)
+                     IPathConstructionService pathService,
+                     IDisasterService disasterService)
         {
             _simulation = simulation;
             _roadService = roadService;
@@ -107,6 +111,7 @@ namespace CitySimulatorWPF.ViewModels
 
             _utilityService = utilityService;
             _pathService = pathService;
+            _disasterService = disasterService;
 
             _citizenManager.StartSimulation(citizenSimulation);
 
@@ -265,6 +270,11 @@ namespace CitySimulatorWPF.ViewModels
                 }
             }
 
+            if (CurrentMode == MapInteractionMode.None && tile.MapObject is Building building && building.Disasters.HasDisaster)
+            {
+                ShowDisasterDialog(building, tile);
+            }
+
             if (CurrentMode == MapInteractionMode.Remove)
             {
                 _simulation.TryRemove(tile.MapObject);
@@ -275,6 +285,63 @@ namespace CitySimulatorWPF.ViewModels
             {
                 // Возможные действия по клику, когда режим не выбран
             }
+        }
+
+        private void ShowDisasterDialog(Building building, TileVM tile)
+        {
+            var activeDisasters = _disasterService.GetActiveDisasters(building);
+
+            if (!activeDisasters.Any())
+            {
+                _messageService.ShowMessage("Нет активных бедствий");
+                return;
+            }
+
+            string message = "⚠️ АКТИВНЫЕ БЕДСТВИЯ:\n\n";
+
+            foreach (var disaster in activeDisasters)
+            {
+                string disasterName = GetDisasterName(disaster.Key);
+                string timeLeft = FormatTicks(disaster.Value);
+                string effect = GetDisasterEffect(disaster.Key);
+
+                message += $"{disasterName}\n";
+                message += $"⏱️ Осталось: {timeLeft}\n";
+                message += $"📝 {effect}\n\n";
+            }
+
+            // Просто показываем MessageBox
+            MessageBox.Show(message, "Информация о бедствиях",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private string GetDisasterName(DisasterType type)
+        {
+            return type switch
+            {
+                DisasterType.Fire => "🔥 ПОЖАР",
+                DisasterType.Flood => "🌊 НАВОДНЕНИЕ",
+                DisasterType.Blizzard => "❄️ МЕТЕЛЬ",
+                _ => "БЕДСТВИЕ"
+            };
+        }
+
+        private string GetDisasterEffect(DisasterType type)
+        {
+            return type switch
+            {
+                DisasterType.Fire => "Жители в панике, возможны жертвы",
+                DisasterType.Flood => "Дороги затоплены, транспорт стоит",
+                DisasterType.Blizzard => "Дороги занесены, видимость нулевая",
+                _ => "Наносит ущерб зданию"
+            };
+        }
+
+        private string FormatTicks(int ticks)
+        {
+            if (ticks <= 0) return "завершается...";
+
+            return $"{ticks} тиков";
         }
 
         private void ShowRepairDialog(ResidentialBuilding building, TileVM tile)
