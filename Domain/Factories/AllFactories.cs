@@ -80,9 +80,7 @@ namespace Domain.Factories
                 maxOccupancy: 50,
                 area: new Area(5, 5)
             );
-        
-            //TODO: Создавать цеха и складывать их в здание
-
+            
             return building;
         }
 }
@@ -101,7 +99,189 @@ namespace Domain.Factories
                 area: new Area(4, 6)
             );
 
-            //TODO: Создавать цеха и складывать их в здание
+            // Цех по переработке дерева в бумагу
+            building.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.Paper,
+                coeff: 2
+            );
+
+            // Цех по переработке дерева в мебель
+            building.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.Furniture,
+                coeff: 1
+            );
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Завод по производству картона
+    /// Производит различные виды картона и картонных изделий
+    /// </summary>
+    public class CardboardFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 12,
+                area: new Area(5, 5)
+            );
+
+            // Цех подготовки сырья - производство картонных листов
+            building.AddWorkshop(
+                NaturalResourceType.WoodChips,
+                ProductType.CardboardSheets,
+                coeff: 8
+            );
+
+            // Цех гофрированного картона
+            building.AddWorkshop(
+                ProductType.CardboardSheets,
+                ProductType.CorrugatedCardboard,
+                coeff: 4
+            );
+
+            // Цех производства картонных коробок
+            building.AddWorkshop(
+                ProductType.CorrugatedCardboard,
+                ProductType.CardboardBoxes,
+                coeff: 3
+            );
+
+            // Цех плотного картона из макулатуры
+            building.AddWorkshop(
+                NaturalResourceType.RecycledPaper,
+                ProductType.SolidCardboard,
+                coeff: 5
+            );
+
+            // Цех защитной упаковки
+            building.AddWorkshop(
+                ProductType.SolidCardboard,
+                ProductType.ProtectivePackaging,
+                coeff: 4
+            );
+
+            // Цех специальных изделий
+            building.AddWorkshop(
+                ProductType.SolidCardboard,
+                ProductType.CardboardTubes,
+                coeff: 6
+            );
+
+            // Цех упаковки для яиц
+            building.AddWorkshop(
+                ProductType.CardboardSheets,
+                ProductType.EggPackaging,
+                coeff: 8
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.WoodChips] = 400;
+            building.MaterialsBank[NaturalResourceType.RecycledPaper] = 300;
+            building.MaterialsBank[NaturalResourceType.Chemicals] = 150;
+            building.MaterialsBank[NaturalResourceType.Water] = 200;
+            building.MaterialsBank[NaturalResourceType.Energy] = 100;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Завод по производству упаковки
+    /// Производит различные виды упаковки из разных материалов
+    /// </summary>
+    public class PackagingFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 15,
+                area: new Area(6, 6)
+            );
+
+            // Цех картонной упаковки
+            building.AddWorkshop(
+                ProductType.CardboardSheets,
+                ProductType.CardboardBox,
+                coeff: 6
+            );
+
+            // Цех транспортных коробок
+            building.AddWorkshop(
+                ProductType.CardboardBox,
+                ProductType.ShippingBox,
+                coeff: 4
+            );
+
+            // Цех пластиковой упаковки
+            building.AddWorkshop(
+                ProductType.Plastic,
+                ProductType.PlasticBottle,
+                coeff: 6
+            );
+
+            // Цех пищевых контейнеров
+            building.AddWorkshop(
+                ProductType.Plastic,
+                ProductType.FoodContainer,
+                coeff: 4
+            );
+
+            // Цех стеклянной упаковки
+            building.AddWorkshop(
+                NaturalResourceType.Glass,
+                ProductType.GlassJar,
+                coeff: 6
+            );
+
+            // Цех косметических флаконов
+            building.AddWorkshop(
+                NaturalResourceType.Glass,
+                ProductType.CosmeticBottle,
+                coeff: 4
+            );
+
+            // Цех металлической упаковки
+            building.AddWorkshop(
+                NaturalResourceType.Aluminium,
+                ProductType.AluminiumCan,
+                coeff: 6
+            );
+
+            // Цех деревянной упаковки
+            building.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.WoodenCrate,
+                coeff: 3
+            );
+
+            // Цех специальной упаковки
+            building.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.PharmaceuticalPack,
+                coeff: 5
+            );
+
+            // Цех подарочной упаковки
+            building.AddWorkshop(
+                ProductType.CardboardBox,
+                ProductType.GiftBox,
+                coeff: 2
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[ProductType.CardboardSheets] = 300;
+            building.MaterialsBank[ProductType.Plastic] = 250;
+            building.MaterialsBank[NaturalResourceType.Glass] = 200;
+            building.MaterialsBank[NaturalResourceType.Aluminium] = 150;
+            building.MaterialsBank[NaturalResourceType.Wood] = 100;
+            building.MaterialsBank[NaturalResourceType.Ink] = 50;
 
             return building;
         }

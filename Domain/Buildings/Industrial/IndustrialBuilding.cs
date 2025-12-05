@@ -6,15 +6,15 @@ using static Domain.Buildings.IndustrialBuilding;
 namespace Domain.Buildings
 {
     /// <summary>
-    /// Универсальный класс заводов
-    /// Содержит общие свойства и методы для всех типов промышленных зданий
-    /// Написание самих заводов происходит в <see cref="AllFactories"/>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ <see cref="AllFactories"/>
     /// </summary>
     public class IndustrialBuilding : Building
     {
         /// <summary>
-        /// Внутренний класс — цех внутри завода.
-        /// Выполняет переработку одного типа ресурса в другой.
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
         /// </summary>
         public class Workshop
         {
@@ -37,18 +37,42 @@ namespace Domain.Buildings
             }
 
             /// <summary>
-            /// Выполняет переработку ресурсов:
-            /// забирает ProductionCoefficient материала и производит ProductionCoefficient единиц продукции.
+            /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:
+            /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ProductionCoefficient пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ProductionCoefficient пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
             /// </summary>
-            /// <returns> True, если переработка прошла успешно, иначе false </returns>
+            /// <returns> True, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ false </returns>
             public bool Process()
             {
-                // Проверяем, есть ли входной материал
-                if (!_parent.MaterialsBank.TryGetValue(InputMaterial, out int amount) || amount <= 0)
-                    return false;
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                int amount = 0;
+                bool foundInMaterials = false;
 
-                _parent.MaterialsBank[InputMaterial] = amount - ProductionCoefficient;
+                // РЎРЅР°С‡Р°Р»Р° РїСЂРѕРІРµСЂРєР° MaterialsBank
+                if (_parent.MaterialsBank.TryGetValue(InputMaterial, out amount) && amount > 0)
+                {
+                    foundInMaterials = true;
+                }
+                // Р•СЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ РІ MaterialsBank, РїСЂРѕРІРµСЂРєР° ProductsBank (РїСЂРѕРґСѓРєС‚С‹ РјРѕРіСѓС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅС‹ РєР°Рє РјР°С‚РµСЂРёР°Р»С‹)
+                else if (_parent.ProductsBank.TryGetValue(InputMaterial, out amount) && amount > 0)
+                {
+                    foundInMaterials = false;
+                }
+                else
+                {
+                    return false; // РњР°С‚РµСЂРёР°Р» РЅРµ РЅР°Р№РґРµРЅ РЅРё РІ РѕРґРЅРѕРј Р±Р°РЅРєРµ
+                }
 
+                // РЈРјРµРЅСЊС€РµРЅРёРµ РєРѕР»РёС‡РµСЃС‚РІР° РјР°С‚РµСЂРёР°Р»Р°
+                if (foundInMaterials)
+                {
+                    _parent.MaterialsBank[InputMaterial] = amount - ProductionCoefficient;
+                }
+                else
+                {
+                    _parent.ProductsBank[InputMaterial] = amount - ProductionCoefficient;
+                }
+
+                // РЈРІРµР»РёС‡РµРЅРёРµ РєРѕР»РёС‡РµСЃС‚РІР° РїСЂРѕРґСѓРєС‚Р°
                 if (!_parent.ProductsBank.ContainsKey(OutputProduct))
                     _parent.ProductsBank[OutputProduct] = 0;
 
@@ -58,9 +82,9 @@ namespace Domain.Buildings
             }
         }
 
-        public Dictionary<Enum, int> MaterialsBank = new Dictionary<Enum, int>(); // Материалы на заводе
-        public Dictionary<Enum, int> ProductsBank = new Dictionary<Enum, int>(); // Продукция на заводе
-        public List<Workshop> Workshops = new(); // Список цехов на заводе
+        public Dictionary<Enum, int> MaterialsBank = new Dictionary<Enum, int>(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        public Dictionary<Enum, int> ProductsBank = new Dictionary<Enum, int>(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        public List<Workshop> Workshops = new(); // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
         public IndustrialBuilding(int floors, int maxOccupancy, Area area)
             : base(floors, maxOccupancy, area)
@@ -69,7 +93,7 @@ namespace Domain.Buildings
 
 
         /// <summary>
-        /// Добавить новый цех.
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ.
         /// </summary>
         public void AddWorkshop(Enum input, Enum output, int coeff = 1)
         {
@@ -78,7 +102,7 @@ namespace Domain.Buildings
         }
 
         /// <summary>
-        /// Запустить все цехи один раз.
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ.
         /// </summary>
         public void RunOnce()
         {

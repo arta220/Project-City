@@ -14,6 +14,7 @@ using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.CitizensSimulation.StateHandlers;
 using Services.Graphing;
+using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.MapGenerator;
 using Services.NavigationMap;
@@ -53,7 +54,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
-            services.AddSingleton<GraphService>();
+            services.AddSingleton<IIndustrialProductionService, IndustrialProductionService>();
+            services.AddSingleton<GraphService>(sp =>
+            {
+                var utilityService = sp.GetRequiredService<IUtilityService>();
+                var productionService = sp.GetRequiredService<IIndustrialProductionService>();
+                return new GraphService(utilityService, productionService);
+            });
             services.AddTransient<ChartsWindowViewModel>();
 
             services.AddSingleton<MapModel>(sp =>
