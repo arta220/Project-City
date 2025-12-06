@@ -14,6 +14,8 @@ namespace Domain.Citizens
     /// </summary>
     public class Citizen(Area area, float speed) : MovingEntity(area, speed)
     {
+        private static int _nextId = 1;
+        public int Id { get; } = _nextId++;
         public int Age { get; set; }
         public EducationType EducationLevel { get; set; }
         public EducationBuilding StudyPlace { get; set; }

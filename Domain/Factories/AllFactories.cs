@@ -1,6 +1,7 @@
 ﻿using Domain.Base;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
+using Domain.Buildings.Utility;
 using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Factories;
@@ -147,5 +148,18 @@ namespace Domain.Factories
                 new Road(
                     area: new Area(1, 1)
                 );
-        }
+    }
+    public class UtilityOfficeFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new UtilityOffice(area: new Area(2, 1));
+    }
+    public class AirPortFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Port(
+                area: new Area(2, 6),
+                type: PortType.AirPort
+            );
+    }
 

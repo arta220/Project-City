@@ -17,6 +17,7 @@ using Services.CitizensSimulation;
 using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Windows.Threading;
 

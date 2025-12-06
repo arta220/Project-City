@@ -1,4 +1,7 @@
-﻿using Domain.Citizens;
+﻿using Domain.Buildings.Residential;
+using Domain.Citizens;
+using Domain.Citizens.States;
+using Domain.Citizens.Tasks;
 using Domain.Common.Time;
 
 public class CitizenController
@@ -19,6 +22,21 @@ public class CitizenController
 
             if (citizen.CurrentTask.IsCompleted)
                 citizen.CurrentTask = null;
+        }
+
+        // ВЫЗОВ РАБОТЫ ДЛЯ UTILITYWORKER
+        if (citizen.Profession == CitizenProfession.UtilityWorker)
+        {
+            if (citizen.State == CitizenState.Working)
+            {
+                Debug.WriteLine($"ВЫЗОВ РАБОТЫ: UtilityWorker {citizen.Id}");
+                _jobController.UpdateJob(citizen, time);
+            }
+            else if (citizen.State == CitizenState.WorkingOnSite)
+            {
+                Debug.WriteLine($"ВЫЗОВ РАБОТЫ: UtilityWorker {citizen.Id} НА ВЫЕЗДЕ!");
+                _jobController.UpdateJob(citizen, time);
+            }
         }
     }
 }
