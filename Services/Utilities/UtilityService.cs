@@ -4,6 +4,7 @@ using Domain.Common.Time;
 using Services.BuildingRegistry;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Services.Utilities
@@ -39,9 +40,24 @@ namespace Services.Utilities
 
             foreach (var building in residentialBuildings)
             {
-                if (_random.Next(100) < 5) // 5% шанс поломки
+                // Собираем все РАБОТАЮЩИЕ коммуналки в этом здании
+                var workingUtilities = new List<UtilityType>();
+                foreach (UtilityType utility in Enum.GetValues(typeof(UtilityType)))
                 {
-                    var brokenUtility = (UtilityType)_random.Next(Enum.GetValues(typeof(UtilityType)).Length);
+                    if (building.Utilities.IsUtilityWorking(utility))
+                    {
+                        workingUtilities.Add(utility);
+                    }
+                }
+
+                // Если все коммуналки уже сломаны - пропускаем это здание
+                if (workingUtilities.Count == 0)
+                    continue;
+
+                // 5% шанс поломки одной из РАБОТАЮЩИХ коммуналок
+                if (_random.Next(100) < 5)
+                {
+                    var brokenUtility = workingUtilities[_random.Next(workingUtilities.Count)];
                     BreakUtility(building, brokenUtility, time.TotalTicks);
                     RecordBreakdown(brokenUtility);
                     UpdateStatistics(time.TotalTicks);
@@ -51,6 +67,10 @@ namespace Services.Utilities
 
         private void BreakUtility(ResidentialBuilding building, UtilityType utilityType, int currentTick)
         {
+            // Двойная проверка для надежности
+            if (!building.Utilities.IsUtilityWorking(utilityType))
+                return;
+
             building.Utilities.BreakUtility(utilityType);
 
             if (!_brokenUtilities.ContainsKey(building))
@@ -73,11 +93,28 @@ namespace Services.Utilities
             RecordRepair(utilityType);
         }
 
+        public void FixAllUtilities(ResidentialBuilding building)
+        {
+            building.Utilities.FixUtility(UtilityType.Electricity);
+            building.Utilities.FixUtility(UtilityType.Water);
+            building.Utilities.FixUtility(UtilityType.Gas);
+            building.Utilities.FixUtility(UtilityType.Waste);
+
+            Debug.WriteLine($"Починены все коммуналки в здании");
+        }
+
         public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
         {
             return _brokenUtilities.ContainsKey(building)
                 ? new Dictionary<UtilityType, int>(_brokenUtilities[building])
                 : new Dictionary<UtilityType, int>();
+        }
+
+        public void BreakUtilityForTesting(ResidentialBuilding building, UtilityType utilityType, int currentTick)
+        {
+            BreakUtility(building, utilityType, currentTick);
+            RecordBreakdown(utilityType);
+            UpdateStatistics(currentTick);
         }
 
         private void RecordBreakdown(UtilityType utilityType) => _totalBreakdowns[utilityType]++;

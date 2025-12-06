@@ -4,6 +4,7 @@ using Services.TransportSimulation;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 
 namespace CitySimulatorWPF.Services
@@ -14,6 +15,7 @@ namespace CitySimulatorWPF.Services
 
         void StartSimulation(TransportSimulationService simulation);
         void StopSimulation();
+        void ResumeSimulation(); // новый метод
     }
 
     public class CarManagerService : ICarManagerService
@@ -36,9 +38,7 @@ namespace CitySimulatorWPF.Services
             _simulation = simulation;
 
             foreach (var car in _simulation.Transports)
-            {
                 _cars.Add(new PersonalCarVM(car));
-            }
 
             _simulation.TransportAdded += OnCarAdded;
             _simulation.TransportRemoved += OnCarRemoved;
@@ -57,6 +57,12 @@ namespace CitySimulatorWPF.Services
             _simulation = null;
         }
 
+        public void ResumeSimulation()
+        {
+            if (_simulation == null) return;
+            _simulation.Resume();
+        }
+
         private void OnCarAdded(Transport car)
         {
             _cars.Add(new PersonalCarVM(car));
@@ -65,14 +71,17 @@ namespace CitySimulatorWPF.Services
         private void OnCarRemoved(Transport car)
         {
             var vm = _cars.FirstOrDefault(c => c.Car == car);
-            if (vm != null)
-                _cars.Remove(vm);
+            if (vm != null) _cars.Remove(vm);
         }
 
         private void OnCarUpdated(Transport car)
         {
             var vm = _cars.FirstOrDefault(c => c.Car == car);
-            vm?.UpdatePosition();
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                foreach (var vm in Cars)
+                    vm.UpdatePosition();
+            });
         }
     }
 }
