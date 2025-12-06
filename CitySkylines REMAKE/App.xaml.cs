@@ -10,6 +10,7 @@ using Services.Citizens.Education;
 using Services.Citizens.Job;
 using Services.Citizens.Movement;
 using Services.Citizens.Population;
+using Services.Citizens.Scenaries;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.Graphing;
@@ -91,7 +92,9 @@ namespace CitySkylines_REMAKE
 
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
             services.AddSingleton<JobController>();
-
+            
+            // Сценарии поведения жителей
+            services.AddSingleton<ICitizenScenario, HomeScenario>();
 
             // Контроллер граждан
             services.AddSingleton<CitizenController>();

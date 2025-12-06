@@ -17,6 +17,7 @@ using Services.CitizensSimulation;
 using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
+using System.Net.WebSockets;
 using System.Windows.Threading;
 
 namespace CitySimulatorWPF.ViewModels
@@ -100,8 +101,33 @@ namespace CitySimulatorWPF.ViewModels
 
         private void CreateTestScenario()
         {
-           
+            var homeArea = new Area(1, 1);
+            var homePosition = new Position(10, 10);
+            var homeEntrance = new Position(homePosition.X, homePosition.Y - 1);
+
+            var home = new ResidentialBuilding(1, 1, new Area(1, 1));
+
+            var homePlacement = new Placement(
+                position: homePosition,
+                entrance: homeEntrance,
+                area: homeArea
+            );
+
+            _simulation.TryPlace(home, homePlacement);
+
+            var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
+            {
+                Age = 25,
+                Home = home,
+                WorkPlace = null,
+
+                // ставим перед входом в дом
+                Position = new Position(1, 1),
+            };
+
+            _simulation.AddCitizen(citizen);
         }
+
 
         private void OnTileConstructionStart(TileVM tile)
         {

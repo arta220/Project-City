@@ -1,35 +1,24 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
-using Domain.Map;
-using Services.Citizens.Movement;
-using System.Net.Http.Headers;
 
 public class CitizenController
 {
-    private readonly ICitizenMovementService _movementService;
-    public CitizenController(ICitizenMovementService movementService)
-    {
-        _movementService = movementService;
-    }
-
     public void UpdateCitizen(Citizen citizen, SimulationTime time)
     {
-        if (citizen.CurrentTask == null)
+        // Берём следующую таску
+        if (citizen.CurrentTask is null)
         {
             if (citizen.Tasks.Count > 0)
                 citizen.CurrentTask = citizen.Tasks.Dequeue();
         }
 
-        if (citizen.CurrentTask != null && citizen.CurrentPath.Count == 0)
-            _movementService.SetTarget(citizen, citizen.CurrentTask.Target);
-
-        _movementService.PlayMovement(citizen, time);
-
-
-        if (citizen.Position == citizen.CurrentTask?.Target)
+        // Если таска есть — выполняем
+        if (citizen.CurrentTask is not null)
         {
-            citizen.CurrentTask.MarkAsCompleted();
-            citizen.CurrentTask = null;
+            citizen.CurrentTask.Execute(citizen, time);
+
+            if (citizen.CurrentTask.IsCompleted)
+                citizen.CurrentTask = null;
         }
     }
 }
