@@ -163,7 +163,8 @@ namespace CitySimulatorWPF.Models
                     "Аэрпорт",
                     "Assets/Icons/AirPort.png"
                 )
-            );
+            ); 
+
 
             // Добавление категорий в реестр
             Categories.Add(infrastructure);
