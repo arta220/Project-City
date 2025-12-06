@@ -106,6 +106,8 @@ namespace CitySimulatorWPF.Models
                 new RecyclingPlantFactoryFactory(),
                 "Завод по переработке отходов и вторичной переработке",
                 "Assets/Icons/RecyclingPlantFactory.png"
+                            ));
+
             industrial.Objects.Add(new ObjectVM(
                 new CardboardFactory(),
                 "Завод картона",
