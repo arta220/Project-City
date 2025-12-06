@@ -101,7 +101,13 @@ namespace Services
             if (!found || placement is null)
                 return false;
 
-            return _placementService.TryRemove(MapModel, (Placement)placement);
+            if (_placementService.TryRemove(MapModel, (Placement)placement))
+            {
+                MapObjectRemoved?.Invoke(mapObject);
+                return true;
+            }
+
+            return false;
         }
 
         public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);

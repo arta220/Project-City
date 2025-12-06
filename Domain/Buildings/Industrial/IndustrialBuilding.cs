@@ -1,4 +1,5 @@
 using Domain.Common.Base;
+using Domain.Common.Enums;
 using Domain.Map;
 using System.Security.AccessControl;
 using static Domain.Buildings.IndustrialBuilding;
@@ -12,6 +13,8 @@ namespace Domain.Buildings
     /// </summary>
     public class IndustrialBuilding : Building
     {
+        public IndustrialBuildingType Type { get; }
+
         /// <summary>
         /// Внутренний класс — цех внутри завода.
         /// Выполняет переработку одного типа ресурса в другой.
@@ -90,6 +93,7 @@ namespace Domain.Buildings
         public IndustrialBuilding(int floors, int maxOccupancy, Area area)
             : base(floors, maxOccupancy, area)
         {
+            Type = type;
         }
 
 

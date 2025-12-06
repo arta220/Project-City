@@ -1,4 +1,4 @@
-﻿using CitySimulatorWPF.Services;
+using CitySimulatorWPF.Services;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Domain.Buildings;
@@ -12,6 +12,7 @@ using Domain.Factories;
 using Domain.Map;
 using Domain.Transports.Ground;
 using Domain.Transports.States;
+using System.Linq;
 using Services;
 using Services.CitizensSimulation;
 using Services.TransportSimulation;
@@ -44,6 +45,9 @@ namespace CitySimulatorWPF.ViewModels
         public ObservableCollection<TileVM> Tiles => _mapTileService.Tiles;
         public ObservableCollection<CitizenVM> Citizens => _citizenManager.Citizens;
         public ObservableCollection<PersonalCarVM> Cars => _carManager.Cars;
+
+        // Иконки зданий для отдельного слоя поверх тайлов
+        public ObservableCollection<BuildingIconVM> BuildingIcons { get; } = new();
 
         public int Width => _simulation.MapModel.Width;
         public int Height => _simulation.MapModel.Height;
@@ -82,10 +86,36 @@ namespace CitySimulatorWPF.ViewModels
                     return true;
                 });
 
+
+            // Подписка на событие размещения/удаления объектов, чтобы управлять крупными иконками зданий
+            _simulation.MapObjectPlaced  += OnMapObjectPlaced;
+            _simulation.MapObjectRemoved += OnMapObjectRemoved;
+
             // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
             CreateTestScenario();
 
+
+            CreateTestScenario();
             StartSimulationAfterUIReady();
+        }
+
+        private void OnMapObjectPlaced(MapObject mapObject)
+        {
+            var (placement, found) = _simulation.GetMapObjectPlacement(mapObject);
+            if (!found || placement is null)
+                return;
+
+            const int tileSize = 20; // как в CitizenVM / PersonalCarVM
+
+            var iconVm = new BuildingIconVM(mapObject, (Placement)placement, tileSize);
+            BuildingIcons.Add(iconVm);
+        }
+
+        private void OnMapObjectRemoved(MapObject mapObject)
+        {
+            var icon = BuildingIcons.FirstOrDefault(b => ReferenceEquals(b.MapObject, mapObject));
+            if (icon != null)
+                BuildingIcons.Remove(icon);
         }
 
         private void StartSimulationAfterUIReady()
@@ -221,7 +251,14 @@ namespace CitySimulatorWPF.ViewModels
                 var placement = new Placement(new Position(tile.X, tile.Y), obj.Area);
 
                 if (!_simulation.TryPlace(obj, placement))
+                {
                     _messageService.ShowMessage("Невозможно поставить объект");
+                }
+                else
+                {
+                    // Левый верхний тайл здания — якорный, на нём и показываем иконку
+                    tile.IsMainObjectTile = true;
+                }
 
                 CurrentMode = MapInteractionMode.None;
                 return;

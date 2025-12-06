@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Domain.Map;
 using System.Windows.Threading;
@@ -29,12 +29,15 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty] private bool _isBlinkingRed;
         [ObservableProperty] private bool _isPreviewTile = false;
         [ObservableProperty] private bool _isMouseOver = false;
+        [ObservableProperty] private bool _isMainObjectTile;
 
         private DispatcherTimer _blinkTimer;
 
         public bool HasObject => TileModel.MapObject != null;
         public bool CanBuild => !HasObject;
         public TerrainType TerrainType => TileModel.Terrain;
+
+        public bool ShowBuildingIcon => HasObject && IsMainObjectTile;
 
         /// <summary>
         /// Тип природного ресурса на клетке.
@@ -80,6 +83,8 @@ namespace CitySimulatorWPF.ViewModels
                 if (e.PropertyName == nameof(TileModel.MapObject))
                 {
                     OnPropertyChanged(nameof(HasObject));
+                    OnPropertyChanged(nameof(MapObject));
+                    OnPropertyChanged(nameof(ShowBuildingIcon));
                     UpdateBlinkingState();
 
                     if (TileModel.MapObject is ResidentialBuilding residential)
@@ -94,6 +99,11 @@ namespace CitySimulatorWPF.ViewModels
             };
 
             UpdateBlinkingState();
+        }
+
+        partial void OnIsMainObjectTileChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ShowBuildingIcon));
         }
 
         public void UpdateBlinkingState()

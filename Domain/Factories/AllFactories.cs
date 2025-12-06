@@ -1,4 +1,4 @@
-﻿using Domain.Base;
+using Domain.Base;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Buildings.Utility;
@@ -79,7 +79,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 50,
-                area: new Area(5, 5)
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
             );
             
             return building;
@@ -97,7 +98,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 10,
-                area: new Area(4, 6)
+                area: new Area(4, 6),
+                type: IndustrialBuildingType.Warehouse
             );
 
             // Цех по переработке дерева в бумагу
