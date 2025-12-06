@@ -5,7 +5,6 @@ using Domain.Common.Time;
 using Domain.Map;
 using Services.BuildingRegistry;
 using Services.Citizens.Movement;
-using Services.Citizens.Scenaries;
 using Services.CitizenSimulation.Tasks;
 using Services.Time;
 
