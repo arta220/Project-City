@@ -6,15 +6,15 @@ using static Domain.Buildings.IndustrialBuilding;
 namespace Domain.Buildings
 {
     /// <summary>
-    /// ������������� ����� �������
-    /// �������� ����� �������� � ������ ��� ���� ����� ������������ ������
-    /// ��������� ����� ������� ���������� � <see cref="AllFactories"/>
+    /// Универсальный класс заводов
+    /// Содержит общие свойства и методы для всех типов промышленных зданий
+    /// Написание самих заводов происходит в <see cref="AllFactories"/>
     /// </summary>
     public class IndustrialBuilding : Building
     {
         /// <summary>
-        /// ���������� ����� � ��� ������ ������.
-        /// ��������� ����������� ������ ���� ������� � ������.
+        /// Внутренний класс — цех внутри завода.
+        /// Выполняет переработку одного типа ресурса в другой.
         /// </summary>
         public class Workshop
         {
@@ -37,13 +37,13 @@ namespace Domain.Buildings
             }
 
             /// <summary>
-            /// ��������� ����������� ��������:
-            /// �������� ProductionCoefficient ��������� � ���������� ProductionCoefficient ������ ���������.
+            /// Выполняет переработку ресурсов:
+            /// забирает ProductionCoefficient материала и производит ProductionCoefficient единиц продукции.
             /// </summary>
-            /// <returns> True, ���� ����������� ������ �������, ����� false </returns>
+            /// <returns> True, если переработка прошла успешно, иначе false </returns>
             public bool Process()
             {
-                // ���������, ���� �� ������� ��������
+                // Проверяем, есть ли входной материал
                 int amount = 0;
                 bool foundInMaterials = false;
 
@@ -83,9 +83,9 @@ namespace Domain.Buildings
             }
         }
 
-        public Dictionary<Enum, int> MaterialsBank = new Dictionary<Enum, int>(); // ��������� �� ������
-        public Dictionary<Enum, int> ProductsBank = new Dictionary<Enum, int>(); // ��������� �� ������
-        public List<Workshop> Workshops = new(); // ������ ����� �� ������
+        public Dictionary<Enum, int> MaterialsBank = new Dictionary<Enum, int>(); // Материалы на заводе
+        public Dictionary<Enum, int> ProductsBank = new Dictionary<Enum, int>(); // Продукция на заводе
+        public List<Workshop> Workshops = new(); // Список цехов на заводе
 
         public IndustrialBuilding(int floors, int maxOccupancy, Area area)
             : base(floors, maxOccupancy, area)
@@ -94,7 +94,7 @@ namespace Domain.Buildings
 
 
         /// <summary>
-        /// �������� ����� ���.
+        /// Добавить новый цех.
         /// </summary>
         public void AddWorkshop(Enum input, Enum output, int coeff = 1)
         {
@@ -103,7 +103,7 @@ namespace Domain.Buildings
         }
 
         /// <summary>
-        /// ��������� ��� ���� ���� ���.
+        /// Запустить все цехи один раз.
         /// </summary>
         public void RunOnce()
         {

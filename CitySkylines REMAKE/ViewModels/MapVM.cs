@@ -126,6 +126,7 @@ namespace CitySimulatorWPF.ViewModels
                     return true;
                 });
 
+            // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
             CreateTestScenario();
             _utilityService = utilityService;
         }
@@ -168,6 +169,89 @@ namespace CitySimulatorWPF.ViewModels
                 car.Route.Add(workPos);
             }
         }
+        private void CreateTestScenarioCardboard()
+        {
+            // 1. Создаем дом для работника завода картона
+            var homeFactory1 = new SmallHouseFactory();
+            var workerHome1 = (ResidentialBuilding)homeFactory1.Create();
+            var homePlacement1 = new Placement(new Position(5, 5), workerHome1.Area);
+
+            if (!_simulation.TryPlace(workerHome1, homePlacement1))
+            {
+                _messageService.ShowMessage("Не удалось разместить дом работника завода картона");
+                return;
+            }
+
+            // 2. Создаем дом для работника завода упаковки
+            var homeFactory2 = new SmallHouseFactory();
+            var workerHome2 = (ResidentialBuilding)homeFactory2.Create();
+            var homePlacement2 = new Placement(new Position(10, 5), workerHome2.Area);
+
+            if (!_simulation.TryPlace(workerHome2, homePlacement2))
+            {
+                _messageService.ShowMessage("Не удалось разместить дом работника завода упаковки");
+                return;
+            }
+
+            // 3. Создаем завод по производству картона
+            var cardboardFactory = new CardboardFactory();
+            var cardboardBuilding = (IndustrialBuilding)cardboardFactory.Create();
+            var cardboardPlacement = new Placement(new Position(15, 15), cardboardBuilding.Area);
+
+            if (!_simulation.TryPlace(cardboardBuilding, cardboardPlacement))
+            {
+                _messageService.ShowMessage("Не удалось разместить завод картона");
+                return;
+            }
+
+            // 4. Создаем завод по производству упаковки
+            var packagingFactory = new PackagingFactory();
+            var packagingBuilding = (IndustrialBuilding)packagingFactory.Create();
+            var packagingPlacement = new Placement(new Position(25, 15), packagingBuilding.Area);
+
+            if (!_simulation.TryPlace(packagingBuilding, packagingPlacement))
+            {
+                _messageService.ShowMessage("Не удалось разместить завод упаковки");
+                return;
+            }
+
+            // 5. Создаем работника завода картона
+            var worker1 = new Citizen(new Area(1, 1), speed: 1.0f)
+            {
+                Position = homePlacement1.Position, // Начинает у дома
+                Home = workerHome1, // Устанавливаем дом
+                WorkPlace = cardboardBuilding, // Рабочее место - завод картона
+                State = CitizenState.Idle,
+                Age = 30,
+                Health = 100,
+                Happiness = 50,
+                Money = 1000
+            };
+
+            // 6. Создаем работника завода упаковки
+            var worker2 = new Citizen(new Area(1, 1), speed: 1.0f)
+            {
+                Position = homePlacement2.Position, // Начинает у дома
+                Home = workerHome2, // Устанавливаем дом
+                WorkPlace = packagingBuilding, // Рабочее место - завод упаковки
+                State = CitizenState.Idle,
+                Age = 28,
+                Health = 100,
+                Happiness = 50,
+                Money = 1000
+            };
+
+            // 7. Добавляем работников в симуляцию
+            _simulation.AddCitizen(worker1);
+            _simulation.AddCitizen(worker2);
+            _messageService.ShowMessage("Тестовый сценарий создан!\n" +
+                $"Дом работника картона на ({homePlacement1.Position.X},{homePlacement1.Position.Y})\n" +
+                $"Дом работника упаковки на ({homePlacement2.Position.X},{homePlacement2.Position.Y})\n" +
+                $"Завод картона на ({cardboardPlacement.Position.X},{cardboardPlacement.Position.Y})\n" +
+                $"Завод упаковки на ({packagingPlacement.Position.X},{packagingPlacement.Position.Y})\n" +
+                $"Работники на входах в дома");
+        }
+
         private void CreateTestScenario()
         {
             var homeArea = new Area(1, 1);
@@ -199,8 +283,6 @@ namespace CitySimulatorWPF.ViewModels
             _simulation.AddCitizen(citizen);
             _simulation.AddTransport(car);
         }
-
-
 
         /// <summary>
         /// Обрабатывает начало строительства на тайле.
