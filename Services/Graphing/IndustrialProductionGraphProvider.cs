@@ -48,7 +48,7 @@ namespace Services.Graphing
             // Линия использованных материалов
             var materialsLine = new LineSeries 
             { 
-                Title = "Использовано материалов", 
+                Title = "Материалы", 
                 Color = OxyColors.Orange 
             };
 
@@ -110,7 +110,7 @@ namespace Services.Graphing
             // Линия использованных материалов
             var materialsLine = new LineSeries 
             { 
-                Title = "Использовано материалов", 
+                Title = "Материалы", 
                 Color = OxyColors.Red 
             };
 

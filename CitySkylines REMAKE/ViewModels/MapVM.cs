@@ -82,6 +82,7 @@ namespace CitySimulatorWPF.ViewModels
                     return true;
                 });
 
+            // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
             CreateTestScenario();
 
             StartSimulationAfterUIReady();
