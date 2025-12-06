@@ -2,7 +2,7 @@
 using Domain.Citizens.Tasks;
 using Domain.Common.Time;
 using Domain.Map;
-using Services.Citizens.Movement;
+using Services.Citizens.Job.Movement;
 
 namespace Services.CitizenSimulation.Tasks;
 
