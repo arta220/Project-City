@@ -106,6 +106,16 @@ namespace CitySimulatorWPF.Models
                 new RecyclingPlantFactoryFactory(),
                 "Завод по переработке отходов и вторичной переработке",
                 "Assets/Icons/RecyclingPlantFactory.png"
+            industrial.Objects.Add(new ObjectVM(
+                new CardboardFactory(),
+                "Завод картона",
+                "Assets/Icons/FactoryCardBoard.png"
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new PackagingFactory(),
+                "Завод упаковки",
+                "Assets/Icons/FactoryPacking.png"
             ));
             #endregion
 
@@ -166,6 +176,20 @@ namespace CitySimulatorWPF.Models
                 "Велосипедная дорожка",
                 "Assets/Icons/BicyclePath.png" 
             ));
+
+            // Офис ЖКХ
+            infrastructure.Objects.Add(new ObjectVM(
+                new UtilityOfficeFactory(),
+                "Офис ЖКХ",
+                "Assets/Icons/UtilityOffice.png" // Нужно будет добавить иконку
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new AirPortFactory(),
+                    "Аэрпорт",
+                    "Assets/Icons/AirPort.png"
+                )
+            );
 
             // Добавление категорий в реестр
             Categories.Add(infrastructure);

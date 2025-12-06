@@ -12,8 +12,8 @@ using Services.Citizens.Movement;
 using Services.Citizens.Population;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
-using Services.CitizensSimulation.StateHandlers;
 using Services.Graphing;
+using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.MapGenerator;
 using Services.NavigationMap;
@@ -53,7 +53,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
-            services.AddSingleton<GraphService>();
+            services.AddSingleton<IIndustrialProductionService, IndustrialProductionService>();
+            services.AddSingleton<GraphService>(sp =>
+            {
+                var utilityService = sp.GetRequiredService<IUtilityService>();
+                var productionService = sp.GetRequiredService<IIndustrialProductionService>();
+                return new GraphService(utilityService, productionService);
+            });
             services.AddTransient<ChartsWindowViewModel>();
 
             services.AddSingleton<MapModel>(sp =>
@@ -90,20 +96,18 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ICitizenMovementService, MovementService>();
             services.AddSingleton<IPopulationService, PopulationService>();
 
-            // Обработчики состояний граждан
-            services.AddSingleton<ICitizenStateHandler, IdleStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingToWorkStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingToStudyStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingToTransportStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, GoingHomeStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, InTransportStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, StudyingStateHandler>();
-            services.AddSingleton<ICitizenStateHandler, SearchingWorkStateHandler>();
+            services.AddSingleton<IJobBehaviour, UtilityWorkerBehaviour>();
+            services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
             services.AddSingleton<JobController>();
-            services.AddSingleton<ICitizenStateHandler, WorkingStateHandler>();
+
 
             // Контроллер граждан
-            services.AddSingleton<CitizenController>();
+            services.AddSingleton<CitizenController>(provider =>
+            new CitizenController(
+                provider.GetRequiredService<ICitizenMovementService>(),
+                provider.GetRequiredService<IBuildingRegistry>(),
+                provider.GetRequiredService<JobController>(),
+                provider.GetRequiredService<IUtilityService>()));
             services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
 
@@ -116,7 +120,6 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ITransportStateHandler, ParkedAtWorkStateHandler>();
             services.AddSingleton<ITransportStateHandler, DrivingHomeStateHandler>();
 
-            // Контроллер транспорта получает все хендлеры через IEnumerable
             services.AddSingleton<PersonalTransportController>(sp =>
             {
                 var handlers = sp.GetRequiredService<IEnumerable<ITransportStateHandler>>();

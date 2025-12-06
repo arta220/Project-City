@@ -18,7 +18,7 @@ namespace Services.TransportSimulation
             if (transport.CurrentPath.Count == 0 || transport.TargetPosition != target)
             {
                 transport.TargetPosition = target;
-                _pathFinder.FindPath(transport.Position, transport.TargetPosition, transport.CurrentPath);
+             //   _pathFinder.FindPath(transport.Position, transport.TargetPosition, transport.CurrentPath);
             }
 
             if (transport.CurrentPath.Count > 0)

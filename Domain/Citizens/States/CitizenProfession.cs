@@ -2,8 +2,10 @@
 {
     public enum CitizenProfession
     {
+        Chef,
         Seller,
         Doctor,
+        UtilityWorker,
         // ... 
     }
 }
