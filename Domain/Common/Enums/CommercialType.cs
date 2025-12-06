@@ -8,6 +8,7 @@ namespace Domain.Enums
         Supermarket,
         Cafe,
         Restaurant,
-        GasStation
+        GasStation,
+        Service
     }
 }

@@ -5,6 +5,7 @@
         Chef,
         Seller,
         Doctor,
+        UtilityWorker,
         // ... 
     }
 }

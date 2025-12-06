@@ -4,14 +4,8 @@ using Domain.Transports.Ground;
 
 namespace CitySimulatorWPF.ViewModels
 {
-    /// <summary>
-    /// ViewModel для личного автомобиля на карте.
-    /// </summary>
     public partial class PersonalCarVM : ObservableObject
     {
-        /// <summary>
-        /// Модель автомобиля.
-        /// </summary>
         public Transport Car { get; }
 
         [ObservableProperty]
@@ -32,10 +26,6 @@ namespace CitySimulatorWPF.ViewModels
             UpdatePosition();
         }
 
-        /// <summary>
-        /// Обновляет координаты автомобиля в клетках и пикселях.
-        /// Вызывается менеджером машин при каждом обновлении симуляции.
-        /// </summary>
         public void UpdatePosition()
         {
             X = Car.Position.X;

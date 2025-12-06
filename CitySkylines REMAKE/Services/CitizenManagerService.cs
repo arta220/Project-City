@@ -4,6 +4,7 @@ using Services.CitizensSimulation;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 
 namespace CitySimulatorWPF.Services
@@ -13,13 +14,13 @@ namespace CitySimulatorWPF.Services
         ObservableCollection<CitizenVM> Citizens { get; }
 
         void StartSimulation(CitizenSimulationService simulation);
-
         void StopSimulation();
+        void ResumeSimulation();
     }
+
     public class CitizenManagerService : ICitizenManagerService
     {
         private CitizenSimulationService _simulation;
-
 
         private readonly ObservableCollection<CitizenVM> _citizens;
         public ObservableCollection<CitizenVM> Citizens => _citizens;
@@ -29,6 +30,7 @@ namespace CitySimulatorWPF.Services
             _citizens = new ObservableCollection<CitizenVM>();
             BindingOperations.EnableCollectionSynchronization(_citizens, new object());
         }
+
         public void StartSimulation(CitizenSimulationService simulation)
         {
             if (simulation == null) throw new ArgumentNullException(nameof(simulation));
@@ -36,9 +38,7 @@ namespace CitySimulatorWPF.Services
             _simulation = simulation;
 
             foreach (var citizen in _simulation.Citizens)
-            {
                 Citizens.Add(new CitizenVM(citizen));
-            }
 
             _simulation.CitizenAdded += OnCitizenAdded;
             _simulation.CitizenRemoved += OnCitizenRemoved;
@@ -57,6 +57,12 @@ namespace CitySimulatorWPF.Services
             _simulation = null;
         }
 
+        public void ResumeSimulation()
+        {
+            if (_simulation == null) return;
+            _simulation.Resume();
+        }
+
         private void OnCitizenAdded(Citizen citizen)
         {
             Citizens.Add(new CitizenVM(citizen));
@@ -65,14 +71,22 @@ namespace CitySimulatorWPF.Services
         private void OnCitizenRemoved(Citizen citizen)
         {
             var vm = Citizens.FirstOrDefault(c => c.Citizen == citizen);
-            if (vm != null)
-                Citizens.Remove(vm);
+            if (vm != null) Citizens.Remove(vm);
         }
 
         private void OnCitizenUpdated(Citizen citizen)
         {
             var vm = Citizens.FirstOrDefault(c => c.Citizen == citizen);
-            vm?.UpdatePosition();
+            if (vm == null) return;
+
+            if (Application.Current != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    foreach (var vm in Citizens)
+                        vm.UpdatePosition();
+                });
+            }
         }
     }
 }

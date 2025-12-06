@@ -165,6 +165,20 @@ namespace CitySimulatorWPF.Models
                 "Assets/Icons/BicyclePath.png" 
             ));
 
+            // Офис ЖКХ
+            infrastructure.Objects.Add(new ObjectVM(
+                new UtilityOfficeFactory(),
+                "Офис ЖКХ",
+                "Assets/Icons/UtilityOffice.png" // Нужно будет добавить иконку
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new AirPortFactory(),
+                    "Аэрпорт",
+                    "Assets/Icons/AirPort.png"
+                )
+            );
+
             // Добавление категорий в реестр
             Categories.Add(infrastructure);
             Categories.Add(residential);
