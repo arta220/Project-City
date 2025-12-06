@@ -1,6 +1,7 @@
 ﻿using Domain.Citizens;
 using Domain.Citizens.States;
 using Domain.Common.Time;
+using System.Linq;
 
 namespace Services.Citizens.Job
 {
@@ -15,8 +16,10 @@ namespace Services.Citizens.Job
 
         public void UpdateJob(Citizen citizen, SimulationTime time)
         {
-            var behaviour = _jobBehaviours[citizen.Profession];
-            behaviour.Update(citizen, time);
+            if (_jobBehaviours.TryGetValue(citizen.Profession, out var behaviour))
+            {
+                behaviour.Update(citizen, time);
+            }
         }
     }
 

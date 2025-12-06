@@ -78,6 +78,7 @@ namespace CitySimulatorWPF.Models
                 "/Icons/GasStation.png"
             ));
 
+            #region Industrial Buildings ViewModels
             // Промышленные
             var industrial = new BuildingCategory { Name = "Промышленные" };
 
@@ -92,6 +93,33 @@ namespace CitySimulatorWPF.Models
                 "Склад",
                 "/Icons/Warehouse.png"
             ));
+
+            //Фармацевтический завод
+            industrial.Objects.Add(new ObjectVM(
+                new PharmaceuticalFactoryFactory(),
+                "Фармацевтический завод",
+                "Assets/Icons/PharmaceuticalFactory.png"
+            ));
+
+            //Завод по переработке отходов и вторичной переработке
+            industrial.Objects.Add(new ObjectVM(
+                new RecyclingPlantFactoryFactory(),
+                "Завод по переработке отходов и вторичной переработке",
+                "Assets/Icons/RecyclingPlantFactory.png"
+                            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new CardboardFactory(),
+                "Завод картона",
+                "Assets/Icons/FactoryCardBoard.png"
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new PackagingFactory(),
+                "Завод упаковки",
+                "Assets/Icons/FactoryPacking.png"
+            ));
+            #endregion
 
             // Инфраструктура
             var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
@@ -150,6 +178,20 @@ namespace CitySimulatorWPF.Models
                 "Велосипедная дорожка",
                 ""
             ));
+
+            // Офис ЖКХ
+            infrastructure.Objects.Add(new ObjectVM(
+                new UtilityOfficeFactory(),
+                "Офис ЖКХ",
+                "Assets/Icons/UtilityOffice.png" // Нужно будет добавить иконку
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new AirPortFactory(),
+                    "Аэрпорт",
+                    "Assets/Icons/AirPort.png"
+                )
+            );
 
             // Добавление категорий в реестр
             Categories.Add(infrastructure);

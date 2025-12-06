@@ -22,8 +22,9 @@ namespace Services.CitizensSimulation.CitizenSchedule
 
         public void UpdateSchedule(Citizen citizen)
         {
-            // Если уже есть задачи — не пересчитываем расписание
-            if (citizen.CurrentTask != null || citizen.Tasks.Count > 0)
+            // Если уже есть задачи ИЛИ работник на выездном задании - не создаем новых задач
+            if (citizen.CurrentTask != null || citizen.Tasks.Count > 0
+                || citizen.State == CitizenState.WorkingOnSite)
                 return;
 
             var tod = _time.GetTimeOfDay();
@@ -31,32 +32,29 @@ namespace Services.CitizensSimulation.CitizenSchedule
 
             // Вечер — домой
             if ((_time.IsNightTime() || tod == TimeOfDay.Evening)
-                && !IsAt(citizen, citizen.Home))
+                && !IsAt(citizen, citizen.Home)
+                && citizen.State != CitizenState.WorkingOnSite) 
             {
                 citizen.State = CitizenState.GoingHome;
-
                 citizen.Tasks.Enqueue(new CitizenTask(
                     CitizenTaskType.MoveToPosition,
                     GetEntrance(citizen.Home)));
-
                 return;
             }
 
             // Утро — работа
-            if (tod == TimeOfDay.Morning && !weekend && citizen.WorkPlace != null)
+            if (tod == TimeOfDay.Morning && !weekend && citizen.WorkPlace != null
+                && citizen.State != CitizenState.WorkingOnSite)
             {
                 if (!IsAt(citizen, citizen.WorkPlace))
                 {
                     citizen.State = CitizenState.GoingWork;
-
                     citizen.Tasks.Enqueue(new CitizenTask(
                         CitizenTaskType.MoveToPosition,
                         GetEntrance(citizen.WorkPlace)));
-
                     citizen.Tasks.Enqueue(new CitizenTask(
                         CitizenTaskType.Work,
                         GetEntrance(citizen.WorkPlace)));
-
                     return;
                 }
                 else
@@ -66,7 +64,10 @@ namespace Services.CitizensSimulation.CitizenSchedule
                 }
             }
 
-            citizen.State = CitizenState.Idle;
+            if (citizen.State != CitizenState.WorkingOnSite) 
+            {
+                citizen.State = CitizenState.Idle;
+            }
         }
 
         private bool IsAt(Citizen citizen, MapObject building)
@@ -77,7 +78,15 @@ namespace Services.CitizensSimulation.CitizenSchedule
 
         private Position GetEntrance(MapObject building)
         {
-            var (placement, _) = _registry.TryGetPlacement(building);
+            var (placement, ok) = _registry.TryGetPlacement(building);
+
+            if (!ok || placement == null)
+            {
+                // Здание еще не зарегистрировано - возвращаем его текущую позицию
+                // ИЛИ позицию по умолчанию
+                return new Position(0, 0);
+            }
+
             return placement.Value.Entrance;
         }
     }
