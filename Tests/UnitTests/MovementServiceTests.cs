@@ -1,0 +1,31 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Services.Citizens.Job.Movement;
+using Domain.Citizens;
+using Domain.Map;
+using System.Collections.Generic;
+using Services.PathFind;
+using Tests.Mocks;
+
+[TestClass]
+public class MovementServiceTests
+{
+
+    [TestMethod]
+    public void TestMovementToTarget()
+    {
+        var movement = new MovementService(new FakePathFinder());
+        var citizen = new Citizen(new Area(1, 1), 1.0f);
+        var target = new Position(5, 5);
+
+        movement.SetTarget(citizen, target);
+
+        while (citizen.CurrentPath.Count > 0)
+        {
+            movement.PlayMovement(citizen, new Domain.Common.Time.SimulationTime(1));
+        }
+
+        Assert.AreEqual(target.X, citizen.Position.X);
+        Assert.AreEqual(target.Y, citizen.Position.Y);
+    }
+
+}

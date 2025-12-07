@@ -8,8 +8,11 @@ using Services;
 using Services.BuildingRegistry;
 using Services.Citizens.Education;
 using Services.Citizens.Job;
-using Services.Citizens.Movement;
+using Services.Citizens.Job.Movement;
 using Services.Citizens.Population;
+using Services.Citizens.Scenaries;
+using Services.Citizens.Scenarios;
+using Services.Citizens.Tasks;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.Graphing;
@@ -96,18 +99,14 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ICitizenMovementService, MovementService>();
             services.AddSingleton<IPopulationService, PopulationService>();
 
-            services.AddSingleton<IJobBehaviour, UtilityWorkerBehaviour>();
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
-            services.AddSingleton<JobController>();
-
+            
+            // Сценарии поведения жителей
+            services.AddSingleton<ICitizenScenario, HomeScenario>();
+            services.AddScoped<ICitizenScenario, UtilityWorkerScenario>();
 
             // Контроллер граждан
-            services.AddSingleton<CitizenController>(provider =>
-            new CitizenController(
-                provider.GetRequiredService<ICitizenMovementService>(),
-                provider.GetRequiredService<IBuildingRegistry>(),
-                provider.GetRequiredService<JobController>(),
-                provider.GetRequiredService<IUtilityService>()));
+            services.AddSingleton<CitizenController>();
             services.AddSingleton<ICitizenManagerService, CitizenManagerService>();
             services.AddSingleton<CitizenSimulationService>();
 

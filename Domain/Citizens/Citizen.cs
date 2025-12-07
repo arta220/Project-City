@@ -26,8 +26,8 @@ namespace Domain.Citizens
         public bool HasCar => PersonalCar != null;
 
         public CitizenState State { get; set; }
-        public Queue<CitizenTask> Tasks { get; set; } = new();
-        public CitizenTask? CurrentTask { get; set; }
+        public Queue<ICitizenTask> Tasks { get; set; } = new();
+        public ICitizenTask? CurrentTask { get; set; }
 
         public ResidentialBuilding Home { get; set; }
         public float Health { get; set; }

@@ -1,6 +1,6 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
-using Services.Citizens.Movement;
+using Services.Citizens.Job.Movement;
 using Services.Citizens.Population;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.Common;

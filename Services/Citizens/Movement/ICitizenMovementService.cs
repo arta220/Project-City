@@ -2,7 +2,7 @@
 using Domain.Citizens;
 using Domain.Common.Time;
 
-namespace Services.Citizens.Movement
+namespace Services.Citizens.Job.Movement
 {
     public interface ICitizenMovementService
     {
