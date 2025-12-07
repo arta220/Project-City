@@ -1,24 +1,22 @@
-﻿using Domain.Buildings;
-using Domain.Enums;
-using Services.Interfaces;
+﻿using Domain.Buildings.Residential;
+using Domain.Common.Enums;
+using Domain.Common.Time;
+using Services.BuildingRegistry;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Services.Utilities
 {
-    /// <summary>
-    /// Сервис имитации поломок коммунальных систем только в жилых домах.
-    /// </summary>
     public class UtilityService : IUtilityService
     {
         private readonly Random _random = new Random();
+        private readonly IBuildingRegistry _buildingRegistry;
 
-        // Хранит сломанные коммунальные системы и тик поломки для каждого жилого дома
         private readonly Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>> _brokenUtilities
             = new Dictionary<ResidentialBuilding, Dictionary<UtilityType, int>>();
 
-        // Статистика по типам коммунальных систем
         private readonly Dictionary<UtilityType, int> _totalBreakdowns
             = Enum.GetValues(typeof(UtilityType))
                   .Cast<UtilityType>()
@@ -31,28 +29,48 @@ namespace Services.Utilities
 
         private readonly UtilityStatistics _statistics = new();
 
-        /// <summary>
-        /// Имитация поломок коммунальных систем для жилых домов
-        /// </summary>
-        public void SimulateUtilitiesBreakdown(int currentTick, List<ResidentialBuilding> residentialBuildings)
+        public UtilityService(IBuildingRegistry buildingRegistry)
         {
+            _buildingRegistry = buildingRegistry;
+        }
+
+        public void Update(SimulationTime time)
+        {
+            var residentialBuildings = _buildingRegistry.GetBuildings<ResidentialBuilding>().ToList();
+
             foreach (var building in residentialBuildings)
             {
-                if (_random.Next(100) < 5) // 5% шанс поломки
+                // Собираем все РАБОТАЮЩИЕ коммуналки в этом здании
+                var workingUtilities = new List<UtilityType>();
+                foreach (UtilityType utility in Enum.GetValues(typeof(UtilityType)))
                 {
-                    var brokenUtility = (UtilityType)_random.Next(Enum.GetValues(typeof(UtilityType)).Length);
-                    BreakUtility(building, brokenUtility, currentTick);
+                    if (building.Utilities.IsUtilityWorking(utility))
+                    {
+                        workingUtilities.Add(utility);
+                    }
+                }
+
+                // Если все коммуналки уже сломаны - пропускаем это здание
+                if (workingUtilities.Count == 0)
+                    continue;
+
+                // 5% шанс поломки одной из РАБОТАЮЩИХ коммуналок
+                if (_random.Next(100) < 5)
+                {
+                    var brokenUtility = workingUtilities[_random.Next(workingUtilities.Count)];
+                    BreakUtility(building, brokenUtility, time.TotalTicks);
                     RecordBreakdown(brokenUtility);
-                    UpdateStatistics(currentTick);
+                    UpdateStatistics(time.TotalTicks);
                 }
             }
         }
 
-        /// <summary>
-        /// Помечает систему как сломанную и сохраняет тик поломки
-        /// </summary>
         private void BreakUtility(ResidentialBuilding building, UtilityType utilityType, int currentTick)
         {
+            // Двойная проверка для надежности
+            if (!building.Utilities.IsUtilityWorking(utilityType))
+                return;
+
             building.Utilities.BreakUtility(utilityType);
 
             if (!_brokenUtilities.ContainsKey(building))
@@ -61,9 +79,6 @@ namespace Services.Utilities
             _brokenUtilities[building][utilityType] = currentTick;
         }
 
-        /// <summary>
-        /// Чинит указанную систему в жилом доме
-        /// </summary>
         public void FixUtility(ResidentialBuilding building, UtilityType utilityType)
         {
             building.Utilities.FixUtility(utilityType);
@@ -78,14 +93,28 @@ namespace Services.Utilities
             RecordRepair(utilityType);
         }
 
-        /// <summary>
-        /// Возвращает словарь сломанных систем с тиком поломки
-        /// </summary>
+        public void FixAllUtilities(ResidentialBuilding building)
+        {
+            building.Utilities.FixUtility(UtilityType.Electricity);
+            building.Utilities.FixUtility(UtilityType.Water);
+            building.Utilities.FixUtility(UtilityType.Gas);
+            building.Utilities.FixUtility(UtilityType.Waste);
+
+            Debug.WriteLine($"Починены все коммуналки в здании");
+        }
+
         public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
         {
             return _brokenUtilities.ContainsKey(building)
                 ? new Dictionary<UtilityType, int>(_brokenUtilities[building])
                 : new Dictionary<UtilityType, int>();
+        }
+
+        public void BreakUtilityForTesting(ResidentialBuilding building, UtilityType utilityType, int currentTick)
+        {
+            BreakUtility(building, utilityType, currentTick);
+            RecordBreakdown(utilityType);
+            UpdateStatistics(currentTick);
         }
 
         private void RecordBreakdown(UtilityType utilityType) => _totalBreakdowns[utilityType]++;

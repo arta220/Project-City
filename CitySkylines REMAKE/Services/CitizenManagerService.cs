@@ -4,64 +4,32 @@ using Services.CitizensSimulation;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
+using System.Windows.Data;
 
 namespace CitySimulatorWPF.Services
 {
-    /// <summary>
-    /// Интерфейс сервиса управления визуальными представлениями жителей.
-    /// </summary>
-    /// <remarks>
-    /// Ответственность:
-    /// - Поддерживает ObservableCollection<CitizenVM> для UI.
-    /// - Слушает события CitizenSimulationService (добавление, удаление, обновление).
-    ///
-    /// Контекст использования:
-    /// - Используется MapVM или любым другим UI-слоем для отображения жителей на карте.
-    /// - Позволяет отделить логику симуляции (CitizenSimulationService) от визуализации.
-    ///
-    /// Расширяемость:
-    /// - Можно добавить фильтрацию по состоянию жителя (идет на работу, дома и т.д.).
-    /// - Можно интегрировать с системой событий или уведомлений при изменении состояния жителей.
-    /// </remarks>
     public interface ICitizenManagerService
     {
-        /// <summary>
-        /// Коллекция визуальных представлений жителей.
-        /// </summary>
         ObservableCollection<CitizenVM> Citizens { get; }
 
-        /// <summary>
-        /// Подключает сервис визуализации к симуляции жителей.
-        /// </summary>
-        /// <param name="simulation">Сервис симуляции жителей.</param>
         void StartSimulation(CitizenSimulationService simulation);
-
-        /// <summary>
-        /// Отключает сервис визуализации от симуляции и очищает коллекцию.
-        /// </summary>
         void StopSimulation();
+        void ResumeSimulation();
     }
 
-    /// <summary>
-    /// Реализация сервиса управления визуализацией жителей на карте.
-    /// </summary>
-    /// <remarks>
-    /// Ответственность:
-    /// - Создает и обновляет CitizenVM для каждого Citizen из CitizenSimulationService.
-    /// - Подписывается на события CitizenAdded, CitizenRemoved и CitizenUpdated.
-    ///
-    /// Контекст использования:
-    /// - Используется MapVM для связывания симуляции жителей с визуальной частью.
-    ///
-    /// Расширяемость:
-    /// - Можно добавить сортировку или группировку жителей по домам, работам или состояниям.
-    /// - Можно интегрировать с системой навигации или визуальных эффектов (например, анимация движения).
-    /// </remarks>
     public class CitizenManagerService : ICitizenManagerService
     {
         private CitizenSimulationService _simulation;
 
-        public ObservableCollection<CitizenVM> Citizens { get; } = new ObservableCollection<CitizenVM>();
+        private readonly ObservableCollection<CitizenVM> _citizens;
+        public ObservableCollection<CitizenVM> Citizens => _citizens;
+
+        public CitizenManagerService()
+        {
+            _citizens = new ObservableCollection<CitizenVM>();
+            BindingOperations.EnableCollectionSynchronization(_citizens, new object());
+        }
 
         public void StartSimulation(CitizenSimulationService simulation)
         {
@@ -70,9 +38,7 @@ namespace CitySimulatorWPF.Services
             _simulation = simulation;
 
             foreach (var citizen in _simulation.Citizens)
-            {
                 Citizens.Add(new CitizenVM(citizen));
-            }
 
             _simulation.CitizenAdded += OnCitizenAdded;
             _simulation.CitizenRemoved += OnCitizenRemoved;
@@ -91,6 +57,12 @@ namespace CitySimulatorWPF.Services
             _simulation = null;
         }
 
+        public void ResumeSimulation()
+        {
+            if (_simulation == null) return;
+            _simulation.Resume();
+        }
+
         private void OnCitizenAdded(Citizen citizen)
         {
             Citizens.Add(new CitizenVM(citizen));
@@ -99,14 +71,22 @@ namespace CitySimulatorWPF.Services
         private void OnCitizenRemoved(Citizen citizen)
         {
             var vm = Citizens.FirstOrDefault(c => c.Citizen == citizen);
-            if (vm != null)
-                Citizens.Remove(vm);
+            if (vm != null) Citizens.Remove(vm);
         }
 
         private void OnCitizenUpdated(Citizen citizen)
         {
             var vm = Citizens.FirstOrDefault(c => c.Citizen == citizen);
-            vm?.UpdatePosition();
+            if (vm == null) return;
+
+            if (Application.Current != null)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    foreach (var vm in Citizens)
+                        vm.UpdatePosition();
+                });
+            }
         }
     }
 }

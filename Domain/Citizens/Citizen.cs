@@ -1,78 +1,37 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Domain.Buildings;
+﻿using Domain.Buildings.EducationBuildings;
+using Domain.Buildings.Residential;
 using Domain.Citizens.States;
+using Domain.Citizens.Tasks;
+using Domain.Common.Base;
+using Domain.Common.Enums;
 using Domain.Map;
-using System.Collections.Generic;
+using Domain.Transports.Ground;
 
 namespace Domain.Citizens
 {
     /// <summary>
     /// Представляет жителя города, с базовыми характеристиками и текущим состоянием.
     /// </summary>
-    public class Citizen : ObservableObject
+    public class Citizen(Area area, float speed) : MovingEntity(area, speed)
     {
-        /// <summary>
-        /// Возраст жителя.
-        /// </summary>
+        private static int _nextId = 1;
+        public int Id { get; } = _nextId++;
         public int Age { get; set; }
+        public EducationType EducationLevel { get; set; }
+        public EducationBuilding StudyPlace { get; set; }
+        public CitizenProfession Profession { get; set; }
+        public Building WorkPlace { get; set; }
+        public Transport CurrentTransport { get; set; }
+        public PersonalCar PersonalCar { get; set; }
+        public bool HasCar => PersonalCar != null;
 
-        /// <summary>
-        /// Уровень образования жителя.
-        /// </summary>
-        public EducationLevel Education { get; set; }
-
-        /// <summary>
-        /// Текущая работа жителя.
-        /// </summary>
-        public Job CurrentJob { get; set; }
-
-        /// <summary>
-        /// Текущая позиция жителя на карте.
-        /// </summary>
-        public Position Position { get; set; }
-
-        /// <summary>
-        /// Текущее состояние жителя (например, идёт на работу, дома и т.д.).
-        /// </summary>
         public CitizenState State { get; set; }
+        public Queue<CitizenTask> Tasks { get; set; } = new();
+        public CitizenTask? CurrentTask { get; set; }
 
-        /// <summary>
-        /// Дом жителя.
-        /// </summary>
         public ResidentialBuilding Home { get; set; }
-
-        /// <summary>
-        /// Позиция, к которой житель направляется в данный момент.
-        /// </summary>
-        public Position TargetPosition { get; set; }
-
-        /// <summary>
-        /// Текущий путь жителя как очередь позиций, по которым он будет перемещаться.
-        /// </summary>
-        public Queue<Position> CurrentPath { get; set; }
-
-        /// <summary>
-        /// Инициализирует новый экземпляр жителя.
-        /// </summary>
-        public Citizen()
-        {
-            CurrentPath = new Queue<Position>();
-        }
-
-        /// <summary>
-        /// Здоровье жителя
-        /// </summary>
         public float Health { get; set; }
-
-        /// <summary>
-        /// Уровень счастья жителя.
-        /// Можно использовать для изменения поведения или мотивации.
-        /// </summary>
         public float Happiness { get; set; }
-
-        /// <summary>
-        /// Денежные средства жителя.
-        /// </summary>
         public float Money { get; set; }
     }
 }

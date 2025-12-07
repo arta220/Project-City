@@ -13,7 +13,8 @@
         <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter"/>
         <conv:ResourceTypeToBrushConverter x:Key="ResourceTypeToBrushConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-
+        <conv:MapObjectToIconPathConverter x:Key="MapObjectToIconPathConverter" />
+        
         <!-- Простой стиль для гражданина -->
         <Style x:Key="CitizenStyle"
                TargetType="Ellipse">
@@ -25,6 +26,21 @@
                     Value="Red" />
             <Setter Property="Stroke"
                     Value="DarkRed" />
+            <Setter Property="StrokeThickness"
+                    Value="1" />
+        </Style>
+
+        <!-- Стиль для автомобиля -->
+        <Style x:Key="CarStyle"
+               TargetType="Rectangle">
+            <Setter Property="Width"
+                    Value="8" />
+            <Setter Property="Height"
+                    Value="4" />
+            <Setter Property="Fill"
+                    Value="Blue" />
+            <Setter Property="Stroke"
+                    Value="DarkBlue" />
             <Setter Property="StrokeThickness"
                     Value="1" />
         </Style>
@@ -74,9 +90,11 @@
                                            Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                                 <!-- Есть объект (здание и т.п.) -->
-                                <Rectangle Fill="Gray"
-                                           Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}" />
-
+                                <Grid Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Rectangle Fill="Gray" />
+                                    <!-- Иконку теперь рисуем отдельным слоем BuildingIcons -->
+                                </Grid>
+                                
                                 <!-- НОВОЕ: иконка ресурса в центре клетки -->
                                 <Ellipse Width="8"
                                          Height="8"
@@ -116,6 +134,32 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                
+                <!-- Слой крупных иконок зданий поверх тайлов -->
+                <ItemsControl ItemsSource="{Binding BuildingIcons}"
+                              IsHitTestVisible="False">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemContainerStyle>
+                        <Style>
+                            <Setter Property="Canvas.Left" Value="{Binding CanvasLeft}" />
+                            <Setter Property="Canvas.Top"  Value="{Binding CanvasTop}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Image Source="{Binding MapObject, Converter={StaticResource MapObjectToIconPathConverter}}"
+                                   Width="{Binding Width}"
+                                   Height="{Binding Height}"
+                                   Stretch="Fill" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
                 <!-- Слой граждан (ПОВЕРХ тайлов) -->
                 <ItemsControl ItemsSource="{Binding Citizens}">
@@ -140,6 +184,30 @@
                 </ItemsControl>
 
             </Grid>
+
+            <!-- Слой личного транспорта (машины) поверх тайлов, вместе с гражданами -->
+            <ItemsControl ItemsSource="{Binding Cars}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemContainerStyle>
+                    <Style>
+                        <Setter Property="Canvas.Left"
+                                Value="{Binding PixelX}" />
+                        <Setter Property="Canvas.Top"
+                                Value="{Binding PixelY}" />
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Style="{StaticResource CarStyle}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </Grid>
     </ScrollViewer>

@@ -1,12 +1,18 @@
-﻿using Domain.Base;
-using Domain.Buildings;
-using Domain.Enums;
+﻿using Domain.Buildings.Residential;
+using Domain.Citizens;
+using Domain.Common.Base;
+using Domain.Common.Enums;
+using Domain.Common.Time;
 using Domain.Map;
+using Domain.Transports.Ground;
+using Services.CitizensSimulation;
+using Services.Common;
+using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.PlaceBuilding;
-using Services.SimulationClock;
-using System;
-using System.Collections.ObjectModel;
+using Services.Time;
+using Services.TransportSimulation;
+using Services.Utilities;
 
 namespace Services
 {
@@ -16,96 +22,67 @@ namespace Services
     /// - размещение объектов на карте,
     /// - уведомление о тиках симуляции и изменениях объектов.
     /// </summary>
-    /// <remarks>
-    /// Контекст использования:
-    /// - Источник событий времени для всех сервисов (например, граждан, строительства).
-    /// - Управление объектами на карте через <see cref="IMapObjectPlacementService"/> и <see cref="PlacementRepository"/>.
-    /// - Можно расширить: добавлять удаление объектов, взаимодействие граждан с объектами, динамическое изменение карты.
-    /// </remarks>
     public class Simulation
     {
         private readonly IMapObjectPlacementService _placementService;
-        private readonly ISimulationClock _clock;
+        private readonly ISimulationTimeService _timeService;
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
+        private readonly IIndustrialProductionService _productionService;
 
-        /// <summary>
-        /// Событие, вызываемое на каждом тике симуляции.
-        /// </summary>
-        public event Action<int> TickOccurred;
+        private readonly CitizenSimulationService _citizenSimulationService;
+        private readonly TransportSimulationService _transportSimulationService;
 
-        /// <summary>
-        /// Событие, вызываемое при успешном размещении объекта на карте.
-        /// </summary>
+        private readonly List<IUpdatable> _updatableServices = new();
+
+        public event Action<SimulationTime> TimeChanged;
+
         public event Action<MapObject> MapObjectPlaced;
 
-        /// <summary>
-        /// Событие, вызываемое при удалении объекта с карты.
-        /// </summary>
         public event Action<MapObject> MapObjectRemoved;
 
-        /// <summary>
-        /// Модель карты города.
-        /// </summary>
         public MapModel MapModel { get; private set; }
 
-        /// <summary>
-        /// Создаёт экземпляр симуляции.
-        /// </summary>
-        /// <param name="mapModel">Модель карты.</param>
-        /// <param name="placementService">Сервис размещения объектов на карте.</param>
-        /// <param name="clock">Часы симуляции.</param>
-        /// <param name="placementRepository">Репозиторий размещений объектов.</param>
         public Simulation(
             MapModel mapModel,
             IMapObjectPlacementService placementService,
-            ISimulationClock clock,
+            ISimulationTimeService timeService,
             PlacementRepository placementRepository,
-            IUtilityService utilityService)
+            CitizenSimulationService citizenSimulationService,
+            TransportSimulationService transportSimulationService,
+            IUtilityService utilityService,
+            IIndustrialProductionService productionService)
         {
-            MapModel = mapModel ?? throw new ArgumentNullException(nameof(mapModel));
-            _placementService = placementService ?? throw new ArgumentNullException(nameof(placementService));
-            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _placementRepository = placementRepository ?? throw new ArgumentNullException(nameof(placementRepository));
+            MapModel = mapModel;
+            _placementService = placementService;
+            _timeService = timeService;
+            _placementRepository = placementRepository;
+            _citizenSimulationService = citizenSimulationService;
+            _transportSimulationService = transportSimulationService;
             _utilityService = utilityService;
+            _productionService = productionService;
 
-            // Подписка на тики часов симуляции
-            _clock.TickOccurred += OnTick;
-            _clock.TickOccurred += OnUtilityTick;
-            _clock.Start();
+            _updatableServices.Add(citizenSimulationService);
+            _updatableServices.Add(utilityService);
+            _updatableServices.Add(transportSimulationService);
+            _updatableServices.Add(productionService);
+
+            _timeService.TimeChanged += OnTimeChanged;
         }
 
-        /// <summary>
-        /// Обрабатывает событие тика от часов симуляции.
-        /// </summary>
-        private void OnTick(int tick)
+        private void OnTimeChanged(SimulationTime time)
         {
-            TickOccurred?.Invoke(tick);
+            TimeChanged?.Invoke(time);
+
+            foreach (var service in _updatableServices)
+                service.Update(time);
         }
 
-        private void OnUtilityTick(int tick)
-        {
-            var residentialBuildings = _placementRepository.GetAllResidentialBuildings().ToList();
-            _utilityService.SimulateUtilitiesBreakdown(tick, residentialBuildings);
-        }
+        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building) => _utilityService.GetBrokenUtilities(building);
+
+        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType) => _utilityService.FixUtility(building, utilityType);
 
 
-        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
-        {
-            return _utilityService.GetBrokenUtilities(building);
-        }
-
-        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType)
-        {
-            _utilityService.FixUtility(building, utilityType);
-        }
-
-        /// <summary>
-        /// Пытается разместить объект на карте.
-        /// </summary>
-        /// <param name="mapObject">Объект для размещения.</param>
-        /// <param name="placement">Позиция и размеры объекта.</param>
-        /// <returns>True, если размещение прошло успешно.</returns>
         public bool TryPlace(MapObject mapObject, Placement placement)
         {
             if (_placementService.TryPlace(MapModel, mapObject, placement))
@@ -117,9 +94,6 @@ namespace Services
             return false;
         }
 
-        /// <summary>
-        /// Удаляет объект с карты
-        /// </summary>
         public bool TryRemove(MapObject mapObject)
         {
             var (placement, found) = _placementRepository.TryGetPlacement(mapObject);
@@ -127,24 +101,31 @@ namespace Services
             if (!found || placement is null)
                 return false;
 
-            return _placementService.TryRemove(MapModel, (Placement)placement);
+            if (_placementService.TryRemove(MapModel, (Placement)placement))
+            {
+                MapObjectRemoved?.Invoke(mapObject);
+                return true;
+            }
+
+            return false;
         }
 
+        public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);
 
-        /// <summary>
-        /// Получает размещение объекта на карте.
-        /// </summary>
-        public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject)
+        public bool CanPlace(MapObject mapObject, Placement placement) => _placementService.CanPlace(MapModel, mapObject, placement);
+        public void AddCitizen(Citizen citizen)
         {
-            return _placementRepository.TryGetPlacement(mapObject);
+            _citizenSimulationService.AddCitizen(citizen);
+            _placementRepository.Register(citizen, new Placement(citizen.Position, citizen.Area));
         }
 
-        /// <summary>
-        /// Проверяет, можно ли разместить объект на карте в указанной позиции.
-        /// </summary>
-        public bool CanPlace(MapObject mapObject, Placement placement)
+        public void AddTransport(Transport transport)
         {
-            return _placementService.CanPlace(MapModel, mapObject, placement);
+            _transportSimulationService.AddTransport(transport);
+            _placementRepository.Register(transport, new Placement(transport.Position, transport.Area));
         }
+
+        public void RemoveCitizen(Citizen citizen) => _citizenSimulationService.RemoveCitizen(citizen);
+        public void RemoveTransport(Transport car) => _transportSimulationService.RemoveTransport(car);
     }
 }

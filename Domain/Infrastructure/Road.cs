@@ -1,4 +1,5 @@
-﻿using Domain.Map;
+﻿using Domain.Common.Base;
+using Domain.Map;
 
 namespace Domain.Base;
 

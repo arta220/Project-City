@@ -2,19 +2,15 @@
 {
     public enum CitizenState
     {
-        // Ничего
         Idle,
-
-        // Работа
-        GoingToWork,
-        Working,
-        
-        // Учёба
-        GoingToSchool,
-        Studying,
-
-        // Дом
         GoingHome,
-        SearchingHome
+        GoingWork,
+        Working,
+        GoingToStudy,
+        Studying,
+        GoingShopping,
+        Shopping,
+        WorkingOnSite, // работник на выездном задании
     }
+
 }

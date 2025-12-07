@@ -1,16 +1,14 @@
-using Domain.Base;
+using Domain.Map;
+using Domain.Common.Base;
 
-namespace Domain.Ground
+namespace Domain.Transports.Ground
 {
     public class Taxi : Transport
     {
-        public Taxi(string name, int capacity, float speed) : base(name, capacity, speed)
+        public Taxi(Area area, float speed) : base(area, speed)
         {
-        }
-
-        public override void Move()
-        {
-            Console.WriteLine("Такси везет пассажира по указанному адресу.");
+            Type = TransportType.Taxi;
+            Capacity = 4;
         }
     }
 }

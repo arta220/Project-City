@@ -2,6 +2,7 @@
 using Domain.Enums;
 using Domain.Map;
 using Domain.Infrastructure;
+using Domain.Common.Enums;
 
 namespace CitySimulatorWPF.Services
 {

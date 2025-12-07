@@ -1,118 +1,94 @@
-﻿using Domain.Citizens;
+﻿using Domain.Buildings.Residential;
+using Domain.Citizens;
 using Domain.Citizens.States;
+using Domain.Citizens.Tasks;
+using Domain.Common.Time;
 using Domain.Map;
 using Services.BuildingRegistry;
-using Services.Interfaces;
+using Services.Citizens.Job;
+using Services.Citizens.Movement;
+using Services.Utilities;
+using System.Diagnostics;
 
-namespace Services.CitizensSimulation
+public class CitizenController
 {
-    /// <summary>
-    /// Контроллер для управления поведением граждан в симуляции.
-    /// Отвечает за обновление состояния граждан, перемещение по карте, работу, обучение и старение.
-    /// </summary>
-    /// <remarks>
-    /// Контекст использования:
-    /// - Используется внутри <see cref="CitizenSimulationService"/> для обновления каждого гражданина на каждом тике симуляции.
-    /// - Использует <see cref="IBuildingRegistry"/> для получения позиций зданий (дом, работа, школа и др.).
-    /// - Использует сервисы движения, работы, образования и демографии (<see cref="ICitizenMovementService"/>, <see cref="IJobService"/>, <see cref="IEducationService"/>, <see cref="IPopulationService"/>).
-    /// - MapVM косвенно получает обновлённые позиции граждан через <see cref="CitizenManagerService"/>.
-    /// 
-    /// Возможные расширения:
-    /// - Реализовать фактическую логику поиска работы и школы.
-    /// - Добавить события или callback'и для визуальных эффектов (например, анимация движения на карте).
-    /// - Поддерживать дополнительные состояния граждан (развлечения, покупки, болезни и т.п.).
-    /// </remarks>
-    public class CitizenController
+    private readonly ICitizenMovementService _movementService;
+    private readonly IBuildingRegistry _buildingRegistry; // ДОБАВИТЬ
+    private readonly JobController _jobController; // ДОБАВИТЬ если нужно
+    private readonly IUtilityService _utilityService;
+
+    public CitizenController(
+        ICitizenMovementService movementService,
+        IBuildingRegistry buildingRegistry,
+        JobController jobController,
+        IUtilityService utilityService) 
     {
-        private readonly IBuildingRegistry _buildingRegistry;
-        private readonly ICitizenMovementService _movement;
-        private readonly IJobService _jobService;
-        private readonly IEducationService _educationService;
-        private readonly IPopulationService _populationService;
+        _movementService = movementService;
+        _buildingRegistry = buildingRegistry;
+        _jobController = jobController;
+        _utilityService = utilityService;
+    }
 
-        /// <summary>
-        /// Создаёт контроллер граждан с зависимостями на сервисы симуляции.
-        /// </summary>
-        /// <param name="buildingRegistry">Сервис для получения размещений зданий.</param>
-        /// <param name="movementService">Сервис перемещения граждан по карте.</param>
-        /// <param name="jobService">Сервис для обновления работы граждан.</param>
-        /// <param name="educationService">Сервис для обновления обучения граждан.</param>
-        /// <param name="populationService">Сервис для управления возрастом и демографией граждан.</param>
-        public CitizenController(
-              IBuildingRegistry buildingRegistry,
-              ICitizenMovementService movementService,
-              IJobService jobService,
-              IEducationService educationService,
-              IPopulationService populationService)
+    private bool IsAtWork(Citizen citizen)
+    {
+        if (citizen.WorkPlace == null)
         {
-            _buildingRegistry = buildingRegistry;
-            _movement = movementService;
-            _jobService = jobService;
-            _educationService = educationService;
-            _populationService = populationService;
+            Debug.WriteLine($"У работника {citizen.Id} нет WorkPlace");
+            return false;
         }
 
-        /// <summary>
-        /// Обновляет состояние указанного гражданина на текущем тике симуляции.
-        /// </summary>
-        /// <param name="citizen">Гражданин, состояние которого необходимо обновить.</param>
-        /// <param name="tick">Текущий тик симуляции.</param>
-        public void UpdateCitizen(Citizen citizen, int tick)
+        var (placement, ok) = _buildingRegistry.TryGetPlacement(citizen.WorkPlace);
+
+        if (!ok)
         {
-            switch (citizen.State)
+            Debug.WriteLine($"WorkPlace работника {citizen.Id} не найден в реестре");
+            return false;
+        }
+
+        var entrance = placement.Value.Entrance;
+        // ВЫВОДИМ РЕАЛЬНЫЕ КООРДИНАТЫ
+        Debug.WriteLine($"Работник {citizen.Id}: Pos=({citizen.Position.X},{citizen.Position.Y}), Вход офиса=({entrance.X},{entrance.Y})");
+
+        return citizen.Position == entrance;
+    }
+
+    public void UpdateCitizen(Citizen citizen, SimulationTime time)
+    {
+        if (citizen.Profession == CitizenProfession.UtilityWorker)
+        {
+            Debug.WriteLine($"UtilityWorker {citizen.Id}: State={citizen.State}");
+        }
+
+        if (citizen.CurrentTask == null)
+        {
+            if (citizen.Tasks.Count > 0)
+                citizen.CurrentTask = citizen.Tasks.Dequeue();
+        }
+
+        if (citizen.CurrentTask != null && citizen.CurrentPath.Count == 0)
+            _movementService.SetTarget(citizen, citizen.CurrentTask.Target);
+
+        _movementService.PlayMovement(citizen, time);
+
+        if (citizen.Position == citizen.CurrentTask?.Target)
+        {
+            citizen.CurrentTask.MarkAsCompleted();
+            citizen.CurrentTask = null;
+        }
+
+        // ВЫЗОВ РАБОТЫ ДЛЯ UTILITYWORKER
+        if (citizen.Profession == CitizenProfession.UtilityWorker)
+        {
+            if (citizen.State == CitizenState.Working)
             {
-                case CitizenState.Idle:
-                    DecideNextAction(citizen, tick);
-                    break;
-
-                case CitizenState.GoingToWork:
-                    _movement.Move(citizen, new Position(0, 0), tick); // Пока нет реализации работы жителя
-                    break;
-
-                case CitizenState.Working:
-                    _jobService.UpdateWork(citizen, tick);
-                    break;
-
-                case CitizenState.GoingToSchool:
-                    _movement.Move(citizen, new Position(0, 0), tick); // Пока нет реализации учёбы
-                    break;
-
-                case CitizenState.Studying:
-                    _educationService.UpdateEducation(citizen, tick);
-                    break;
-
-                case CitizenState.GoingHome:
-                    var (placement, found) = _buildingRegistry.TryGetPlacement(citizen.Home);
-
-                    if (!found || placement is null)
-                    {
-                        citizen.State = CitizenState.SearchingHome; // ну если дом удалили надо типа найти новый
-                        break;
-                    }
-
-                    Position pos = ((Placement)placement).Position;
-
-                    _movement.Move(citizen, pos, tick);
-
-                    if (citizen.Position.Equals(pos))
-                    {
-                        citizen.State = CitizenState.Idle;
-                        citizen.CurrentPath.Clear();
-                    }
-                    break;
+                Debug.WriteLine($"ВЫЗОВ РАБОТЫ: UtilityWorker {citizen.Id}");
+                _jobController.UpdateJob(citizen, time);
             }
-
-            _populationService.AgeCitizen(citizen);
-        }
-
-        /// <summary>
-        /// Определяет следующую цель гражданина в зависимости от текущих условий.
-        /// </summary>
-        /// <param name="citizen">Гражданин, для которого нужно определить действие.</param>
-        /// <param name="tick">Текущий тик симуляции.</param>
-        private void DecideNextAction(Citizen citizen, int tick)
-        {
-
+            else if (citizen.State == CitizenState.WorkingOnSite)
+            {
+                Debug.WriteLine($"ВЫЗОВ РАБОТЫ: UtilityWorker {citizen.Id} НА ВЫЕЗДЕ!");
+                _jobController.UpdateJob(citizen, time);
+            }
         }
     }
 }

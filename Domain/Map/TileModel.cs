@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Domain.Base;
-using Domain.Enums;
+using Domain.Common.Base;
+using Domain.Common.Enums;
 
 namespace Domain.Map
 {
