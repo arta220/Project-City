@@ -1,7 +1,6 @@
-﻿using CitySimulatorWPF.Services;
+using CitySimulatorWPF.Services;
 using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
-using CitySkylines_REMAKE.ViewModels;
 using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
@@ -57,8 +56,9 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<GraphService>(sp =>
             {
                 var utilityService = sp.GetRequiredService<IUtilityService>();
+                var jewelryProductionService = sp.GetRequiredService<IJewelryProductionService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
-                return new GraphService(utilityService, productionService);
+                return new GraphService(utilityService, jewelryProductionService, productionService);
             });
             services.AddTransient<ChartsWindowViewModel>();
 
@@ -70,6 +70,7 @@ namespace CitySkylines_REMAKE
 
             // Реестр зданий
             services.AddSingleton<IBuildingRegistry, BuildingRegistryService>();
+            services.AddSingleton<IJewelryProductionService, JewelryProductionService>();
             services.AddSingleton<JewelryProductionService>();
 
             // Навигация и PathFinding
@@ -137,7 +138,8 @@ namespace CitySkylines_REMAKE
             // Менеджер машин
             services.AddSingleton<ICarManagerService, CarManagerService>();
 
-            services.AddSingleton<MessageService, MessageService>();
+            services.AddSingleton<IMessageService, MessageService>();
+            services.AddSingleton<MessageService>();
 
             // Сервисы работы с картой
             services.AddSingleton<IMapTileService, MapTileService>();
@@ -152,7 +154,28 @@ namespace CitySkylines_REMAKE
                 return new PathConstructionService(tileService.Tiles);
             });
 
-            services.AddSingleton<Simulation>();
+            services.AddSingleton<Simulation>(sp =>
+            {
+                var mapModel = sp.GetRequiredService<MapModel>();
+                var placementService = sp.GetRequiredService<IMapObjectPlacementService>();
+                var timeService = sp.GetRequiredService<ISimulationTimeService>();
+                var placementRepository = sp.GetRequiredService<PlacementRepository>();
+                var citizenSimulationService = sp.GetRequiredService<CitizenSimulationService>();
+                var transportSimulationService = sp.GetRequiredService<TransportSimulationService>();
+                var utilityService = sp.GetRequiredService<IUtilityService>();
+                var productionService = sp.GetRequiredService<IIndustrialProductionService>();
+                var jewelryProductionService = sp.GetRequiredService<IJewelryProductionService>();
+                return new Simulation(
+                    mapModel,
+                    placementService,
+                    timeService,
+                    placementRepository,
+                    citizenSimulationService,
+                    transportSimulationService,
+                    utilityService,
+                    productionService,
+                    jewelryProductionService);
+            });
 
             // ViewModels
             services.AddTransient<HeaderPanelViewModel>();

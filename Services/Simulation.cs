@@ -1,4 +1,4 @@
-﻿using Domain.Buildings.Residential;
+using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Common.Base;
 using Domain.Common.Enums;
@@ -9,10 +9,12 @@ using Services.CitizensSimulation;
 using Services.Common;
 using Services.IndustrialProduction;
 using Services.Interfaces;
+using Services.JewelryProduction;
 using Services.PlaceBuilding;
 using Services.Time;
 using Services.TransportSimulation;
 using Services.Utilities;
+using System.Linq;
 
 namespace Services
 {
@@ -29,11 +31,13 @@ namespace Services
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService _productionService;
+        private readonly IJewelryProductionService _jewelryProductionService;
 
         private readonly CitizenSimulationService _citizenSimulationService;
         private readonly TransportSimulationService _transportSimulationService;
 
         private readonly List<IUpdatable> _updatableServices = new();
+     
 
         public event Action<SimulationTime> TimeChanged;
 
@@ -51,7 +55,8 @@ namespace Services
             CitizenSimulationService citizenSimulationService,
             TransportSimulationService transportSimulationService,
             IUtilityService utilityService,
-            IIndustrialProductionService productionService)
+            IIndustrialProductionService productionService,
+            IJewelryProductionService jewelryProductionService)
         {
             MapModel = mapModel;
             _placementService = placementService;
@@ -61,11 +66,13 @@ namespace Services
             _transportSimulationService = transportSimulationService;
             _utilityService = utilityService;
             _productionService = productionService;
+            _jewelryProductionService = jewelryProductionService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
             _updatableServices.Add(productionService);
+            _updatableServices.Add(jewelryProductionService);
 
             _timeService.TimeChanged += OnTimeChanged;
         }
@@ -76,6 +83,13 @@ namespace Services
 
             foreach (var service in _updatableServices)
                 service.Update(time);
+
+            // Сбор статистики для графика
+            int citizensCount = _citizenSimulationService.Citizens.Count;
+            int transportsCount = _placementRepository.GetAll().OfType<Transport>().Count();
+            int mapObjectsCount = _placementRepository.GetAll().Count();
+
+           
         }
 
         public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building) => _utilityService.GetBrokenUtilities(building);
@@ -127,5 +141,7 @@ namespace Services
 
         public void RemoveCitizen(Citizen citizen) => _citizenSimulationService.RemoveCitizen(citizen);
         public void RemoveTransport(Transport car) => _transportSimulationService.RemoveTransport(car);
+
+       
     }
 }

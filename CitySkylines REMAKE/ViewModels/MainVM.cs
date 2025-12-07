@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Input;
 using Services.Graphing;
 using CitySimulatorWPF.Views.dialogs;
-using CitySkylines_REMAKE.ViewModels;
 
 namespace CitySimulatorWPF.ViewModels
 {

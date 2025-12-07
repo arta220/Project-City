@@ -1,95 +1,126 @@
-﻿using Domain.Buildings;
-using Domain.Enums;
+using Domain.Buildings;
+using Domain.Common.Enums;
+using Domain.Common.Time;
+using Services.BuildingRegistry;
+using Services.Common;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Services.JewelryProduction
 {
-    public class JewelryProductionService
+    public class JewelryProductionService : IJewelryProductionService
     {
-        private List<JewelryFactory> _factories = new List<JewelryFactory>();
+        private readonly IBuildingRegistry _buildingRegistry;
+        private readonly JewelryProductionStatistics _statistics = new();
 
-        // Статистика для графиков
-        public List<int> GlobalProductionHistory { get; private set; } = new List<int>();
-        public List<decimal> GlobalRevenueHistory { get; private set; } = new List<decimal>();
+        public List<int> GlobalProductionHistory { get; } = new();
+        public List<decimal> GlobalRevenueHistory { get; } = new();
 
-        public event Action FactoryRegistered;
+        private int _totalJewelryProduction = 0;
+        private int _totalMaterialsUsed = 0;
+        private decimal _totalRevenue = 0;
 
-        public void RegisterFactory(JewelryFactory factory)
+        public JewelryProductionService(IBuildingRegistry buildingRegistry)
         {
-            if (!_factories.Contains(factory))
-            {
-                _factories.Add(factory);
-                FactoryRegistered?.Invoke();
-            }
+            _buildingRegistry = buildingRegistry;
         }
 
-        public ProductionResult ProduceJewelry(JewelryType type, JewelryMaterial material, int quantity)
+        public void Update(SimulationTime time)
         {
-            if (quantity <= 0)
-                return new ProductionResult(false, 0, 0);
+            var jewelryBuildings = _buildingRegistry.GetBuildings<IndustrialBuilding>()
+                .Where(b => b.Type == IndustrialBuildingType.JewelryFactory)
+                .ToList();
 
-            var activeFactories = _factories.Where(f => f.IsActive).ToList();
-            if (!activeFactories.Any())
-                return new ProductionResult(false, 0, 0);
+            int jewelryProduction = 0;
+            int materialsUsed = 0;
 
-            var totalProduced = 0;
-            var totalRevenue = 0m;
-            var remainingQuantity = quantity;
-
-            // Распределяем производство между активными фабриками
-            foreach (var factory in activeFactories)
+            foreach (var building in jewelryBuildings)
             {
-                if (remainingQuantity <= 0) break;
+                // Запуск производства
+                building.RunOnce();
 
-                // Каждая фабрика может произвести часть
-                var factoryCapacity = factory.ProductionCapacity;
-                var canProduce = Math.Min(remainingQuantity, factoryCapacity);
-                var revenue = CalculateRevenue(type, material, canProduce);
+                // Подсчёт производства ювелирных изделий
+                var jewelryProducts = building.ProductsBank
+                    .Where(kvp => IsJewelryProduct(kvp.Key))
+                    .Sum(kvp => kvp.Value);
 
-                factory.AddProduction(canProduce, revenue);
+                jewelryProduction += jewelryProducts;
 
-                totalProduced += canProduce;
-                totalRevenue += revenue;
-                remainingQuantity -= canProduce;
+                // Подсчёт использованных материалов
+                var materials = building.MaterialsBank
+                    .Where(kvp => IsJewelryMaterial(kvp.Key))
+                    .Sum(kvp => kvp.Value);
+
+                materialsUsed += materials;
             }
 
-            // Сохраняем глобальную статистику
-            if (totalProduced > 0)
+            // Обновление статистики
+            _totalJewelryProduction += jewelryProduction;
+            _totalMaterialsUsed += materialsUsed;
+
+            // Простой расчет дохода (можно улучшить)
+            decimal revenue = jewelryProduction * 100; // Примерная стоимость за единицу
+            _totalRevenue += revenue;
+
+            // Добавление точки данных (всегда, даже если значения равны 0)
+            var dataPoint = new ProductionDataPoint(
+                time.TotalTicks,
+                jewelryProduction,
+                materialsUsed
+            );
+
+            _statistics.ProductionHistory.Add(dataPoint);
+
+            // Обновление истории для графиков
+            GlobalProductionHistory.Add(jewelryProduction);
+            GlobalRevenueHistory.Add(revenue);
+        }
+
+        public JewelryProductionStatistics GetStatistics() => _statistics;
+
+        private bool IsJewelryProduct(object product)
+        {
+            if (product is ProductType productType)
             {
-                GlobalProductionHistory.Add(totalProduced);
-                GlobalRevenueHistory.Add(totalRevenue);
+                // Готовые ювелирные изделия
+                return productType == ProductType.Ring ||
+                       productType == ProductType.Necklace ||
+                       productType == ProductType.Bracelet ||
+                       productType == ProductType.Earrings ||
+                       productType == ProductType.Pendant ||
+                       // Драгоценные металлы и камни (как продукты)
+                       productType == ProductType.Gold ||
+                       productType == ProductType.Silver ||
+                       productType == ProductType.Platinum ||
+                       productType == ProductType.Diamond ||
+                       productType == ProductType.Ruby ||
+                       productType == ProductType.Emerald;
             }
-
-            return new ProductionResult(totalProduced > 0, totalProduced, totalRevenue);
+            return false;
         }
 
-        private decimal CalculateRevenue(JewelryType type, JewelryMaterial material, int quantity)
+        private bool IsJewelryMaterial(object material)
         {
-            // Базовая цена + премия за материал и тип
-            var basePrice = 100m;
-            var materialMultiplier = (int)material * 0.5m;
-            var typeMultiplier = (int)type * 0.3m;
-
-            return (basePrice + materialMultiplier + typeMultiplier) * quantity;
-        }
-
-        // Методы для графиков и статистики
-        public int GetTotalJewelryProduced() => _factories.Sum(f => f.TotalProduced);
-        public decimal GetTotalRevenue() => _factories.Sum(f => f.TotalRevenue);
-        public int GetFactoryCount() => _factories.Count;
-        public int GetActiveFactoryCount() => _factories.Count(f => f.IsActive);
-
-        public double GetAverageProductionPerFactory() =>
-            _factories.Count > 0 ? _factories.Average(f => (double)f.TotalProduced) : 0;
-
-        public IEnumerable<JewelryFactory> GetActiveFactories() => _factories.Where(f => f.IsActive);
-
-        public void SetFactoryActive(JewelryFactory factory, bool active)
-        {
-            factory.SetActive(active);
+            // Материалы для ювелирного производства
+            if (material is NaturalResourceType resourceType)
+            {
+                // Базовые ресурсы, которые могут использоваться в ювелирном производстве
+                return resourceType == NaturalResourceType.Copper ||
+                       resourceType == NaturalResourceType.Iron ||
+                       resourceType == NaturalResourceType.Energy;
+            }
+            if (material is ProductType productType)
+            {
+                // Драгоценные металлы и камни как материалы
+                return productType == ProductType.Gold ||
+                       productType == ProductType.Silver ||
+                       productType == ProductType.Platinum ||
+                       productType == ProductType.Diamond ||
+                       productType == ProductType.Ruby ||
+                       productType == ProductType.Emerald;
+            }
+            return false;
         }
     }
-
-    public record ProductionResult(bool Success, int QuantityProduced, decimal Revenue);
 }
+

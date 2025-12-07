@@ -35,7 +35,22 @@ namespace Domain.Common.Enums
         ShippingBox,        // Транспортная коробка
         CosmeticBottle,     // Косметический флакон
         PharmaceuticalPack, // Фармацевтическая упаковка
-        GiftBox            // Подарочная упаковка
+        GiftBox,            // Подарочная упаковка
+
+        // Ювелирные изделия
+        Gold,          
+        Silver,         
+        Platinum,       
+        Diamond,        
+        Ruby,           
+        Emerald,        
+
+        // Готовые изделия
+        Ring,           
+        Necklace,       
+        Bracelet,       
+        Earrings,       
+        Pendant         
     }
 }
 

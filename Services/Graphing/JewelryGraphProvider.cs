@@ -1,21 +1,22 @@
-﻿using OxyPlot;
-using OxyPlot.Axes;
+using OxyPlot;
 using OxyPlot.Series;
-using Services.Interfaces;
 using Services.JewelryProduction;
 
 namespace Services.Graphing
 {
+    /// <summary>
+    /// Провайдер графика для производства ювелирных изделий
+    /// </summary>
     public class JewelryGraphProvider : IGraphDataProvider
     {
-        private readonly JewelryProductionService _jewelryService;
+        private readonly IJewelryProductionService _jewelryService;
 
-        public string SystemName => "Ювелирно производство";
+        public string SystemName => "Ювелирное производство";
         public string GraphTitle => "Статистика ювелирного производства";
-        public string XAxisTitle => "Время (тики симуляции)";
-        public string YAxisTitle => "Количество / Доход";
+        public string XAxisTitle => "Время (тики)";
+        public string YAxisTitle => "Количество";
 
-        public JewelryGraphProvider(JewelryProductionService jewelryService)
+        public JewelryGraphProvider(IJewelryProductionService jewelryService)
         {
             _jewelryService = jewelryService;
         }
@@ -23,61 +24,43 @@ namespace Services.Graphing
         public PlotModel CreatePlotModel()
         {
             var plotModel = new PlotModel { Title = GraphTitle };
+            var statistics = _jewelryService.GetStatistics();
 
-            // Ось X - время
-            plotModel.Axes.Add(new LinearAxis
+            // Добавление осей
+            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
             {
-                Position = AxisPosition.Bottom,
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
                 Title = XAxisTitle
             });
-
-            // Ось Y1 - количество
-            plotModel.Axes.Add(new LinearAxis
+            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
             {
-                Position = AxisPosition.Left,
-                Title = "Количество произведенных изделий",
-                Key = "QuantityAxis"
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                Title = YAxisTitle
             });
 
-            // Ось Y2 - доход
-            plotModel.Axes.Add(new LinearAxis
-            {
-                Position = AxisPosition.Right,
-                Title = "Доход (деньги)",
-                Key = "RevenueAxis"
-            });
-
-            // График производства
-            var productionSeries = new LineSeries
-            {
-                Title = "Производство (шт)",
-                YAxisKey = "QuantityAxis"
+            // Линия производства ювелирных изделий
+            var productionLine = new LineSeries 
+            { 
+                Title = "Производство ювелирных изделий", 
+                Color = OxyColors.Blue 
             };
 
-            // График дохода
-            var revenueSeries = new LineSeries
-            {
-                Title = "Доход (деньги)",
-                YAxisKey = "RevenueAxis",
-                Color = OxyColors.Red
+            // Линия использованных материалов
+            var materialsLine = new LineSeries 
+            { 
+                Title = "Материалы", 
+                Color = OxyColors.Orange 
             };
 
-            // Заполняем данными из сервиса
-            var productionData = _jewelryService.GlobalProductionHistory;
-            var revenueData = _jewelryService.GlobalRevenueHistory;
-
-            for (int i = 0; i < productionData.Count; i++)
+            // Заполнение данными
+            foreach (var dataPoint in statistics.ProductionHistory)
             {
-                productionSeries.Points.Add(new DataPoint(i, productionData[i]));
+                productionLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.JewelryProduction));
+                materialsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.MaterialsUsed));
             }
 
-            for (int i = 0; i < revenueData.Count; i++)
-            {
-                revenueSeries.Points.Add(new DataPoint(i, (double)revenueData[i]));
-            }
-
-            plotModel.Series.Add(productionSeries);
-            plotModel.Series.Add(revenueSeries);
+            plotModel.Series.Add(productionLine);
+            plotModel.Series.Add(materialsLine);
 
             return plotModel;
         }

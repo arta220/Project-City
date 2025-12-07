@@ -320,6 +320,65 @@ namespace Domain.Factories
         }
     }
     #endregion
+    /// <summary>
+    /// Ювелирный завод
+    /// </summary>
+    public class JewelryFactoryFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 3,
+                maxOccupancy: 75,
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.JewelryFactory
+            );
+
+            // Цех обработки золота
+            building.AddWorkshop(
+                ProductType.Gold,
+                ProductType.Ring,
+                coeff: 2
+            );
+
+            // Цех обработки серебра
+            building.AddWorkshop(
+                ProductType.Silver,
+                ProductType.Necklace,
+                coeff: 3
+            );
+
+            // Цех обработки платины
+            building.AddWorkshop(
+                ProductType.Platinum,
+                ProductType.Bracelet,
+                coeff: 1
+            );
+
+            // Цех инкрустации бриллиантами
+            building.AddWorkshop(
+                ProductType.Diamond,
+                ProductType.Earrings,
+                coeff: 4
+            );
+
+            // Цех инкрустации рубинами
+            building.AddWorkshop(
+                ProductType.Ruby,
+                ProductType.Pendant,
+                coeff: 5
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[ProductType.Gold] = 100;
+            building.MaterialsBank[ProductType.Silver] = 200;
+            building.MaterialsBank[ProductType.Platinum] = 50;
+            building.MaterialsBank[ProductType.Diamond] = 500;
+            building.MaterialsBank[ProductType.Ruby] = 300;
+
+            return building;
+        }
+    }
 
     public class UrbanParkFactory : IMapObjectFactory
     {

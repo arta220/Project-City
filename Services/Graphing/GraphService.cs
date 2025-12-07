@@ -1,4 +1,4 @@
-﻿using Services.Interfaces;
+using Services.Interfaces;
 using Services.Utilities;
 using System;
 using System.Collections.Generic;
@@ -12,16 +12,18 @@ namespace Services.Graphing
 {
     public class GraphService
     {
-        private readonly JewelryProductionService _jewelryProductionService;
+        private readonly IJewelryProductionService _jewelryProductionService;
         private readonly List<IGraphDataProvider> _providers = new();
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService? _productionService;
+        private readonly Simulation? _simulation;
 
-        public GraphService(IUtilityService utilityService, JewelryProductionService jewelryProductionService, IIndustrialProductionService? productionService = null)
+        public GraphService(IUtilityService utilityService, IJewelryProductionService jewelryProductionService, IIndustrialProductionService? productionService = null, Simulation? simulation = null)
         {
             _utilityService = utilityService;
             _jewelryProductionService = jewelryProductionService;
             _productionService = productionService;
+            _simulation = simulation;
             RegisterDefaultProviders();
         }
 
@@ -39,6 +41,7 @@ namespace Services.Graphing
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));
                 RegisterProvider(new PackagingProductionGraphProvider(_productionService));
             }
+ 
         }
 
         public IEnumerable<IGraphDataProvider> GetAvailableGraphs()

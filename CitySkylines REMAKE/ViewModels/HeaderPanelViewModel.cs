@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Services.Graphing;
 
-namespace CitySkylines_REMAKE.ViewModels
+namespace CitySimulatorWPF.ViewModels
 {
     public partial class HeaderPanelViewModel : ObservableObject
     {
