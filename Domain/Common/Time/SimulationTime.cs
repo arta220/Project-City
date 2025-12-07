@@ -25,7 +25,7 @@
             Minute = totalMinutes % 60;
             Hour = totalHours % 24;
             Day = (totalDays % 30) + 1;
-            Month = ((totalDays / 30) % 12) + 1;
+            Month = totalMinutes/2;
             Year = (totalDays / (30 * 12)) + 1;
 
             DayOfWeek = (DayOfWeek)(totalDays % 7);
