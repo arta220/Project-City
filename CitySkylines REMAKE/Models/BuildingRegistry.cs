@@ -99,6 +99,12 @@ namespace CitySimulatorWPF.Models
                 "Assets/Icons/JewelryFactory.jpg"
             ));
 
+            industrial.Objects.Add(new ObjectVM(
+                new GlassFactoryFactory(),
+                "Стекольный завод",
+                "Assets/Icons/GlassFactory.png"
+            ));
+
             //Фармацевтический завод
             industrial.Objects.Add(new ObjectVM(
                 new PharmaceuticalFactoryFactory(),

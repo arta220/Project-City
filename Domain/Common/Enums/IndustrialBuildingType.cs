@@ -8,6 +8,7 @@ namespace Domain.Common.Enums
         CardboardFactory,
         RecyclingPlantFactory,
         PharmaceuticalFactory,
-        JewelryFactory
+        JewelryFactory,
+        GlassFactory
     }
 }

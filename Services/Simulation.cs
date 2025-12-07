@@ -10,6 +10,7 @@ using Services.Common;
 using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.JewelryProduction;
+using Services.GlassProduction;
 using Services.PlaceBuilding;
 using Services.Time;
 using Services.TransportSimulation;
@@ -32,6 +33,7 @@ namespace Services
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService _productionService;
         private readonly IJewelryProductionService _jewelryProductionService;
+        private readonly IGlassProductionService _glassProductionService;
 
         private readonly CitizenSimulationService _citizenSimulationService;
         private readonly TransportSimulationService _transportSimulationService;
@@ -56,7 +58,8 @@ namespace Services
             TransportSimulationService transportSimulationService,
             IUtilityService utilityService,
             IIndustrialProductionService productionService,
-            IJewelryProductionService jewelryProductionService)
+            IJewelryProductionService jewelryProductionService,
+            IGlassProductionService glassProductionService)
         {
             MapModel = mapModel;
             _placementService = placementService;
@@ -67,12 +70,14 @@ namespace Services
             _utilityService = utilityService;
             _productionService = productionService;
             _jewelryProductionService = jewelryProductionService;
+            _glassProductionService = glassProductionService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
             _updatableServices.Add(productionService);
             _updatableServices.Add(jewelryProductionService);
+            _updatableServices.Add(glassProductionService);
 
             _timeService.TimeChanged += OnTimeChanged;
         }

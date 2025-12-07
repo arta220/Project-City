@@ -1,30 +1,30 @@
 using OxyPlot;
 using OxyPlot.Series;
-using Services.JewelryProduction;
+using Services.GlassProduction;
 
 namespace Services.Graphing
 {
     /// <summary>
-    /// Провайдер графика для производства ювелирных изделий
+    /// Провайдер графика для производства стекольных изделий
     /// </summary>
-    public class JewelryGraphProvider : IGraphDataProvider
+    public class GlassGraphProvider : IGraphDataProvider
     {
-        private readonly IJewelryProductionService _jewelryService;
+        private readonly IGlassProductionService _glassService;
 
-        public string SystemName => "Ювелирное производство";
-        public string GraphTitle => "Статистика ювелирного производства";
+        public string SystemName => "Стекольное производство";
+        public string GraphTitle => "Статистика стекольного производства";
         public string XAxisTitle => "Время (тики)";
         public string YAxisTitle => "Количество";
 
-        public JewelryGraphProvider(IJewelryProductionService jewelryService)
+        public GlassGraphProvider(IGlassProductionService glassService)
         {
-            _jewelryService = jewelryService;
+            _glassService = glassService;
         }
 
         public PlotModel CreatePlotModel()
         {
             var plotModel = new PlotModel { Title = GraphTitle };
-            var statistics = _jewelryService.GetStatistics();
+            var statistics = _glassService.GetStatistics();
 
             // Добавление осей
             plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
@@ -47,48 +47,48 @@ namespace Services.Graphing
             };
 
             // Категории изделий
-            var ringsLine = new LineSeries 
+            var bottlesLine = new LineSeries 
             { 
-                Title = "Кольца", 
-                Color = OxyColors.Gold 
+                Title = "Бутылки", 
+                Color = OxyColors.LightBlue 
             };
 
-            var necklacesLine = new LineSeries 
+            var vasesLine = new LineSeries 
             { 
-                Title = "Ожерелья", 
+                Title = "Вазы", 
+                Color = OxyColors.Cyan 
+            };
+
+            var windowsLine = new LineSeries 
+            { 
+                Title = "Окна", 
+                Color = OxyColors.SkyBlue 
+            };
+
+            var mirrorsLine = new LineSeries 
+            { 
+                Title = "Зеркала", 
                 Color = OxyColors.Silver 
             };
 
-            var braceletsLine = new LineSeries 
+            var tablewareLine = new LineSeries 
             { 
-                Title = "Браслеты", 
-                Color = OxyColors.Blue 
-            };
-
-            var earringsLine = new LineSeries 
-            { 
-                Title = "Серьги", 
-                Color = OxyColors.Purple 
-            };
-
-            var pendantsLine = new LineSeries 
-            { 
-                Title = "Кулоны", 
-                Color = OxyColors.Green 
+                Title = "Посуда", 
+                Color = OxyColors.LightGreen 
             };
 
             // Премиум и эксклюзивные линии
             var premiumLine = new LineSeries 
             { 
                 Title = "Премиум изделия", 
-                Color = OxyColors.Red,
+                Color = OxyColors.Orange,
                 StrokeThickness = 2
             };
 
             var exclusiveLine = new LineSeries 
             { 
                 Title = "Эксклюзивные изделия", 
-                Color = OxyColors.DarkViolet,
+                Color = OxyColors.Magenta,
                 StrokeThickness = 2
             };
 
@@ -96,7 +96,7 @@ namespace Services.Graphing
             var materialsLine = new LineSeries 
             { 
                 Title = "Материалы", 
-                Color = OxyColors.Orange,
+                Color = OxyColors.Gray,
                 LineStyle = LineStyle.Dash
             };
 
@@ -104,11 +104,11 @@ namespace Services.Graphing
             foreach (var dataPoint in statistics.ProductionHistory)
             {
                 totalProductionLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.TotalProduction));
-                ringsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.RingsProduction));
-                necklacesLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.NecklacesProduction));
-                braceletsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.BraceletsProduction));
-                earringsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.EarringsProduction));
-                pendantsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.PendantsProduction));
+                bottlesLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.BottlesProduction));
+                vasesLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.VasesProduction));
+                windowsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.WindowsProduction));
+                mirrorsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.MirrorsProduction));
+                tablewareLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.TablewareProduction));
                 premiumLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.PremiumProduction));
                 exclusiveLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.ExclusiveProduction));
                 materialsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.MaterialsUsed));
@@ -116,11 +116,11 @@ namespace Services.Graphing
 
             // Добавление всех линий в график
             plotModel.Series.Add(totalProductionLine);
-            plotModel.Series.Add(ringsLine);
-            plotModel.Series.Add(necklacesLine);
-            plotModel.Series.Add(braceletsLine);
-            plotModel.Series.Add(earringsLine);
-            plotModel.Series.Add(pendantsLine);
+            plotModel.Series.Add(bottlesLine);
+            plotModel.Series.Add(vasesLine);
+            plotModel.Series.Add(windowsLine);
+            plotModel.Series.Add(mirrorsLine);
+            plotModel.Series.Add(tablewareLine);
             plotModel.Series.Add(premiumLine);
             plotModel.Series.Add(exclusiveLine);
             plotModel.Series.Add(materialsLine);

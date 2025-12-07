@@ -25,6 +25,7 @@ using Services.TransportSimulation.StateHandlers;
 using Services.Utilities;
 using System.Windows;
 using Services.JewelryProduction;
+using Services.GlassProduction;
 namespace CitySkylines_REMAKE
 {
     public partial class App : Application
@@ -57,8 +58,9 @@ namespace CitySkylines_REMAKE
             {
                 var utilityService = sp.GetRequiredService<IUtilityService>();
                 var jewelryProductionService = sp.GetRequiredService<IJewelryProductionService>();
+                var glassProductionService = sp.GetRequiredService<IGlassProductionService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
-                return new GraphService(utilityService, jewelryProductionService, productionService);
+                return new GraphService(utilityService, jewelryProductionService, glassProductionService, productionService);
             });
             services.AddTransient<ChartsWindowViewModel>();
 
@@ -72,6 +74,8 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IBuildingRegistry, BuildingRegistryService>();
             services.AddSingleton<IJewelryProductionService, JewelryProductionService>();
             services.AddSingleton<JewelryProductionService>();
+            services.AddSingleton<IGlassProductionService, GlassProductionService>();
+            services.AddSingleton<GlassProductionService>();
 
             // Навигация и PathFinding
             services.AddSingleton<INavigationMap>(sp =>
@@ -165,6 +169,7 @@ namespace CitySkylines_REMAKE
                 var utilityService = sp.GetRequiredService<IUtilityService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
                 var jewelryProductionService = sp.GetRequiredService<IJewelryProductionService>();
+                var glassProductionService = sp.GetRequiredService<IGlassProductionService>();
                 return new Simulation(
                     mapModel,
                     placementService,
@@ -174,7 +179,8 @@ namespace CitySkylines_REMAKE
                     transportSimulationService,
                     utilityService,
                     productionService,
-                    jewelryProductionService);
+                    jewelryProductionService,
+                    glassProductionService);
             });
 
             // ViewModels

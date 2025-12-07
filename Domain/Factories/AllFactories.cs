@@ -321,60 +321,273 @@ namespace Domain.Factories
     }
     #endregion
     /// <summary>
-    /// Ювелирный завод
+    /// Ювелирный завод - премиум производство
+    /// Производит различные категории ювелирных изделий
     /// </summary>
     public class JewelryFactoryFactory : IMapObjectFactory
     {
         public MapObject Create()
         {
             var building = new IndustrialBuilding(
-                floors: 3,
-                maxOccupancy: 75,
-                area: new Area(6, 6),
+                floors: 4,
+                maxOccupancy: 100,
+                area: new Area(7, 7),
                 type: IndustrialBuildingType.JewelryFactory
             );
 
-            // Цех обработки золота
+            // ========== БАЗОВЫЕ ИЗДЕЛИЯ ==========
+            
+            // Цех производства колец
             building.AddWorkshop(
                 ProductType.Gold,
                 ProductType.Ring,
-                coeff: 2
-            );
-
-            // Цех обработки серебра
-            building.AddWorkshop(
-                ProductType.Silver,
-                ProductType.Necklace,
                 coeff: 3
             );
 
-            // Цех обработки платины
+            // Цех производства ожерелий
             building.AddWorkshop(
-                ProductType.Platinum,
-                ProductType.Bracelet,
-                coeff: 1
-            );
-
-            // Цех инкрустации бриллиантами
-            building.AddWorkshop(
-                ProductType.Diamond,
-                ProductType.Earrings,
+                ProductType.Silver,
+                ProductType.Necklace,
                 coeff: 4
             );
 
-            // Цех инкрустации рубинами
+            // Цех производства браслетов
             building.AddWorkshop(
-                ProductType.Ruby,
-                ProductType.Pendant,
+                ProductType.Silver,
+                ProductType.Bracelet,
+                coeff: 3
+            );
+
+            // Цех производства серег
+            building.AddWorkshop(
+                ProductType.Gold,
+                ProductType.Earrings,
                 coeff: 5
             );
 
+            // Цех производства кулонов
+            building.AddWorkshop(
+                ProductType.Silver,
+                ProductType.Pendant,
+                coeff: 4
+            );
+
+            // ========== ПРЕМИУМ ИЗДЕЛИЯ ==========
+            // Премиум изделия производятся из базовых изделий + драгоценных камней
+            
+            // Цех колец с бриллиантами (из кольца + бриллиант)
+            building.AddWorkshop(
+                ProductType.Ring,
+                ProductType.DiamondRing,
+                coeff: 1
+            );
+
+            // Цех ожерелий с рубинами (из ожерелья + рубин)
+            building.AddWorkshop(
+                ProductType.Necklace,
+                ProductType.RubyNecklace,
+                coeff: 1
+            );
+
+            // Цех браслетов с изумрудами (из браслета + изумруд)
+            building.AddWorkshop(
+                ProductType.Bracelet,
+                ProductType.EmeraldBracelet,
+                coeff: 1
+            );
+
+            // Цех серег с жемчугом (из серег + жемчуг)
+            building.AddWorkshop(
+                ProductType.Earrings,
+                ProductType.PearlEarrings,
+                coeff: 2
+            );
+
+            // Цех кулонов с сапфирами (из кулона + сапфир)
+            building.AddWorkshop(
+                ProductType.Pendant,
+                ProductType.SapphirePendant,
+                coeff: 1
+            );
+
+            // ========== ЭКСКЛЮЗИВНЫЕ ИЗДЕЛИЯ ==========
+            
+            // Цех платиновых колец (премиум материал)
+            building.AddWorkshop(
+                ProductType.Platinum,
+                ProductType.PlatinumRing,
+                coeff: 1
+            );
+
+            // Цех золотых ожерелий (премиум материал)
+            building.AddWorkshop(
+                ProductType.Gold,
+                ProductType.GoldNecklace,
+                coeff: 2
+            );
+
+            // Цех серег с бриллиантами (из серег + бриллиант)
+            building.AddWorkshop(
+                ProductType.Earrings,
+                ProductType.DiamondEarrings,
+                coeff: 1
+            );
+
+            // Цех колец с несколькими камнями (самое сложное - из платинового кольца)
+            building.AddWorkshop(
+                ProductType.PlatinumRing,
+                ProductType.MultiGemRing,
+                coeff: 1
+            );
+
             // Инициализация начальных материалов
-            building.MaterialsBank[ProductType.Gold] = 100;
-            building.MaterialsBank[ProductType.Silver] = 200;
-            building.MaterialsBank[ProductType.Platinum] = 50;
-            building.MaterialsBank[ProductType.Diamond] = 500;
-            building.MaterialsBank[ProductType.Ruby] = 300;
+            building.MaterialsBank[ProductType.Gold] = 150;
+            building.MaterialsBank[ProductType.Silver] = 250;
+            building.MaterialsBank[ProductType.Platinum] = 80;
+            building.MaterialsBank[ProductType.Diamond] = 600;
+            building.MaterialsBank[ProductType.Ruby] = 400;
+            building.MaterialsBank[ProductType.Emerald] = 350;
+            building.MaterialsBank[ProductType.Pearl] = 500;
+            building.MaterialsBank[ProductType.Sapphire] = 300;
+            building.MaterialsBank[NaturalResourceType.Energy] = 200;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Завод по производству стекольных изделий
+    /// Производит различные категории стекольных изделий
+    /// </summary>
+    public class GlassFactoryFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 3,
+                maxOccupancy: 90,
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.GlassFactory
+            );
+
+            // ========== ПОДГОТОВКА МАТЕРИАЛОВ ==========
+            
+            // Цех производства сырого стекла
+            building.AddWorkshop(
+                NaturalResourceType.Glass,
+                ProductType.RawGlass,
+                coeff: 5
+            );
+
+            // Цех производства цветного стекла
+            building.AddWorkshop(
+                ProductType.RawGlass,
+                ProductType.ColoredGlass,
+                coeff: 3
+            );
+
+            // Цех закалки стекла
+            building.AddWorkshop(
+                ProductType.RawGlass,
+                ProductType.TemperedGlass,
+                coeff: 2
+            );
+
+            // Цех производства хрусталя
+            building.AddWorkshop(
+                ProductType.RawGlass,
+                ProductType.CrystalGlass,
+                coeff: 1
+            );
+
+            // ========== БАЗОВЫЕ ИЗДЕЛИЯ ==========
+            
+            // Цех производства бутылок
+            building.AddWorkshop(
+                ProductType.RawGlass,
+                ProductType.GlassBottle,
+                coeff: 6
+            );
+
+            // Цех производства ваз
+            building.AddWorkshop(
+                ProductType.RawGlass,
+                ProductType.GlassVase,
+                coeff: 4
+            );
+
+            // Цех производства окон
+            building.AddWorkshop(
+                ProductType.TemperedGlass,
+                ProductType.GlassWindow,
+                coeff: 3
+            );
+
+            // Цех производства зеркал
+            building.AddWorkshop(
+                ProductType.TemperedGlass,
+                ProductType.GlassMirror,
+                coeff: 2
+            );
+
+            // Цех производства посуды
+            building.AddWorkshop(
+                ProductType.RawGlass,
+                ProductType.GlassTableware,
+                coeff: 5
+            );
+
+            // ========== ПРЕМИУМ ИЗДЕЛИЯ ==========
+            
+            // Цех хрустальных ваз
+            building.AddWorkshop(
+                ProductType.GlassVase,
+                ProductType.CrystalVase,
+                coeff: 1
+            );
+
+            // Цех витражного стекла
+            building.AddWorkshop(
+                ProductType.ColoredGlass,
+                ProductType.StainedGlass,
+                coeff: 2
+            );
+
+            // Цех стеклянных скульптур
+            building.AddWorkshop(
+                ProductType.CrystalGlass,
+                ProductType.GlassSculpture,
+                coeff: 1
+            );
+
+            // Цех декоративного стекла
+            building.AddWorkshop(
+                ProductType.ColoredGlass,
+                ProductType.DecorativeGlass,
+                coeff: 3
+            );
+
+            // ========== ЭКСКЛЮЗИВНЫЕ ИЗДЕЛИЯ ==========
+            
+            // Цех художественного стекла
+            building.AddWorkshop(
+                ProductType.CrystalVase,
+                ProductType.ArtGlass,
+                coeff: 1
+            );
+
+            // Цех роскошной посуды
+            building.AddWorkshop(
+                ProductType.GlassTableware,
+                ProductType.LuxuryGlassware,
+                coeff: 1
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Glass] = 500;
+            building.MaterialsBank[NaturalResourceType.Energy] = 300;
+            building.MaterialsBank[NaturalResourceType.Chemicals] = 200;
+            building.MaterialsBank[NaturalResourceType.Water] = 400;
 
             return building;
         }

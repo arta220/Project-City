@@ -37,20 +37,58 @@ namespace Domain.Common.Enums
         PharmaceuticalPack, // Фармацевтическая упаковка
         GiftBox,            // Подарочная упаковка
 
-        // Ювелирные изделия
+        // Ювелирные материалы
         Gold,          
         Silver,         
         Platinum,       
         Diamond,        
         Ruby,           
         Emerald,        
+        Pearl,          // Жемчуг
+        Sapphire,       // Сапфир
+        
+        // Базовые ювелирные изделия
+        Ring,           // Кольцо
+        Necklace,       // Ожерелье
+        Bracelet,       // Браслет
+        Earrings,       // Серьги
+        Pendant,        // Кулон
+        
+        // Премиум изделия (с камнями)
+        DiamondRing,    // Кольцо с бриллиантом
+        RubyNecklace,   // Ожерелье с рубином
+        EmeraldBracelet,// Браслет с изумрудом
+        PearlEarrings,  // Серьги с жемчугом
+        SapphirePendant,// Кулон с сапфиром
+        
+        // Эксклюзивные изделия
+        PlatinumRing,   // Платиновое кольцо
+        GoldNecklace,  // Золотое ожерелье
+        DiamondEarrings,// Серьги с бриллиантами
+        MultiGemRing,    // Кольцо с несколькими камнями
 
-        // Готовые изделия
-        Ring,           
-        Necklace,       
-        Bracelet,       
-        Earrings,       
-        Pendant         
+        // Стекольные материалы
+        RawGlass,        // Сырое стекло
+        ColoredGlass,    // Цветное стекло
+        TemperedGlass,   // Закаленное стекло
+        CrystalGlass,    // Хрустальное стекло
+        
+        // Базовые стекольные изделия
+        GlassBottle,     // Стеклянная бутылка
+        GlassVase,       // Стеклянная ваза
+        GlassWindow,     // Стеклянное окно
+        GlassMirror,     // Зеркало
+        GlassTableware,  // Стеклянная посуда
+        
+        // Премиум стекольные изделия
+        CrystalVase,     // Хрустальная ваза
+        StainedGlass,    // Витражное стекло
+        GlassSculpture,  // Стеклянная скульптура
+        DecorativeGlass, // Декоративное стекло
+        
+        // Эксклюзивные стекольные изделия
+        ArtGlass,        // Художественное стекло
+        LuxuryGlassware  // Роскошная стеклянная посуда
     }
 }
 
