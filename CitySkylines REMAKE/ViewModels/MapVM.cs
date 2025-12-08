@@ -5,22 +5,19 @@ using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Citizens.States;
-using Domain.Citizens.Tasks;
 using Domain.Common.Base;
+using Domain.Common.Base.MovingEntities;
 using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Map;
+using Microsoft.Extensions.DependencyInjection;
 using Services;
-using Services.Citizens.Job.Movement;
-using Services.Citizens.Scenaries;
-using Services.Citizens.Scenarios;
 using Services.CitizensSimulation;
-using Services.CitizensSimulation.CitizenSchedule;
+using Services.Factories;
 using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Net.WebSockets;
 using System.Windows.Threading;
 
 namespace CitySimulatorWPF.ViewModels
@@ -29,7 +26,7 @@ namespace CitySimulatorWPF.ViewModels
     {
         [ObservableProperty]
         private ObjectVM _selectedObject;
-
+        private readonly CitizenFactory _citizenFactory;
         [ObservableProperty]
         private MapInteractionMode _currentMode = MapInteractionMode.None;
 
@@ -63,7 +60,8 @@ namespace CitySimulatorWPF.ViewModels
                      CitizenSimulationService citizenSimulation,
                      TransportSimulationService transportSimulation,
                      IUtilityService utilityService,
-                     IPathConstructionService pathService)
+                     IPathConstructionService pathService,
+                     CitizenFactory citizenFactory)
         {
             _simulation = simulation;
             _roadService = roadService;
@@ -73,7 +71,7 @@ namespace CitySimulatorWPF.ViewModels
             _messageService = messageService;
             _utilityService = utilityService;
             _pathService = pathService;
-
+            _citizenFactory = citizenFactory;
             _citizenManager.StartSimulation(citizenSimulation);
             _carManager.StartSimulation(transportSimulation);
 
@@ -94,11 +92,13 @@ namespace CitySimulatorWPF.ViewModels
             _simulation.MapObjectRemoved += OnMapObjectRemoved;
 
             // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
-            CreateTestScenario();
 
 
+
             CreateTestScenario();
+
             StartSimulationAfterUIReady();
+
         }
 
         private void OnMapObjectPlaced(MapObject mapObject)
@@ -135,26 +135,24 @@ namespace CitySimulatorWPF.ViewModels
         private void CreateTestScenario()
         {
             // 1. Создаём жителя (работника ЖКХ)
-            var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
-            {
-                Age = 30,
-                Profession = CitizenProfession.UtilityWorker,
-                State = CitizenState.Idle
-            };
-            citizen.Position = new Position(15, 15);
+            var citizen = _citizenFactory.CreateCitizen(
+                pos: new Position(15, 15),
+                speed: 1.0f,
+                profession: CitizenProfession.UtilityWorker
+            );
             _simulation.AddCitizen(citizen);
             Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
 
             // 2. Создаём офис ЖКХ
             var utilityOfficeFactory = new UtilityOfficeFactory();
-            var utilityOffice = (Building)utilityOfficeFactory.Create();
+            var utilityOffice = utilityOfficeFactory.Create();
             var officePlacement = new Placement(new Position(25, 25), utilityOffice.Area);
             if (!_simulation.TryPlace(utilityOffice, officePlacement))
             {
                 _messageService.ShowMessage("Не удалось разместить офис ЖКХ");
                 return;
             }
-            citizen.WorkPlace = utilityOffice;
+            citizen.WorkPlace = (Building)utilityOffice;
             Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
 
             // 3. Создаём тестовый жилой дом

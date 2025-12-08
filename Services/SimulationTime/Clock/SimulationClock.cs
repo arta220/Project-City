@@ -17,7 +17,7 @@
         public int CurrentTick { get; private set; }
 
         public event Action<int> TickOccurred;
-        public SimulationClock(int tickRateMs = 100)
+        public SimulationClock(int tickRateMs = 500)
         {
             _timer = new System.Timers.Timer(tickRateMs);
             _timer.Elapsed += (_, _) => Update();

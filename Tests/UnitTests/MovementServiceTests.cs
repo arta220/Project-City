@@ -1,10 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Services.Citizens.Job.Movement;
-using Domain.Citizens;
+﻿using Domain.Citizens;
 using Domain.Map;
-using System.Collections.Generic;
-using Services.PathFind;
-using Tests.Mocks;
+using Services.Citizens.Movement;
 
 [TestClass]
 public class MovementServiceTests
@@ -14,7 +10,7 @@ public class MovementServiceTests
     public void TestMovementToTarget()
     {
         var movement = new MovementService(new FakePathFinder());
-        var citizen = new Citizen(new Area(1, 1), 1.0f);
+        var citizen = new MovingEntity(new Area(1, 1), 1.0f);
         var target = new Position(5, 5);
 
         movement.SetTarget(citizen, target);

@@ -19,7 +19,7 @@ public class UtilityRepairScenarioTests
         var residential = new ResidentialBuilding(1, 5, new Area(2, 2));
         utilityService.BreakUtilityForTesting(residential, UtilityType.Electricity, currentTick: 1);
 
-        var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
+        var citizen = new MovingEntity(new Area(1, 1), speed: 1.0f)
         {
             Position = new Position(0, 0)
         };

@@ -16,7 +16,7 @@ public class CitizenHomeScenarioTests
         var map = new FakeMap();
         var movement = new MovementService(new FakePathFinder());
         var home = new ResidentialBuilding(1, 5, new Area(2, 2));
-        var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
+        var citizen = new MovingEntity(new Area(1, 1), speed: 1.0f)
         {
             Home = home,
             Position = new Position(0, 0)

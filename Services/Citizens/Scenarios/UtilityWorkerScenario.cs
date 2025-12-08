@@ -1,14 +1,10 @@
 ﻿using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Citizens.States;
-using Domain.Citizens.Tasks;
-using Domain.Common.Base;
-using Domain.Map;
 using Services.BuildingRegistry;
-using Services.Citizens.Movement;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Tasks;
-using Services.CitizenSimulation.Tasks;
+using Services.EntityMovement.Service;
 using Services.Time;
 using Services.Utilities;
 
@@ -18,12 +14,12 @@ namespace Services.Citizens.Scenarios
     {
         private readonly IBuildingRegistry _registry;
         private readonly IUtilityService _utilityService;
-        private readonly ICitizenMovementService _movement;
+        private readonly IEntityMovementService _movement;
 
         public UtilityWorkerScenario(
             IBuildingRegistry registry,
             IUtilityService utilityService,
-            ICitizenMovementService movement)
+            IEntityMovementService movement)
         {
             _registry = registry;
             _utilityService = utilityService;
@@ -43,16 +39,15 @@ namespace Services.Citizens.Scenarios
             citizen.State = CitizenState.GoingWork;
 
             // 1. Сначала идем в офис
-            var officeEntrance = GetEntrance(citizen.WorkPlace);
-            citizen.Tasks.Enqueue(new MoveToPositionTask(officeEntrance, _movement));
+            citizen.Tasks.Enqueue(new MoveToBuildingTask(citizen.WorkPlace, _movement, _registry));
 
             // 2. Находим здание с поломанной коммуналкой
             var buildingToRepair = FindBuildingToRepair();
             if (buildingToRepair != null)
             {
-                var repairPosition = GetRepairPosition(buildingToRepair);
+
                 // 3. Таска идти к месту ремонта
-                citizen.Tasks.Enqueue(new MoveToPositionTask(repairPosition, _movement));
+                citizen.Tasks.Enqueue(new MoveToBuildingTask(buildingToRepair, _movement, _registry));
                 // 4. Таска ремонтировать
                 citizen.Tasks.Enqueue(new RepairBuildingTask(buildingToRepair, _utilityService));
             }
@@ -73,21 +68,6 @@ namespace Services.Citizens.Scenarios
         {
             var (placement, ok) = _registry.TryGetPlacement(citizen.WorkPlace);
             return ok && citizen.Position == placement.Value.Entrance;
-        }
-
-        private Position GetEntrance(MapObject building)
-        {
-            var (placement, ok) = _registry.TryGetPlacement(building);
-            return ok ? placement.Value.Entrance : new Position(0, 0);
-        }
-
-        private Position GetRepairPosition(MapObject building)
-        {
-            var (placement, ok) = _registry.TryGetPlacement(building);
-            if (!ok) return new Position(0, 0);
-
-            var entrance = placement.Value.Entrance;
-            return new Position(entrance.X + 1, entrance.Y);
         }
     }
 }

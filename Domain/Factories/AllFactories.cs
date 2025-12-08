@@ -2,7 +2,10 @@ using Domain.Base;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Buildings.Utility;
+using Domain.Citizens;
+using Domain.Citizens.States;
 using Domain.Common.Base;
+using Domain.Common.Base.MovingEntities;
 using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Infrastructure;
@@ -10,6 +13,7 @@ using Domain.Map;
 
 namespace Domain.Factories
 {
+
 
     public class SmallHouseFactory : IMapObjectFactory
     {

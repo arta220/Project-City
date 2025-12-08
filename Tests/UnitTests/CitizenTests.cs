@@ -10,7 +10,7 @@ public class CitizenTests
     public void TestCitizenCreation()
     {
         var area = new Area(1, 1);
-        var citizen = new Citizen(area, speed: 1.0f);
+        var citizen = new MovingEntity(area, speed: 1.0f);
         var home = new ResidentialBuilding(1, 5, new Area(2, 2));
         citizen.Home = home;
 

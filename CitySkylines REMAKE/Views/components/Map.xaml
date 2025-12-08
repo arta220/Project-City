@@ -178,7 +178,7 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse Style="{StaticResource CitizenStyle}"/>
+                            <Ellipse Style="{StaticResource CitizenStyle}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
