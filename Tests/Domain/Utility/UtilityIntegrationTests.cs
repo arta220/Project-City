@@ -1,5 +1,5 @@
-﻿using Domain.Buildings;
-using Domain.Enums;
+﻿using Domain.Buildings.Residential;
+using Domain.Common.Enums;
 using Domain.Map;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
