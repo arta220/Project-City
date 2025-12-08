@@ -11,11 +11,16 @@ using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Map;
 using Services;
+using Services.Citizens.Job.Movement;
+using Services.Citizens.Scenaries;
+using Services.Citizens.Scenarios;
 using Services.CitizensSimulation;
+using Services.CitizensSimulation.CitizenSchedule;
 using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Net.WebSockets;
 using System.Windows.Threading;
 
 namespace CitySimulatorWPF.ViewModels
@@ -129,92 +134,57 @@ namespace CitySimulatorWPF.ViewModels
 
         private void CreateTestScenario()
         {
-            // 1. Создаем человека (работника ЖКХ) на поле
+            // 1. Создаём жителя (работника ЖКХ)
             var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
             {
                 Age = 30,
                 Profession = CitizenProfession.UtilityWorker,
                 State = CitizenState.Idle
             };
-
-            var citizenPosition = new Position(15, 15);
-            citizen.Position = citizenPosition;
-
+            citizen.Position = new Position(15, 15);
             _simulation.AddCitizen(citizen);
-            Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizenPosition.X}, {citizenPosition.Y})");
+            Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
 
-            // 2. Создаем офис ЖКХ на поле
+            // 2. Создаём офис ЖКХ
             var utilityOfficeFactory = new UtilityOfficeFactory();
-            var utilityOffice = utilityOfficeFactory.Create();
+            var utilityOffice = (Building)utilityOfficeFactory.Create();
             var officePlacement = new Placement(new Position(25, 25), utilityOffice.Area);
-
             if (!_simulation.TryPlace(utilityOffice, officePlacement))
             {
                 _messageService.ShowMessage("Не удалось разместить офис ЖКХ");
                 return;
             }
+            citizen.WorkPlace = utilityOffice;
+            Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
 
-            // Назначаем офис как рабочее место работнику
-            citizen.WorkPlace = (Building)utilityOffice;
-            Debug.WriteLine($"Создан офис ЖКХ на позиции (25, 25). Назначен как WorkPlace работнику {citizen.Id}");
-
-            // 3. Если все жилые здания целые - человек убегает в офис жкх
-            // Это будет происходить автоматически через UtilityWorkerBehaviour
-
-            // 4. Создаем тестовый жилой дом для тестирования
+            // 3. Создаём тестовый жилой дом
             var residentialFactory = new SmallHouseFactory();
             var residentialBuilding = (ResidentialBuilding)residentialFactory.Create();
             var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
-
             if (!_simulation.TryPlace(residentialBuilding, housePlacement))
             {
                 _messageService.ShowMessage("Не удалось разместить жилой дом");
                 return;
             }
+            Debug.WriteLine($"Создан жилой дом на позиции (35,35)");
 
-            Debug.WriteLine($"Создан жилой дом на позиции (35, 35)");
-
-            // 5. Ставим тестовый жилой дом в системе управления (ломаем коммуналку для теста)
-            // Ломаем электричество для демонстрации через UtilityService
+            // 4. Ломаем коммуналку для теста
             _utilityService.BreakUtilityForTesting(residentialBuilding, UtilityType.Electricity, currentTick: 1);
-            
             var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
             Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
 
-            // Выводим информацию
-            _messageService.ShowMessage("Тестовый сценарий создан!\n" +
-                                       "1. Работник ЖКХ: (15,15)\n" +
-                                       "2. Офис ЖКХ: (25,25)\n" +
-                                       "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
-                                       "Работник должен побежать чинить сломанное ЖКХ.");
-
-            DebugUtilityWorker();
+            // 7. Информация о тесте
+            _messageService.ShowMessage(
+                "Тестовый сценарий создан!\n" +
+                "1. Работник ЖКХ: (15,15)\n" +
+                "2. Офис ЖКХ: (25,25)\n" +
+                "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
+                "Работник должен побежать чинить сломанное ЖКХ."
+            );
         }
 
-        private void DebugUtilityWorker()
-        {
-            Dispatcher.CurrentDispatcher.InvokeAsync(() =>
-            {
-                var timer = new DispatcherTimer();
-                timer.Interval = TimeSpan.FromSeconds(3);
-                timer.Tick += (s, e) =>
-                {
-                    var workerVM = _citizenManager.Citizens.FirstOrDefault(c =>
-                        c.Citizen.Profession == CitizenProfession.UtilityWorker);
 
-                    if (workerVM != null)
-                    {
-                        var worker = workerVM.Citizen;
-                        Debug.WriteLine($"=== ОТЛАДКА УтилитиВоркер ===");
-                        Debug.WriteLine($"ID: {worker.Id}, State: {worker.State}");
-                        Debug.WriteLine($"Position: {worker.Position}");
-                        Debug.WriteLine($"WorkPlace: {worker.WorkPlace != null}");
-                        Debug.WriteLine($"Tasks in queue: {worker.Tasks.Count}");
-                    }
-                };
-                timer.Start();
-            }, DispatcherPriority.Background);
-        }
+
 
         private void OnTileConstructionStart(TileVM tile)
         {

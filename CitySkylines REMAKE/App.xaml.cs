@@ -8,7 +8,7 @@ using Services;
 using Services.BuildingRegistry;
 using Services.Citizens.Education;
 using Services.Citizens.Job;
-using Services.Citizens.Movement;
+using Services.Citizens.Job.Movement;
 using Services.Citizens.Population;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Scenarios;

@@ -2,7 +2,7 @@
 using Domain.Map;
 using Services.PathFind;
 using Domain.Common.Time;
-namespace Services.Citizens.Movement
+namespace Services.Citizens.Job.Movement
 {
     public class MovementService : ICitizenMovementService
     {
