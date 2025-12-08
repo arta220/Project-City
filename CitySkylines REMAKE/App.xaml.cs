@@ -13,6 +13,7 @@ using Services.Citizens.Population;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.CitizensSimulation.StateHandlers;
+using Services.Finance;
 using Services.Graphing;
 using Services.Interfaces;
 using Services.MapGenerator;
@@ -24,6 +25,7 @@ using Services.Time.Clock;
 using Services.TransportSimulation;
 using Services.TransportSimulation.StateHandlers;
 using Services.Utilities;
+using Services.Materials;
 using System.Windows;
 
 namespace CitySkylines_REMAKE
@@ -148,6 +150,17 @@ namespace CitySkylines_REMAKE
                 return new PathConstructionService(tileService.Tiles);
             });
 
+            // Финансы
+            services.AddSingleton<ITransactionService, TransactionService>();
+            services.AddSingleton<ITaxService, TaxService>();
+            services.AddSingleton<IFinanceService, FinanceService>();
+
+            // Инвентарь материалов
+            services.AddSingleton<IMaterialInventoryService, MaterialInventoryService>();
+
+            // Обслуживание города
+            services.AddSingleton<ICityMaintenanceService, CityMaintenanceService>();
+
             services.AddSingleton<Simulation>();
 
             // ViewModels
@@ -156,7 +169,7 @@ namespace CitySkylines_REMAKE
             services.AddTransient<MainVM>();
             services.AddTransient<MapVM>();
 
-            // MainWindow
+            // Главное окно
             services.AddSingleton<MainWindow>();
         }
 

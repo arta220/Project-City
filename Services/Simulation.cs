@@ -7,6 +7,7 @@ using Domain.Map;
 using Domain.Transports.Ground;
 using Services.CitizensSimulation;
 using Services.Common;
+using Services.Finance;
 using Services.Interfaces;
 using Services.PlaceBuilding;
 using Services.Time;
@@ -30,6 +31,7 @@ namespace Services
 
         private readonly CitizenSimulationService _citizenSimulationService;
         private readonly TransportSimulationService _transportSimulationService;
+        private readonly ICityMaintenanceService _cityMaintenanceService;
 
         private readonly List<IUpdatable> _updatableServices = new();
 
@@ -41,14 +43,18 @@ namespace Services
 
         public MapModel MapModel { get; private set; }
 
+        public IFinanceService FinanceService { get; }
+
         public Simulation(
-            MapModel mapModel,
-            IMapObjectPlacementService placementService,
-            ISimulationTimeService timeService,
-            PlacementRepository placementRepository,
-            CitizenSimulationService citizenSimulationService,
-            TransportSimulationService transportSimulationService,
-            IUtilityService utilityService)
+        MapModel mapModel,
+        IMapObjectPlacementService placementService,
+        ISimulationTimeService timeService,
+        PlacementRepository placementRepository,
+        CitizenSimulationService citizenSimulationService,
+        TransportSimulationService transportSimulationService,
+        IUtilityService utilityService,
+        IFinanceService financeService,
+        ICityMaintenanceService cityMaintenanceService)
         {
             MapModel = mapModel;
             _placementService = placementService;
@@ -56,10 +62,18 @@ namespace Services
             _placementRepository = placementRepository;
             _citizenSimulationService = citizenSimulationService;
             _transportSimulationService = transportSimulationService;
+            FinanceService = financeService;
+
+            _cityMaintenanceService = cityMaintenanceService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
+            _updatableServices.Add(_cityMaintenanceService);
+            if (financeService is IUpdatable updatableFinance)
+            {
+                _updatableServices.Add(updatableFinance);
+            }
 
             _timeService.TimeChanged += OnTimeChanged;
         }

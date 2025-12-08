@@ -31,9 +31,9 @@ namespace Services.MapGenerator
         {
             var map = new MapModel(width, height);
 
-            GenerateSimpleTerrain(map); // чисто для проверки работы всяких штук
-            //GenerateTerrain(map);
-            //GenerateResources(map);
+            //GenerateSimpleTerrain(map); // чисто для проверки работы всяких штук
+            GenerateTerrain(map);
+            GenerateResources(map);
 
             return map;
         }

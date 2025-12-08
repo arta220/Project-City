@@ -3,6 +3,7 @@ using Domain.Common.Time;
 using Services.Citizens.Population;
 using Services.Common;
 using Services.Interfaces;
+using Services.Finance;
 using System.Collections.ObjectModel;
 
 namespace Services.CitizensSimulation
@@ -15,6 +16,8 @@ namespace Services.CitizensSimulation
         private int _lastProcessedYear = -1;
         private readonly CitizenController _controller;
         private readonly IPopulationService _populationService;
+        private readonly IFinanceService _financeService;
+        private int _lastProcessedMonth = -1;
         public ObservableCollection<Citizen> Citizens { get; } = new();
 
         public Action<Citizen> CitizenAdded;
@@ -23,10 +26,12 @@ namespace Services.CitizensSimulation
 
         public CitizenSimulationService(
             CitizenController controller,
-            IPopulationService populationService)
+            IPopulationService populationService,
+            IFinanceService financeService)
         {
             _controller = controller;
             _populationService = populationService;
+            _financeService = financeService;
         }
         public void Update(SimulationTime time)
         {
@@ -40,6 +45,36 @@ namespace Services.CitizensSimulation
                 {
                     _lastProcessedYear = time.Year;
                 }
+            }
+
+            if (_lastProcessedMonth != time.Month)
+            {
+                _lastProcessedMonth = time.Month;
+                ProcessMonthlyFinances();
+            }
+        }
+
+        /// <summary>
+        /// Обработка ежемесячных финансовых операций для всех граждан города
+        /// </summary>
+        /// <remarks>
+        /// Метод выполняет следующие действия для каждого гражданина:
+        /// 1. Начисляет заработную плату
+        /// 2. Рассчитывает и удерживает подоходный налог
+        /// 3. Добавляет собранный налог в бюджет города
+        /// </remarks>
+        private void ProcessMonthlyFinances()
+        {
+            var taxRate = _financeService.TaxService.GetTaxRate("Подоходный налог");
+            foreach (var citizen in Citizens)
+            {
+                float salary = 1000; 
+                citizen.Money += salary;
+
+                // Налог
+                float tax = salary * taxRate;
+                citizen.Money -= tax;
+                _financeService.AddIncome(tax, Domain.Finance.IncomeCategory.Tax, $"Налог на доход от {citizen.GetHashCode()}");
             }
         }
         public void AddCitizen(Citizen citizen)
