@@ -1,9 +1,6 @@
 using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Map;
-using System.Security.AccessControl;
-using static Domain.Buildings.IndustrialBuilding;
-
 namespace Domain.Buildings
 {
     /// <summary>
@@ -90,7 +87,7 @@ namespace Domain.Buildings
         public Dictionary<Enum, int> ProductsBank = new Dictionary<Enum, int>(); // Продукция на заводе
         public List<Workshop> Workshops = new(); // Список цехов на заводе
 
-        public IndustrialBuilding(int floors, int maxOccupancy, Area area)
+        public IndustrialBuilding(int floors, int maxOccupancy, Area area, IndustrialBuildingType type)
             : base(floors, maxOccupancy, area)
         {
             Type = type;

@@ -1,19 +1,11 @@
-﻿using Domain.Citizens.States;
-using Domain.Map;
+﻿using Domain.Common.Time;
 
 namespace Domain.Citizens.Tasks
 {
-    public class CitizenTask
+    public interface ICitizenTask
     {
-        public bool IsCompleted { get; private set; }
-        public CitizenTaskType TaskType { get; }
-        public Position Target { get; }
-        public CitizenTask(CitizenTaskType taskType, Position target) 
-        {
-            TaskType = taskType;
-            Target = target;
-            IsCompleted = false;
-        }
-        public void MarkAsCompleted() => IsCompleted = true;
+        bool IsCompleted { get; }
+        void Execute(Citizen citizen, SimulationTime time);
     }
+
 }

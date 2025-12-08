@@ -2,11 +2,10 @@
 using Domain.Common.Time;
 using Services.Citizens.Movement;
 using Services.Citizens.Population;
+using Services.CitizensSimulatiom;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.Common;
-using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace Services.CitizensSimulation
 {

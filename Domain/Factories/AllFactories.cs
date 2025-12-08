@@ -131,7 +131,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 2,
                 maxOccupancy: 12,
-                area: new Area(5, 5)
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
             );
 
             // Цех подготовки сырья - производство картонных листов
@@ -205,7 +206,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 2,
                 maxOccupancy: 15,
-                area: new Area(6, 6)
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.Warehouse
             );
 
             // Цех картонной упаковки
@@ -297,7 +299,12 @@ namespace Domain.Factories
     {
         public MapObject Create()
         {
-            var factory = new IndustrialBuilding(2, 80, new Area(5, 5));
+            var factory = new IndustrialBuilding(
+                2, 
+                80, 
+                new Area(5, 5),
+                type: IndustrialBuildingType.Warehouse
+                );
             factory.AddWorkshop(ResourceType.Chemicals, ResourceType.Medicine, 2);
             factory.MaterialsBank[ResourceType.Chemicals] = 100;
             return factory;
@@ -311,7 +318,10 @@ namespace Domain.Factories
     {
         public MapObject Create()
         {
-            var factory = new IndustrialBuilding(floors: 1, maxOccupancy: 60, area: new Area(4, 4));           
+            var factory = new IndustrialBuilding(floors: 1,
+                maxOccupancy: 60,
+                area: new Area(4, 4),
+                type: IndustrialBuildingType.Factory);           
             factory.AddWorkshop(input: ResourceType.PlasticWaste,output: ResourceType.Plastic,coeff: 3);
             factory.MaterialsBank[ResourceType.PlasticWaste] = 100;
             return factory;
