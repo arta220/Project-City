@@ -10,6 +10,7 @@ using Services.Common;
 using Services.Forest;
 using Services.Interfaces;
 using Services.PlaceBuilding;
+using Services.Statistic;
 using Services.Time;
 using Services.TransportSimulation;
 using Services.Utilities;
@@ -50,7 +51,9 @@ namespace Services
             CitizenSimulationService citizenSimulationService,
             TransportSimulationService transportSimulationService,
             IUtilityService utilityService,
-            IForestResourceService forestResourceService)
+            IForestResourceService forestResourceService,
+            IResourceStatisticsService resourceStatisticsService)
+
         {
             MapModel = mapModel;
             _placementService = placementService;
@@ -63,6 +66,7 @@ namespace Services
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
             _updatableServices.Add(forestResourceService);
+            _updatableServices.Add(resourceStatisticsService);
 
             _timeService.TimeChanged += OnTimeChanged;
         }

@@ -13,6 +13,8 @@
         <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter"/>
         <conv:ResourceTypeToBrushConverter x:Key="ResourceTypeToBrushConverter" />
         <conv:ResourceVisibilityConverter x:Key="ResourceVisibilityConverter" />
+        <conv:TerrainTypeToStringRuConverter x:Key="TerrainTypeToStringRuConverter" />
+        <conv:ResourceTypeToStringRuConverter x:Key="ResourceTypeToStringRuConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         <!-- Простой стиль для гражданина -->
@@ -115,10 +117,22 @@
                                 <!-- НОВОЕ: подсказка с информацией о тайле -->
                                 <Grid.ToolTip>
                                     <StackPanel>
-                                        <TextBlock Text="{Binding TerrainType, StringFormat=Рельеф: {0}}" />
-                                        <TextBlock Text="{Binding ResourceType, StringFormat=Ресурс: {0}}" />
-                                        <TextBlock Text="{Binding ResourceAmount, StringFormat=Запас: {0:F0}}" />
-                                        <TextBlock Text="{Binding Height, StringFormat=Высота: {0:F2}}" />
+                                        <TextBlock>
+                                            <Run Text="Рельеф: " />
+                                                <Run Text="{Binding TerrainType,
+                                                    Converter={StaticResource TerrainTypeToStringRuConverter}}" />
+                                        </TextBlock>
+
+                                        <TextBlock>
+                                                <Run Text="Ресурс: " />
+                                                <Run Text="{Binding ResourceType,
+                                                    Converter={StaticResource ResourceTypeToStringRuConverter}}" />
+                                        </TextBlock>
+
+                                        <TextBlock Text="{Binding ResourceAmount,
+                                             StringFormat=Запас: {0:F0}}" />
+                                        <TextBlock Text="{Binding Height,
+                                             StringFormat=Высота: {0:F2}}" />
                                     </StackPanel>
                                 </Grid.ToolTip>
 

@@ -20,6 +20,7 @@ using Services.MapGenerator;
 using Services.NavigationMap;
 using Services.PathFind;
 using Services.PlaceBuilding;
+using Services.Statistic;
 using Services.Time;
 using Services.Time.Clock;
 using Services.TransportSimulation;
@@ -81,6 +82,13 @@ namespace CitySkylines_REMAKE
 
             // НОВОЕ: сервис лесных ресурсов
             services.AddSingleton<IForestResourceService, ForestResourceService>();
+
+            // Статистика ресурсов
+            services.AddSingleton<IResourceStatisticsService, ResourceStatisticsService>();
+
+            // Провайдер графика ресурсов
+            services.AddSingleton<IGraphDataProvider, UtilitiesGraphProvider>();   // ЖКХ
+            services.AddSingleton<IGraphDataProvider, ResourcesGraphProvider>();   // РЕСУРСЫ
 
             // Размещение объектов на карте
             services.AddSingleton<ConstructionValidator>();

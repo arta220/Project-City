@@ -34,12 +34,35 @@ namespace CitySimulatorWPF.ViewModels
 
         public bool HasObject => TileModel.MapObject != null;
         public bool CanBuild => !HasObject;
-        public TerrainType TerrainType => TileModel.Terrain;
+        public TerrainType TerrainType
+        {
+            get => TileModel.Terrain;
+            set
+            {
+                if (TileModel.Terrain != value)
+                {
+                    TileModel.Terrain = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Тип природного ресурса на клетке.
         /// </summary>
-        public NaturalResourceType ResourceType => TileModel.ResourceType;
+        public NaturalResourceType ResourceType
+        {
+            get => TileModel.ResourceType;
+            set
+            {
+                if (TileModel.ResourceType != value)
+                {
+                    TileModel.ResourceType = value;
+                    OnPropertyChanged();              // ResourceType
+                    OnPropertyChanged(nameof(HasResource)); // чтобы UI обновил наличие ресурса
+                }
+            }
+        }
 
         /// <summary>
         /// Есть ли на клетке природный ресурс.
