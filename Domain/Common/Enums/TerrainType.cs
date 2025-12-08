@@ -1,11 +1,22 @@
-﻿namespace Domain.Common.Enums
+﻿using System.ComponentModel;
+
+namespace Domain.Common.Enums
 {
     public enum TerrainType
     {
+        [Description("Вода")]
         Water,
+
+        [Description("Равнина")]
         Plain,
-        Mountain,
+
+        [Description("Луг")]
+        Meadow,
+
+        [Description("Лес")]
         Forest,
-        Meadow
+
+        [Description("Горы")]
+        Mountain
     }
 }

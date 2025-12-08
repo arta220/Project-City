@@ -1,18 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Domain.Common.Enums
 {
     public enum NaturalResourceType
     {
-        None = 0,
+        [Description("Нет")]
+        None,
+
+        [Description("Железо")]
         Iron,
+
+        [Description("Нефть")]
         Oil,
+
+        [Description("Газ")]
         Gas,
-        Wood,
-        Copper
+
+        [Description("Медь")]
+        Copper,
+
+        [Description("Дерево")]
+        Wood
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Domain.Common.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -19,15 +21,12 @@ namespace CitySimulatorWPF.Converters
             if (value is not TerrainType terrain)
                 return "Неизвестно";
 
-            return terrain switch
-            {
-                TerrainType.Water => "Вода",
-                TerrainType.Plain => "Равнина",
-                TerrainType.Meadow => "Луг",
-                TerrainType.Forest => "Лес",
-                TerrainType.Mountain => "Горы",
-                _ => "Неизвестно"
-            };
+            var field = typeof(TerrainType).GetField(terrain.ToString());
+            if (field == null)
+                return terrain.ToString();
+
+            var attr = field.GetCustomAttribute<DescriptionAttribute>();
+            return attr?.Description ?? terrain.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

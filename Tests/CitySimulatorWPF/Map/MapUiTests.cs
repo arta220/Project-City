@@ -31,7 +31,7 @@ namespace Tests.CitySimulatorWPF
             var converter = new ResourceTypeToStringRuConverter();
 
             // Act & Assert
-            Assert.AreEqual("Нет ресурса", converter.Convert(NaturalResourceType.None, null, null, null));
+            Assert.AreEqual("Нет", converter.Convert(NaturalResourceType.None, null, null, null));
             Assert.AreEqual("Железо", converter.Convert(NaturalResourceType.Iron, null, null, null));
             Assert.AreEqual("Медь", converter.Convert(NaturalResourceType.Copper, null, null, null));
             Assert.AreEqual("Нефть", converter.Convert(NaturalResourceType.Oil, null, null, null));
