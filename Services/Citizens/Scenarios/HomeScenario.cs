@@ -4,7 +4,7 @@ using Domain.Common.Base;
 using Domain.Common.Time;
 using Domain.Map;
 using Services.BuildingRegistry;
-using Services.Citizens.Job.Movement;
+using Services.Citizens.Movement;
 using Services.CitizenSimulation.Tasks;
 using Services.Time;
 

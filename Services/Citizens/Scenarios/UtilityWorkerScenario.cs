@@ -5,7 +5,7 @@ using Domain.Citizens.Tasks;
 using Domain.Common.Base;
 using Domain.Map;
 using Services.BuildingRegistry;
-using Services.Citizens.Job.Movement;
+using Services.Citizens.Movement;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Tasks;
 using Services.CitizenSimulation.Tasks;

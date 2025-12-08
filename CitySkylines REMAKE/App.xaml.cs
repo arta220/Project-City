@@ -12,10 +12,11 @@ using Services.Citizens.Job.Movement;
 using Services.Citizens.Population;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Scenarios;
-using Services.Citizens.Tasks;
+using Services.CitizensSimulatiom;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.Graphing;
+using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.MapGenerator;
 using Services.NavigationMap;
@@ -55,7 +56,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
-            services.AddSingleton<GraphService>();
+            services.AddSingleton<IIndustrialProductionService, IndustrialProductionService>();
+            services.AddSingleton<GraphService>(sp =>
+            {
+                var utilityService = sp.GetRequiredService<IUtilityService>();
+                var productionService = sp.GetRequiredService<IIndustrialProductionService>();
+                return new GraphService(utilityService, productionService);
+            });
             services.AddTransient<ChartsWindowViewModel>();
 
             services.AddSingleton<MapModel>(sp =>
@@ -93,7 +100,7 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IPopulationService, PopulationService>();
 
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
-            
+
             // Сценарии поведения жителей
             services.AddSingleton<ICitizenScenario, HomeScenario>();
             services.AddScoped<ICitizenScenario, UtilityWorkerScenario>();
