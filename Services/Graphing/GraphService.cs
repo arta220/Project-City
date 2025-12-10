@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Services.CitizensSimulation;
+using Services.IndustrialProduction;
+using Services.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Services.Utilities;
-using Services.IndustrialProduction;
 
 namespace Services.Graphing
 {
@@ -13,11 +14,15 @@ namespace Services.Graphing
         private readonly List<IGraphDataProvider> _providers = new();
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService? _productionService;
+        private readonly CitizenSimulationService _citizenSimulationService;
 
-        public GraphService(IUtilityService utilityService, IIndustrialProductionService? productionService = null)
+        public GraphService(IUtilityService utilityService,
+            IIndustrialProductionService? productionService = null,
+            CitizenSimulationService? citizenSimulationService = null)
         {
             _utilityService = utilityService;
             _productionService = productionService;
+            _citizenSimulationService = citizenSimulationService;
             RegisterDefaultProviders();
         }
 
@@ -34,6 +39,11 @@ namespace Services.Graphing
             {
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));
                 RegisterProvider(new PackagingProductionGraphProvider(_productionService));
+            }
+
+            if (_citizenSimulationService != null)
+            {
+                RegisterProvider(new EmploymentGraphProvider(_citizenSimulationService));
             }
         }
 

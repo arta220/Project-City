@@ -64,7 +64,8 @@ namespace CitySkylines_REMAKE
             {
                 var utilityService = sp.GetRequiredService<IUtilityService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
-                return new GraphService(utilityService, productionService);
+                var employmentService = sp.GetRequiredService<CitizenSimulationService>();
+                return new GraphService(utilityService, productionService, employmentService);
             });
             services.AddTransient<ChartsWindowViewModel>();
 

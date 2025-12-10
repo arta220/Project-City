@@ -2,6 +2,7 @@
 using Domain.Citizens.States;
 using Domain.Common.Base;
 using Domain.Common.Time;
+using Domain.Common.Enums;
 using Services.BuildingRegistry;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Tasks;
@@ -39,20 +40,15 @@ namespace Services.Citizens.Scenarios
             if (citizen.WorkPlace != null)
                 return false; // Уже есть работа
 
+            if(citizen.EducationLevel == EducationType.School)
+                return false; // Сначала надо отучиться
+
             if (citizen.Profession == CitizenProfession.Unemployed)
                 return false; // Нет профессии (возможно, нужно будет реализовать)
 
             // Ищем работу только в рабочее время
             //if (!_timeService.IsWorkTime())
             //    return false;
-
-            // Проверяем, что у жителя нет текущих задач или он idle
-            //if (citizen.CurrentTask != null || citizen.Tasks.Count > 0)
-            //    return false;
-
-            // Проверяем состояние
-            if (citizen.State != CitizenState.Idle)
-                return false;
 
             return true;
         }

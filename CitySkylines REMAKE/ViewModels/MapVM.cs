@@ -189,18 +189,27 @@ namespace CitySimulatorWPF.ViewModels
                 speed: 1.0f,
                 profession: CitizenProfession.Chef
             );
+            citizen.EducationLevel = EducationType.College;
             _simulation.AddCitizen(citizen);
+
+            var citizen2 = _citizenFactory.CreateCitizen(
+                pos: new Position(13, 16),
+                speed: 1.0f,
+                profession: CitizenProfession.Seller
+            );
+            citizen2.EducationLevel = EducationType.College;
+            _simulation.AddCitizen(citizen2);
             //Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
 
             // 2. Создаём кафе
-            var cafeFactory = new CafeFactory();
-            var cafe = cafeFactory.Create();
-            var cafePlacement = new Placement(new Position(25, 25), cafe.Area);
-            if (!_simulation.TryPlace(cafe, cafePlacement))
-            {
-                _messageService.ShowMessage("Не удалось разместить кафе");
-                return;
-            }
+            //var cafeFactory = new CafeFactory();
+            //var cafe = cafeFactory.Create();
+            //var cafePlacement = new Placement(new Position(25, 25), cafe.Area);
+            //if (!_simulation.TryPlace(cafe, cafePlacement))
+            //{
+            //    _messageService.ShowMessage("Не удалось разместить кафе");
+            //    return;
+            //}
             //citizen.WorkPlace = (Building)cafe;
             //Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
 
