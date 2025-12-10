@@ -122,6 +122,7 @@
                                         <i:InvokeCommandAction Command="{Binding TileClickCommand}" />
                                     </i:EventTrigger>
 
+
                                     <i:EventTrigger EventName="MouseEnter">
                                         <i:InvokeCommandAction Command="{Binding TileEnterCommand}" />
                                     </i:EventTrigger>

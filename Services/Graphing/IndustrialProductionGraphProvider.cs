@@ -39,17 +39,17 @@ namespace Services.Graphing
             });
 
             // Линия производства картона
-            var productionLine = new LineSeries 
-            { 
-                Title = "Производство картона", 
-                Color = OxyColors.Blue 
+            var productionLine = new LineSeries
+            {
+                Title = "Производство картона (листы, коробки, упаковка)",
+                Color = OxyColors.Blue
             };
 
             // Линия использованных материалов
-            var materialsLine = new LineSeries 
-            { 
-                Title = "Материалы", 
-                Color = OxyColors.Orange 
+            var materialsLine = new LineSeries
+            {
+                Title = "Использовано материалов (щепа, бумага, химикаты, вода, энергия)",
+                Color = OxyColors.Orange
             };
 
             // Заполнение данными
@@ -101,17 +101,17 @@ namespace Services.Graphing
             });
 
             // Линия производства упаковки
-            var productionLine = new LineSeries 
-            { 
-                Title = "Производство упаковки", 
-                Color = OxyColors.Green 
+            var productionLine = new LineSeries
+            {
+                Title = "Производство упаковки (коробки, бутылки, банки, ящики)",
+                Color = OxyColors.Green
             };
 
             // Линия использованных материалов
-            var materialsLine = new LineSeries 
-            { 
-                Title = "Материалы", 
-                Color = OxyColors.Red 
+            var materialsLine = new LineSeries
+            {
+                Title = "Использовано материалов (картон, пластик, стекло, алюминий, дерево, краска)",
+                Color = OxyColors.Red
             };
 
             // Заполнение данными

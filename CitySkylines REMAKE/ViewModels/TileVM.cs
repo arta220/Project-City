@@ -20,6 +20,7 @@ namespace CitySimulatorWPF.ViewModels
     public partial class TileVM : ObservableObject
     {
         public event Action<TileVM> TileClicked;
+        public event Action<TileVM> TileDoubleClicked;
         public event Action<TileVM> TileConstructionStart;
 
         public TileModel TileModel { get; }
@@ -32,6 +33,8 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty] private bool _isMainObjectTile;
 
         private DispatcherTimer _blinkTimer;
+        private DateTime _lastClickTime = DateTime.MinValue;
+        private const double DoubleClickTime = 300; // milliseconds
 
         public bool HasObject => TileModel.MapObject != null;
         public bool CanBuild => !HasObject;
@@ -117,7 +120,25 @@ namespace CitySimulatorWPF.ViewModels
         }
 
         [RelayCommand]
-        public void TileClick() => TileClicked?.Invoke(this);
+        public void TileClick()
+        {
+            var now = DateTime.Now;
+            var timeSinceLastClick = (now - _lastClickTime).TotalMilliseconds;
+
+            if (timeSinceLastClick < DoubleClickTime)
+            {
+                // Double click detected
+                TileDoubleClicked?.Invoke(this);
+                _lastClickTime = DateTime.MinValue; // Reset
+            }
+            else
+            {
+                // Single click
+                TileClicked?.Invoke(this);
+                _lastClickTime = now;
+            }
+        }
+
 
         [RelayCommand]
         public void TileMouseDown() => TileConstructionStart?.Invoke(this);

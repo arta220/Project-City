@@ -6,6 +6,7 @@
         Seller,
         Doctor,
         UtilityWorker,
+        FactoryWorker, // Рабочий завода
         // ... 
     }
 }

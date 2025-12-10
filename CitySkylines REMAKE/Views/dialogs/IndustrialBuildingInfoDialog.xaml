@@ -1,0 +1,93 @@
+<Window x:Class="CitySimulatorWPF.Views.dialogs.IndustrialBuildingInfoDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CitySimulatorWPF.Views.dialogs"
+        mc:Ignorable="d"
+        Title="Информация о заводе" Height="600" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0"
+                   x:Name="TitleTextBlock"
+                   FontSize="18"
+                   FontWeight="Bold"
+                   Margin="0,0,0,20"
+                   HorizontalAlignment="Center"/>
+
+        <!-- Эффективность производства -->
+        <GroupBox Grid.Row="1" Header="Эффективность производства" Margin="0,0,0,20">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" x:Name="EfficiencyTextBlock" Margin="0,0,0,10"/>
+                <ProgressBar Grid.Row="1"
+                           x:Name="EfficiencyProgressBar"
+                           Height="20"
+                           Margin="0,0,0,10"
+                           Minimum="0"
+                           Maximum="100"/>
+                <TextBlock Grid.Row="2"
+                         x:Name="WorkerInfoTextBlock"
+                         FontSize="12"
+                         Foreground="Gray"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- Материалы и продукция -->
+        <Grid Grid.Row="2" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0" Header="Материалы на складе" Margin="0,0,10,0">
+                <ListBox x:Name="MaterialsListBox" Margin="10"/>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1" Header="Готовая продукция" Margin="10,0,0,0">
+                <ListBox x:Name="ProductsListBox" Margin="10"/>
+            </GroupBox>
+        </Grid>
+
+        <!-- Цеха -->
+        <GroupBox Grid.Row="3" Header="Информация о цехах" Margin="0,0,0,20">
+            <ListBox x:Name="WorkshopsListBox" Margin="10"/>
+        </GroupBox>
+
+        <!-- Кнопки управления -->
+        <StackPanel Grid.Row="4"
+                   Orientation="Horizontal"
+                   HorizontalAlignment="Center">
+            <Button x:Name="HireWorkerButton"
+                   Content="Нанять рабочего"
+                   Width="120"
+                   Height="30"
+                   Margin="0,0,10,0"
+                   Click="HireWorkerButton_Click"/>
+            <Button x:Name="FireWorkerButton"
+                   Content="Уволить рабочего"
+                   Width="120"
+                   Height="30"
+                   Margin="0,0,10,0"
+                   Click="FireWorkerButton_Click"/>
+            <Button x:Name="CloseButton"
+                   Content="Закрыть"
+                   Width="100"
+                   Height="30"
+                   IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

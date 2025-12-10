@@ -139,6 +139,9 @@ namespace Domain.Factories
                 type: IndustrialBuildingType.Factory
             );
 
+            // Установка вакансий для рабочих завода
+            building.Vacancies[CitizenProfession.FactoryWorker] = 12;
+
             // Цех подготовки сырья - производство картонных листов
             building.AddWorkshop(
                 NaturalResourceType.WoodChips,
@@ -213,6 +216,9 @@ namespace Domain.Factories
                 area: new Area(6, 6),
                 type: IndustrialBuildingType.Warehouse
             );
+
+            // Установка вакансий для рабочих завода
+            building.Vacancies[CitizenProfession.FactoryWorker] = 15;
 
             // Цех картонной упаковки
             building.AddWorkshop(

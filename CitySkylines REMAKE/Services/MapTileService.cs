@@ -35,11 +35,13 @@ namespace CitySimulatorWPF.Services
         /// </summary>
         /// <param name="mapModel">Модель карты, по которой создаются TileVM.</param>
         /// <param name="onTileClicked">Callback при клике на плитку.</param>
+        /// <param name="onTileDoubleClicked">Callback при двойном клике на плитку.</param>
         /// <param name="onTileConstructionStart">Callback при начале строительства на плитке.</param>
         /// <param name="onMouseOverPreview">Callback при наведении мыши на плитку для превью строительства.</param>
         void InitializeTiles(
             MapModel mapModel,
             Action<TileVM> onTileClicked,
+            Action<TileVM> onTileDoubleClicked,
             Action<TileVM> onTileConstructionStart,
             Func<TileVM, bool> onMouseOverPreview);
     }
@@ -63,7 +65,7 @@ namespace CitySimulatorWPF.Services
     {
         public ObservableCollection<TileVM> Tiles { get; } = new ObservableCollection<TileVM>();
 
-        public void InitializeTiles(MapModel mapModel, Action<TileVM> onTileClicked, Action<TileVM> onTileConstructionStart, Func<TileVM, bool> onMouseOverPreview)
+        public void InitializeTiles(MapModel mapModel, Action<TileVM> onTileClicked, Action<TileVM> onTileDoubleClicked, Action<TileVM> onTileConstructionStart, Func<TileVM, bool> onMouseOverPreview)
         {
             Tiles.Clear();
 
@@ -74,6 +76,7 @@ namespace CitySimulatorWPF.Services
                     var tileVM = new TileVM(mapModel[x, y]);
 
                     tileVM.TileClicked += (t) => onTileClicked?.Invoke(t);
+                    tileVM.TileDoubleClicked += (t) => onTileDoubleClicked?.Invoke(t);
 
                     tileVM.TileConstructionStart += (t) => onTileConstructionStart?.Invoke(t);
 

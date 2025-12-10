@@ -85,13 +85,13 @@ namespace CitySimulatorWPF.Models
             industrial.Objects.Add(new ObjectVM(
                 new FactoryBuildingFactory(),
                 "Завод",
-                "/Icons/Factory.png"
+                "Assets/Icons/Factory.png"
             ));
 
             industrial.Objects.Add(new ObjectVM(
                 new WarehouseFactory(),
                 "Склад",
-                "/Icons/Warehouse.png"
+                "Assets/Icons/Warehouse.png"
             ));
 
             //Фармацевтический завод
@@ -111,13 +111,13 @@ namespace CitySimulatorWPF.Models
             industrial.Objects.Add(new ObjectVM(
                 new CardboardFactory(),
                 "Завод картона",
-                "Assets/Icons/FactoryCardBoard.png"
+                "Icons/Factory.png"
             ));
 
             industrial.Objects.Add(new ObjectVM(
                 new PackagingFactory(),
                 "Завод упаковки",
-                "Assets/Icons/FactoryPacking.png"
+                "Icons/Factory.png"
             ));
             #endregion
 

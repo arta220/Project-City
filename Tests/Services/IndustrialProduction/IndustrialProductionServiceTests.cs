@@ -100,16 +100,17 @@ namespace Tests.Services.IndustrialProduction
 
             var service = new IndustrialProductionService(mockRegistry);
 
-            // Act - обновляем несколько раз
-            service.Update(new SimulationTime(1));
-            service.Update(new SimulationTime(2));
-            service.Update(new SimulationTime(3));
-            
+            // Act - обновляем каждые 15 тиков (интервал производства)
+            for (int i = 1; i <= 45; i += 15) // 15, 30, 45 тики
+            {
+                service.Update(new SimulationTime(i));
+            }
+
             var statistics = service.GetStatistics();
 
             // Assert
-            Assert.IsTrue(statistics.CardboardHistory.Count >= 3, 
-                "Должна быть история за несколько тиков");
+            Assert.IsTrue(statistics.CardboardHistory.Count >= 3,
+                "Должна быть история за несколько циклов производства (каждые 15 тиков)");
         }
     }
 
