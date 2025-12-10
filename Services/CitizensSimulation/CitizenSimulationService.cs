@@ -34,7 +34,7 @@ namespace Services.CitizensSimulation
         public CitizenSimulationService(
             CitizenController controller,
             IPopulationService populationService,
-            IFinanceService financeService)
+            IFinanceService financeService,
             ICitizenScheduler scheduler)
         {
             _scheduler = scheduler;

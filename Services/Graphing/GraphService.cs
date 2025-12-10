@@ -19,6 +19,7 @@ namespace Services.Graphing
         {
             _utilityService = utilityService;
             _financeService = financeService;
+        }
         private readonly IIndustrialProductionService? _productionService;
 
         public GraphService(IUtilityService utilityService, IIndustrialProductionService? productionService = null)
