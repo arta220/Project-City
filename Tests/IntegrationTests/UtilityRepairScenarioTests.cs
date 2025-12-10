@@ -4,7 +4,7 @@ using Domain.Common.Enums;
 using Domain.Common.Time;
 using Domain.Map;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Services.Citizens.Job.Movement;
+using Services.EntityMovement.Service;
 using Services.Utilities;
 using Tests.Mocks;
 
@@ -14,14 +14,16 @@ public class UtilityRepairScenarioTests
     [TestMethod]
     public void CitizenRepairsBrokenUtility()
     {
-        var movement = new MovementService(new FakePathFinder());
+        var movement = new EntityMovementService(new FakePathFinder(), new FakeNavigationProfile());
         var utilityService = new FakeUtilityService();
         var residential = new ResidentialBuilding(1, 5, new Area(2, 2));
         utilityService.BreakUtilityForTesting(residential, UtilityType.Electricity, currentTick: 1);
 
-        var citizen = new MovingEntity(new Area(1, 1), speed: 1.0f)
+        var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
         {
-            Position = new Position(0, 0)
+            NavigationProfile = new FakeNavigationProfile(),
+            Position = new Position(0, 0),
+            TargetPosition = new Position(0, 0)
         };
         var repairPosition = new Position(5, 5);
 

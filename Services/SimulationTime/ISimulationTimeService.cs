@@ -15,5 +15,6 @@ namespace Services.Time
         bool IsNightTime();
         bool IsWeekend();
         TimeOfDay GetTimeOfDay();
+        void SetCurrentTime(int tick);
     }
 }

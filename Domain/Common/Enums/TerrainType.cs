@@ -6,6 +6,11 @@
         Plain,
         Mountain,
         Forest,
-        Meadow
+        Meadow,
+        UrbanPark,
+        BotanicalGarden,
+        Playground,
+        Square,
+        RecreationArea
     }
 }

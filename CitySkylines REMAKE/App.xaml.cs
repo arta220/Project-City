@@ -10,6 +10,7 @@ using Services.BuildingRegistry;
 using Services.Citizens.Education;
 using Services.Citizens.Job;
 using Services.Citizens.Population;
+using Services.Citizens;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Scenarios;
 using Services.CitizensSimulatiom;
@@ -60,11 +61,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
             services.AddSingleton<IIndustrialProductionService, IndustrialProductionService>();
+            services.AddSingleton<IParkVisitStatisticsService, ParkVisitStatisticsService>();
             services.AddSingleton<GraphService>(sp =>
             {
                 var utilityService = sp.GetRequiredService<IUtilityService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
-                return new GraphService(utilityService, productionService);
+                var parkStats = sp.GetRequiredService<IParkVisitStatisticsService>();
+                return new GraphService(utilityService, productionService, parkStats);
             });
             services.AddTransient<ChartsWindowViewModel>();
 
@@ -106,6 +109,7 @@ namespace CitySkylines_REMAKE
 
             // Сценарии поведения жителей
             services.AddSingleton<ICitizenScenario, HomeScenario>();
+            services.AddSingleton<ICitizenScenario, ParkVisitScenario>();
             services.AddScoped<ICitizenScenario, UtilityWorkerScenario>();
 
             // Контроллер граждан

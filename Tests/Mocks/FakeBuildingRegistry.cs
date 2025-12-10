@@ -20,5 +20,10 @@ namespace Tests.Mocks
             var res = _buildings.Contains(building);
             return (new Placement(0, 0, building.Area), res);
         }
+
+        public IEnumerable<Position> GetAccessibleNeighborTiles(MapObject obj, MapModel map)
+        {
+            return Enumerable.Empty<Position>();
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using Domain.Common.Enums;
 using Domain.Common.Base;
 using Domain.Buildings.Residential;
+using Domain.Base;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -34,6 +35,8 @@ namespace CitySimulatorWPF.ViewModels
         private DispatcherTimer _blinkTimer;
 
         public bool HasObject => TileModel.MapObject != null;
+        public bool HasBlockingObject => TileModel.MapObject != null && TileModel.MapObject is not Park;
+        public bool IsParkTile => TileModel.MapObject is Park;
         public bool CanBuild => !HasObject;
         public TerrainType TerrainType => TileModel.Terrain;
 
@@ -83,6 +86,8 @@ namespace CitySimulatorWPF.ViewModels
                 if (e.PropertyName == nameof(TileModel.MapObject))
                 {
                     OnPropertyChanged(nameof(HasObject));
+                    OnPropertyChanged(nameof(HasBlockingObject));
+                    OnPropertyChanged(nameof(IsParkTile));
                     OnPropertyChanged(nameof(MapObject));
                     OnPropertyChanged(nameof(ShowBuildingIcon));
                     UpdateBlinkingState();
@@ -95,6 +100,10 @@ namespace CitySimulatorWPF.ViewModels
                                 UpdateBlinkingState();
                         };
                     }
+                }
+                else if (e.PropertyName == nameof(TileModel.Terrain))
+                {
+                    OnPropertyChanged(nameof(TerrainType));
                 }
             };
 

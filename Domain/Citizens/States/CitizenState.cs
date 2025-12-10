@@ -11,6 +11,8 @@
         GoingShopping,
         Shopping,
         WorkingOnSite, // работник на выездном задании
+        GoingToPark,
+        RelaxingInPark,
     }
 
 }

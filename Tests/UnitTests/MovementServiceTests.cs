@@ -1,6 +1,6 @@
 ﻿using Domain.Citizens;
 using Domain.Map;
-using Services.Citizens.Movement;
+using Services.EntityMovement.Service;
 
 [TestClass]
 public class MovementServiceTests
@@ -9,8 +9,14 @@ public class MovementServiceTests
     [TestMethod]
     public void TestMovementToTarget()
     {
-        var movement = new MovementService(new FakePathFinder());
-        var citizen = new MovingEntity(new Area(1, 1), 1.0f);
+        var navigation = new FakeNavigationProfile();
+        var movement = new EntityMovementService(new FakePathFinder(), navigation);
+        var citizen = new Citizen(new Area(1, 1), 1.0f)
+        {
+            NavigationProfile = navigation,
+            Position = new Position(0, 0),
+            TargetPosition = new Position(0, 0)
+        };
         var target = new Position(5, 5);
 
         movement.SetTarget(citizen, target);

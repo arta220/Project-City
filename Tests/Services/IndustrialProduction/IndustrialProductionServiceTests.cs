@@ -132,6 +132,11 @@ namespace Tests.Services.IndustrialProduction
         {
             return (null, false);
         }
+
+        public IEnumerable<Position> GetAccessibleNeighborTiles(MapObject obj, MapModel map)
+        {
+            return Enumerable.Empty<Position>();
+        }
     }
 }
 

@@ -29,7 +29,8 @@ namespace Services.Citizens.Scenarios
         public bool CanRun(Citizen citizen, ISimulationTimeService time)
         {
             // Работник должен быть на работе (офис)
-            return citizen.Profession == CitizenProfession.UtilityWorker &&
+            return time.IsWorkTime() &&
+                   citizen.Profession == CitizenProfession.UtilityWorker &&
                    citizen.WorkPlace != null &&
                    !IsAtWork(citizen);
         }

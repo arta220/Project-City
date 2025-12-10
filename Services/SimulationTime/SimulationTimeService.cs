@@ -97,5 +97,13 @@ namespace Services.Time
                 _ => TimeOfDay.Evening
             };
         }
+
+        public void SetCurrentTime(int tick)
+        {
+            _clock.SetCurrentTick(tick);
+            CurrentTime = new SimulationTime(_clock.CurrentTick);
+            UpdateState();
+            TimeChanged?.Invoke(CurrentTime);
+        }
     }
 }

@@ -1,9 +1,10 @@
-﻿using Domain.Map;
-using Services.PathFind;
+﻿using Domain.Common.Base.MovingEntities;
+using Domain.Map;
+using Services.EntityMovement.PathFind;
 
 public class FakePathFinder : IPathFinder
 {
-    public List<Position> FindPath(Position from, Position to)
+    public IEnumerable<Position>? FindPath(Position from, Position to, INavigationProfile profile)
     {
         var path = new List<Position>();
         int x = from.X, y = from.Y;

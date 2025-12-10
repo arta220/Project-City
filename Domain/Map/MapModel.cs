@@ -1,4 +1,8 @@
-﻿using Domain.Common.Base;
+﻿using System;
+using System.Collections.Generic;
+using Domain.Base;
+using Domain.Common.Base;
+using Domain.Common.Enums;
 
 namespace Domain.Map
 {
@@ -30,6 +34,8 @@ namespace Domain.Map
             Height = height;
             _tiles = new TileModel[Width, Height];
         }
+
+        private readonly Dictionary<MapObject, Dictionary<Position, TerrainType>> _terrainOverrides = new();
 
         /// <summary>
         /// Индексатор для доступа к плиткам по координатам X и Y.
@@ -76,10 +82,26 @@ namespace Domain.Map
         /// </remarks>
         public bool TrySetMapObject(MapObject mapObject, Placement area)
         {
+            var park = mapObject as Park;
+            var isPark = park is not null;
+            Dictionary<Position, TerrainType>? terrainBackup = null;
+
             foreach (var pos in area.GetAllPositions())
             {
-                _tiles[pos.X, pos.Y].MapObject = mapObject;
+                var tile = _tiles[pos.X, pos.Y];
+
+                if (isPark)
+                {
+                    terrainBackup ??= new Dictionary<Position, TerrainType>();
+                    terrainBackup[pos] = tile.Terrain;
+                    tile.Terrain = park.TerrainType;
+                }
+
+                tile.MapObject = mapObject;
             }
+
+            if (terrainBackup != null)
+                _terrainOverrides[mapObject] = terrainBackup;
 
             return true;
         }
@@ -91,8 +113,22 @@ namespace Domain.Map
         /// <returns>Всегда возвращает true.</returns>
         public bool TryRemoveMapObject(Placement area)
         {
+            MapObject? removedObject = _tiles[area.Position.X, area.Position.Y].MapObject;
+
             foreach (var pos in area.GetAllPositions())
-                _tiles[pos.X, pos.Y].MapObject = null;
+            {
+                var tile = _tiles[pos.X, pos.Y];
+                tile.MapObject = null;
+            }
+
+            if (removedObject != null && _terrainOverrides.TryGetValue(removedObject, out var backup))
+            {
+                foreach (var (position, terrain) in backup)
+                {
+                    _tiles[position.X, position.Y].Terrain = terrain;
+                }
+                _terrainOverrides.Remove(removedObject);
+            }
 
             return true;
         }

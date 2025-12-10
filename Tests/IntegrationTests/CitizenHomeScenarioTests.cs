@@ -2,7 +2,7 @@
 using Domain.Citizens;
 using Domain.Buildings.Residential;
 using Domain.Map;
-using Services.Citizens.Job.Movement;
+using Services.EntityMovement.Service;
 using System.Linq;
 using static MovementServiceTests;
 using Tests.Mocks;
@@ -14,12 +14,14 @@ public class CitizenHomeScenarioTests
     public void CitizenMovesHomeSuccessfully()
     {
         var map = new FakeMap();
-        var movement = new MovementService(new FakePathFinder());
+        var movement = new EntityMovementService(new FakePathFinder(), new FakeNavigationProfile());
         var home = new ResidentialBuilding(1, 5, new Area(2, 2));
-        var citizen = new MovingEntity(new Area(1, 1), speed: 1.0f)
+        var citizen = new Citizen(new Area(1, 1), speed: 1.0f)
         {
+            NavigationProfile = new FakeNavigationProfile(),
             Home = home,
-            Position = new Position(0, 0)
+            Position = new Position(0, 0),
+            TargetPosition = new Position(0, 0)
         };
         var homeEntrance = new Position(5, 5);
 

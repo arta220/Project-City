@@ -41,6 +41,11 @@ namespace CitySimulatorWPF.Converters
                     TerrainType.Meadow => Brushes.LightGreen,  // луга
                     TerrainType.Forest => Brushes.DarkGreen,   // лес
                     TerrainType.Mountain => Brushes.DarkGray,    // горы
+                    TerrainType.UrbanPark => Brushes.MediumSeaGreen,
+                    TerrainType.BotanicalGarden => Brushes.MediumAquamarine,
+                    TerrainType.Playground => Brushes.Gold,
+                    TerrainType.Square => Brushes.LightSeaGreen,
+                    TerrainType.RecreationArea => Brushes.MediumPurple,
                     _ => Brushes.Transparent
                 };
             }

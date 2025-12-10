@@ -16,7 +16,9 @@ using Services.CitizensSimulation;
 using Services.Factories;
 using Services.TransportSimulation;
 using Services.Utilities;
+using Services.Time;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Threading;
 
@@ -38,6 +40,7 @@ namespace CitySimulatorWPF.ViewModels
         private readonly MessageService _messageService;
         private readonly IUtilityService _utilityService;
         private readonly IPathConstructionService _pathService;
+        private readonly ISimulationTimeService _timeService;
 
         private bool _simulationStarted = false;
 
@@ -61,6 +64,7 @@ namespace CitySimulatorWPF.ViewModels
                      TransportSimulationService transportSimulation,
                      IUtilityService utilityService,
                      IPathConstructionService pathService,
+                     ISimulationTimeService timeService,
                      CitizenFactory citizenFactory)
         {
             _simulation = simulation;
@@ -71,6 +75,7 @@ namespace CitySimulatorWPF.ViewModels
             _messageService = messageService;
             _utilityService = utilityService;
             _pathService = pathService;
+            _timeService = timeService;
             _citizenFactory = citizenFactory;
             _citizenManager.StartSimulation(citizenSimulation);
             _carManager.StartSimulation(transportSimulation);
@@ -134,6 +139,11 @@ namespace CitySimulatorWPF.ViewModels
 
         private void CreateTestScenario()
         {
+            // Устанавливаем время на будний день и рабочее время, чтобы сценарий работника ЖКХ сработал.
+            // День 1 (понедельник), 10:00. Tick = ((dayIndex * 24) + hour) * 60
+            const int mondayMorningTick = ((1 * 24) + 10) * 60;
+            _timeService.SetCurrentTime(mondayMorningTick);
+
             // 1. Создаём жителя (работника ЖКХ)
             var citizen = _citizenFactory.CreateCitizen(
                 pos: new Position(15, 15),
@@ -171,7 +181,7 @@ namespace CitySimulatorWPF.ViewModels
             var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
             Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
 
-            // 7. Информация о тесте
+            // 5. Информация о тесте
             _messageService.ShowMessage(
                 "Тестовый сценарий создан!\n" +
                 "1. Работник ЖКХ: (15,15)\n" +

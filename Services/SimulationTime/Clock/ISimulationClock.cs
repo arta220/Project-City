@@ -7,5 +7,6 @@
         void Start();
         void Stop();
         void Update();
+        void SetCurrentTick(int tick);
     }
 }

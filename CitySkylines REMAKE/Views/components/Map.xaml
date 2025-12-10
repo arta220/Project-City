@@ -90,7 +90,7 @@
                                            Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
                                 <!-- Есть объект (здание и т.п.) -->
-                                <Grid Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid Visibility="{Binding HasBlockingObject, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Rectangle Fill="Gray" />
                                     <!-- Иконку теперь рисуем отдельным слоем BuildingIcons -->
                                 </Grid>

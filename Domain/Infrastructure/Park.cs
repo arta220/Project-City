@@ -9,6 +9,17 @@ namespace Domain.Base
         public ParkType Type { get; }
         public int TreesCount { get; }
 
+        public TerrainType TerrainType =>
+            Type switch
+            {
+                ParkType.UrbanPark => TerrainType.UrbanPark,
+                ParkType.BotanicalGarden => TerrainType.BotanicalGarden,
+                ParkType.Playground => TerrainType.Playground,
+                ParkType.Square => TerrainType.Square,
+                ParkType.RecreationArea => TerrainType.RecreationArea,
+                _ => TerrainType.Plain
+            };
+
         public Park(Area area, ParkType type) : base(area)
         {
             Type = type;

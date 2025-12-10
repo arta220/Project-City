@@ -1,4 +1,6 @@
-﻿namespace Services.Time.Clock
+﻿using System;
+
+namespace Services.Time.Clock
 {
     /// <summary>
     /// Служба часов симуляции. Генерирует тики с заданным интервалом и уведомляет подписчиков.
@@ -29,6 +31,11 @@
         {
             CurrentTick++;
             TickOccurred?.Invoke(CurrentTick);
+        }
+
+        public void SetCurrentTick(int tick)
+        {
+            CurrentTick = Math.Max(0, tick);
         }
     }
 }

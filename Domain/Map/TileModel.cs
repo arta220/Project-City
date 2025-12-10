@@ -16,10 +16,16 @@ namespace Domain.Map
         /// </summary>
         public Position Position { get; set; }
 
+        private TerrainType _terrain;
+
         /// <summary>
         /// Тип местности тайла.
         /// </summary>
-        public TerrainType Terrain { get; set; }
+        public TerrainType Terrain
+        {
+            get => _terrain;
+            set => SetProperty(ref _terrain, value);
+        }
 
         private MapObject _mapObject;
 

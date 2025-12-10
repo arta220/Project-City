@@ -44,7 +44,12 @@ namespace Services.MapGenerator
             {
                 for (int y = 0; y < map.Height; y++)
                 {
-                    map[x, y] = new TileModel() { Terrain = TerrainType.Plain};
+                    map[x, y] = new TileModel()
+                    {
+                        Position = new Position(x, y),
+                        Terrain = TerrainType.Plain,
+                        Height = 0.4f
+                    };
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using Domain.Common.Base.MovingEntities;
+﻿using Domain.Base;
+using Domain.Common.Base.MovingEntities;
 using Domain.Common.Enums;
 using Domain.Map;
 
@@ -18,7 +19,7 @@ namespace Services.EntityMovement.Profile
 
             var tile = _mapModel[pos];
 
-            if (tile.MapObject != null)
+            if (tile.MapObject != null && tile.MapObject is not Park)
                 return false;
 
             if (tile.Terrain == TerrainType.Water)
