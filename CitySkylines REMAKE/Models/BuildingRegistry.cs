@@ -119,6 +119,60 @@ namespace CitySimulatorWPF.Models
                 "Завод упаковки",
                 "Assets/Icons/FactoryPacking.png"
             ));
+
+            // Заводы строительных материалов
+            industrial.Objects.Add(new ObjectVM(
+                new CementFactory(),
+                "Цементный завод",
+                "/Icons/Factory.png"
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new BrickFactory(),
+                "Кирпичный завод",
+                "/Icons/Factory.png"
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new ConcreteFactory(),
+                "Бетонный завод",
+                "/Icons/Factory.png"
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new ReinforcedConcreteFactory(),
+                "Завод ЖБИ",
+                "/Icons/Factory.png"
+            ));
+            #endregion
+
+            #region Construction Sites
+            // Строительные площадки
+            var construction = new BuildingCategory { Name = "Строительство" };
+
+            construction.Objects.Add(new ObjectVM(
+                new SmallHouseConstructionSiteFactory(),
+                "Строительство: Маленький дом",
+                "/Icons/SmallResidentialBuilding.png"
+            ));
+
+            construction.Objects.Add(new ObjectVM(
+                new ApartmentConstructionSiteFactory(),
+                "Строительство: Многоквартирный дом",
+                "/Icons/HighResidentialBuilding.png"
+            ));
+
+            construction.Objects.Add(new ObjectVM(
+                new FactoryConstructionSiteFactory(),
+                "Строительство: Завод",
+                "/Icons/Factory.png"
+            ));
+
+            construction.Objects.Add(new ObjectVM(
+                new WarehouseConstructionSiteFactory(),
+                "Строительство: Склад",
+                "/Icons/Warehouse.png"
+            ));
             #endregion
 
             // Инфраструктура
@@ -199,6 +253,7 @@ namespace CitySimulatorWPF.Models
             Categories.Add(residential);
             Categories.Add(commercial);
             Categories.Add(industrial);
+            Categories.Add(construction);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Buildings.Residential;
+﻿using Domain.Buildings.Construction;
+using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Common.Base;
 using Domain.Common.Enums;
@@ -6,6 +7,7 @@ using Domain.Common.Time;
 using Domain.Map;
 using Services.CitizensSimulation;
 using Services.Common;
+using Services.Construction;
 using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.PlaceBuilding;
@@ -28,6 +30,8 @@ namespace Services
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService _productionService;
+        private readonly IConstructionService _constructionService;
+        private readonly IConstructionMaterialLogisticsService _constructionLogisticsService;
 
         private readonly CitizenSimulationService _citizenSimulationService;
         private readonly TransportSimulationService _transportSimulationService;
@@ -50,7 +54,9 @@ namespace Services
             CitizenSimulationService citizenSimulationService,
             TransportSimulationService transportSimulationService,
             IUtilityService utilityService,
-            IIndustrialProductionService productionService)
+            IIndustrialProductionService productionService,
+            IConstructionService constructionService,
+            IConstructionMaterialLogisticsService constructionLogisticsService)
         {
             MapModel = mapModel;
             _placementService = placementService;
@@ -60,13 +66,25 @@ namespace Services
             _transportSimulationService = transportSimulationService;
             _utilityService = utilityService;
             _productionService = productionService;
+            _constructionService = constructionService;
+            _constructionLogisticsService = constructionLogisticsService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
             _updatableServices.Add(productionService);
+            _updatableServices.Add(constructionService);
+            _updatableServices.Add(constructionLogisticsService);
+
+            // Подписываемся на завершение строительства
+            constructionService.ConstructionCompleted += OnConstructionCompleted;
 
             _timeService.TimeChanged += OnTimeChanged;
+        }
+
+        private void OnConstructionCompleted(ConstructionSite constructionSite)
+        {
+            CompleteConstruction(constructionSite);
         }
 
         private void OnTimeChanged(SimulationTime time)
@@ -87,6 +105,14 @@ namespace Services
             if (_placementService.TryPlace(MapModel, mapObject, placement))
             {
                 _placementRepository.Register(mapObject, placement);
+                
+                // Если размещается строительная площадка, запускаем строительство
+                if (mapObject is ConstructionSite constructionSite)
+                {
+                    _constructionService.StartConstruction(constructionSite);
+                    _constructionLogisticsService.RequestMaterialsDelivery(constructionSite);
+                }
+                
                 MapObjectPlaced?.Invoke(mapObject);
                 return true;
             }
@@ -99,6 +125,12 @@ namespace Services
 
             if (!found || placement is null)
                 return false;
+
+            // Если удаляется строительная площадка, отменяем строительство
+            if (mapObject is ConstructionSite constructionSite)
+            {
+                _constructionService.CancelConstruction(constructionSite);
+            }
 
             if (_placementService.TryRemove(MapModel, (Placement)placement))
             {
@@ -126,5 +158,29 @@ namespace Services
 
         public void RemoveCitizen(Citizen citizen) => _citizenSimulationService.RemoveCitizen(citizen);
         public void RemoveTransport(Transport car) => _transportSimulationService.RemoveTransport(car);
+
+        /// <summary>
+        /// Обрабатывает завершение строительства - заменяет строительную площадку на построенное здание
+        /// </summary>
+        public void CompleteConstruction(ConstructionSite constructionSite)
+        {
+            if (constructionSite.Project == null || constructionSite.Status != ConstructionSiteStatus.Completed)
+                return;
+
+            var (placement, found) = _placementRepository.TryGetPlacement(constructionSite);
+            if (!found || placement == null)
+                return;
+
+            // Удаляем строительную площадку
+            if (TryRemove(constructionSite))
+            {
+                // Создаем и размещаем построенное здание
+                var builtObject = constructionSite.Project.TargetBuildingFactory.Create();
+                if (TryPlace(builtObject, placement.Value))
+                {
+                    // Здание успешно размещено
+                }
+            }
+        }
     }
 }
