@@ -1,4 +1,5 @@
 using Domain.Buildings.Construction;
+using Domain.Common.Enums;
 using Domain.Common.Time;
 using Domain.Map;
 using Services.BuildingRegistry;

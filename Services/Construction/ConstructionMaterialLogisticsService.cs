@@ -1,5 +1,6 @@
 using Domain.Buildings;
 using Domain.Buildings.Construction;
+using Domain.Common.Enums;
 using Domain.Common.Time;
 using Domain.Map;
 using Services.BuildingRegistry;
@@ -17,13 +18,17 @@ namespace Services.Construction
     {
         private readonly IBuildingRegistry _buildingRegistry;
         private readonly Dictionary<ConstructionSite, Dictionary<Enum, int>> _pendingDeliveries = new();
-        private const int DeliveryBatchSize = 50; // Количество материалов за одну доставку
+        private const int DeliveryBatchSize = 50; // Количество материалов за одну доставку (специальное ограничение для задержки анимации строительства)
 
         public ConstructionMaterialLogisticsService(IBuildingRegistry buildingRegistry)
         {
             _buildingRegistry = buildingRegistry;
         }
 
+        /// <summary>
+        /// Обновляет состояние сервиса, обрабатывая доставки материалов
+        /// </summary>
+        /// <param name="time">Текущее время проекта в тиках</param>
         public void Update(SimulationTime time)
         {
             var sitesToProcess = _pendingDeliveries.Keys.ToList();
@@ -40,6 +45,10 @@ namespace Services.Construction
             }
         }
 
+        /// <summary>
+        /// Запрашивает доставку материалов на строительную площадку
+        /// </summary>
+        /// <param name="constructionSite">строительная площадка</param>
         public void RequestMaterialsDelivery(ConstructionSite constructionSite)
         {
             if (constructionSite == null || constructionSite.Project == null)
@@ -66,6 +75,12 @@ namespace Services.Construction
             }
         }
 
+        /// <summary>
+        /// Поиск ближайшего источника материала среди промышленных зданий
+        /// </summary>
+        /// <param name="materialType">тип материала</param>
+        /// <param name="targetPosition">позиция строительной площадки</param>
+        /// <returns>Близжайший завод, производящий требуемый материал</returns>
         public IndustrialBuilding FindMaterialSource(Enum materialType, Position targetPosition)
         {
             var industrialBuildings = _buildingRegistry.GetBuildings<IndustrialBuilding>().ToList();
@@ -108,6 +123,7 @@ namespace Services.Construction
         /// <summary>
         /// Обрабатывает доставку материалов на площадку
         /// </summary>
+        /// <param name="site">Строительная площадка</param>
         private void ProcessMaterialDelivery(ConstructionSite site)
         {
             if (!_pendingDeliveries.TryGetValue(site, out var neededMaterials))
@@ -190,8 +206,11 @@ namespace Services.Construction
         }
 
         /// <summary>
-        /// Вычисляет расстояние между двумя позициями (манхэттенское расстояние)
+        /// Вычисляет расстояние между двумя позициями (расстояние между точками на плоскачти)
         /// </summary>
+        /// <param name="pos1">Координаты первой точки (объекта)</param>
+        /// <param name="pos2">Координаты второй точки (объекта)</param>
+        /// <returns>Расстояние в дробных тайлах</returns>
         private double CalculateDistance(Position pos1, Position pos2)
         {
             return Math.Abs(pos1.X - pos2.X) + Math.Abs(pos1.Y - pos2.Y);

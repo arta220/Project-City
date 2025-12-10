@@ -8,7 +8,8 @@ using System.Collections.Generic;
 namespace Domain.Buildings.Construction
 {
     /// <summary>
-    /// Строительная площадка - временное здание, на котором происходит строительство
+    /// Строительная площадка - временное здание, на котором происходит строительство 
+    /// (заполнение тайла, чтобы предотвратить двойное построение)
     /// </summary>
     public class ConstructionSite : Building
     {
@@ -17,9 +18,6 @@ namespace Domain.Buildings.Construction
         /// </summary>
         public ConstructionProject Project { get; set; }
 
-        /// <summary>
-        /// Банк строительных материалов на площадке
-        /// </summary>
         public Dictionary<Enum, int> MaterialsBank { get; } = new Dictionary<Enum, int>();
 
         /// <summary>
@@ -29,6 +27,7 @@ namespace Domain.Buildings.Construction
 
         /// <summary>
         /// Флаг отмены строительства
+        /// Отмена строительства приводит к остановке работ и демонтажу площадки
         /// </summary>
         public bool IsCancelled { get; set; }
 
@@ -47,6 +46,8 @@ namespace Domain.Buildings.Construction
         /// <summary>
         /// Добавляет материалы на строительную площадку
         /// </summary>
+        /// <param name="materialType">тип материала</param>
+        /// <param name="amount">количество материала</param>
         public void AddMaterials(Enum materialType, int amount)
         {
             if (!MaterialsBank.ContainsKey(materialType))
@@ -58,6 +59,8 @@ namespace Domain.Buildings.Construction
         /// <summary>
         /// Использует материалы из банка (при строительстве)
         /// </summary>
+        /// <param name="materialsToConsume">доступные материалы</param>
+        /// <returns>True, если материалов достаточно (используются), иначе false (ни один материал не спиан)</returns>
         public bool ConsumeMaterials(Dictionary<Enum, int> materialsToConsume)
         {
             // Проверяем наличие всех материалов
@@ -84,37 +87,17 @@ namespace Domain.Buildings.Construction
         /// <summary>
         /// Проверяет, достаточно ли материалов для продолжения строительства
         /// </summary>
-        public bool HasEnoughMaterials()
-        {
-            return Project.HasAllMaterials(MaterialsBank);
-        }
+        public bool HasEnoughMaterials() => Project.HasAllMaterials(MaterialsBank);
 
         /// <summary>
         /// Получает процент готовности материалов
         /// </summary>
-        public double GetMaterialsReadiness()
-        {
-            return Project.GetMaterialsReadiness(MaterialsBank);
-        }
+        public double GetMaterialsReadiness() => Project.GetMaterialsReadiness(MaterialsBank);
 
         /// <summary>
         /// Проверяет, достаточно ли рабочих для строительства
         /// </summary>
-        public bool HasEnoughWorkers()
-        {
-            return CurrentWorkers.Count >= Project.MinWorkersRequired;
-        }
-    }
-
-    /// <summary>
-    /// Статусы строительной площадки
-    /// </summary>
-    public enum ConstructionSiteStatus
-    {
-        Preparing,       // Подготовка (ожидание материалов)
-        Building,       // Строительство в процессе
-        Completed,      // Строительство завершено
-        Cancelled       // Строительство отменено
+        public bool HasEnoughWorkers() => CurrentWorkers.Count >= Project.MinWorkersRequired;
     }
 }
 

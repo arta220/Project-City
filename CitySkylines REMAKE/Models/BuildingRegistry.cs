@@ -124,30 +124,30 @@ namespace CitySimulatorWPF.Models
             industrial.Objects.Add(new ObjectVM(
                 new CementFactory(),
                 "Цементный завод",
-                "/Icons/Factory.png"
+                "/Icons/Factory.png" // Потом найду что-нибудь
             ));
 
             industrial.Objects.Add(new ObjectVM(
                 new BrickFactory(),
                 "Кирпичный завод",
-                "/Icons/Factory.png"
+                "/Icons/Factory.png" // Потом найду что-нибудь
             ));
 
             industrial.Objects.Add(new ObjectVM(
                 new ConcreteFactory(),
                 "Бетонный завод",
-                "/Icons/Factory.png"
+                "/Icons/Factory.png" // Потом найду что-нибудь
             ));
 
             industrial.Objects.Add(new ObjectVM(
                 new ReinforcedConcreteFactory(),
                 "Завод ЖБИ",
-                "/Icons/Factory.png"
+                "/Icons/Factory.png" // Потом найду что-нибудь
             ));
             #endregion
 
             #region Construction Sites
-            // Строительные площадки
+            // Строительные площадки (использование кастомных картинок)
             var construction = new BuildingCategory { Name = "Строительство" };
 
             construction.Objects.Add(new ObjectVM(

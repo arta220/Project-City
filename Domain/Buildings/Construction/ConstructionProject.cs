@@ -67,6 +67,8 @@ namespace Domain.Buildings.Construction
         /// <summary>
         /// Проверяет, есть ли все необходимые материалы
         /// </summary>
+        /// <param name="availableMaterials">Доступные материалы</param>
+        /// <returns>True, если материалов достаточно, иначе false</returns>
         public bool HasAllMaterials(Dictionary<Enum, int> availableMaterials)
         {
             foreach (var requirement in RequiredMaterials)
@@ -81,8 +83,10 @@ namespace Domain.Buildings.Construction
         }
 
         /// <summary>
-        /// Вычисляет процент готовности материалов
+        /// Вычисляет процент готовности материалов (для прогресс бара)
         /// </summary>
+        /// <param name="availableMaterials">доступные материалы</param>
+        /// <returns>Коэффициент готовности материалов (дробное)</returns>
         public double GetMaterialsReadiness(Dictionary<Enum, int> availableMaterials)
         {
             if (RequiredMaterials.Count == 0) return 1.0;
