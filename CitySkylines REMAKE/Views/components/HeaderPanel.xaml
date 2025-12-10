@@ -98,10 +98,14 @@
                 <TextBlock Text="0" FontSize="20" VerticalAlignment="Center" />
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Cursor="Hand" ToolTip="Кликните для подробностей">
-                <TextBlock Text="💵" Margin="0,0,3,0" FontSize="20" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding CityBudget, StringFormat='{}{0:N0}$'}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" />
-            </StackPanel>
+            
+                <Button Command="{Binding ShowBudgetHistoryCommand}" ToolTip="Кликните для подробностей" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="💵" Margin="0,0,3,0" FontSize="20" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding CityBudget, StringFormat='{}{0:N0}$'}" FontSize="20" VerticalAlignment="Center" FontWeight="Bold" />
+                    </StackPanel>
+                </Button>
+           
         </StackPanel>
     </Grid>
 </UserControl>

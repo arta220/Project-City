@@ -30,7 +30,7 @@
         </TextBlock>
 
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
-            <ItemsControl x:Name="MaterialsItemsControl">
+            <ItemsControl ItemsSource="{Binding Items}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="LightGray" 
@@ -47,29 +47,17 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Grid.Column="0" 
-                                       FontWeight="Bold" 
-                                       VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold" VerticalAlignment="Center"/>
 
-                                <TextBlock Grid.Column="1" 
-                                       VerticalAlignment="Center">
-                                <Run Text="Цена: "/>
-                                <Run FontWeight="Bold"/>
-                                </TextBlock>
+                                <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='Цена: {0:N0}'}" VerticalAlignment="Center"/>
 
-                                <TextBox Grid.Column="2" 
-                                     x:Name="QuantityTextBox"
+                                <TextBox Grid.Column="2" Text="{Binding SelectedQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                      VerticalAlignment="Center"
                                      Padding="5"
                                      TextAlignment="Center"/>
 
-                                <TextBlock Grid.Column="3" 
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Right"
-                                       Margin="10,0,0,0">
-                                <Run Text="Итого: "/>
-                                <Run FontWeight="Bold" Foreground="Green"/>
-                                </TextBlock>
+                                <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0,0,0"
+                                           Text="{Binding Total, StringFormat='Итого: {0:N0}'}" Foreground="Green" FontWeight="Bold"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -95,7 +83,8 @@
                 Width="100" 
                 Height="30"
                 Background="LightGreen"
-                Margin="0,0,10,0"/>
+                Margin="0,0,10,0"
+                Command="{Binding BuyCommand}"/>
             <Button Content="Отмена" 
                 Width="100" 
                 Height="30" 
