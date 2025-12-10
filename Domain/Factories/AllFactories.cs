@@ -13,8 +13,6 @@ using Domain.Map;
 
 namespace Domain.Factories
 {
-
-
     public class SmallHouseFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -86,10 +84,10 @@ namespace Domain.Factories
                 area: new Area(5, 5),
                 type: IndustrialBuildingType.Factory
             );
-            
+
             return building;
         }
-}
+    }
 
     /// <summary>
     /// Складское здание
@@ -200,6 +198,102 @@ namespace Domain.Factories
     }
 
     /// <summary>
+    /// Косметический завод
+    /// Производит различные виды косметической продукции
+    /// </summary>
+    public class CosmeticsFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 3,
+                maxOccupancy: 120,
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // 1. Цех производства кремов для кожи
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.SkinCream,
+                coeff: 4
+            );
+
+            // 2. Цех производства шампуней
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Shampoo,
+                coeff: 5
+            );
+
+            // 3. Цех производства парфюмерии
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Perfume,
+                coeff: 3
+            );
+
+            // 4. Цех производства декоративной косметики
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Makeup,
+                coeff: 6
+            );
+
+            // 5. Цех упаковки косметики в стеклянные флаконы
+            building.AddWorkshop(
+                NaturalResourceType.Glass,
+                ProductType.CosmeticBottle,
+                coeff: 4
+            );
+
+            // 6. Цех производства средств для ухода за волосами
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.HairCareProduct,
+                coeff: 4
+            );
+
+            // 7. Цех производства солнцезащитных средств
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Sunscreen,
+                coeff: 3
+            );
+
+            // 8. Цех производства наборов для макияжа
+            building.AddWorkshop(
+                ProductType.Plastic,
+                ProductType.MakeupKit,
+                coeff: 5
+            );
+
+            // 9. Цех производства гигиенических продуктов
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.HygieneProduct,
+                coeff: 8
+            );
+
+            // 10. Цех производства ароматических свечей
+            building.AddWorkshop(
+                ProductType.Plastic,
+                ProductType.ScentedCandle,
+                coeff: 10
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Chemicals] = 500;
+            building.MaterialsBank[NaturalResourceType.Water] = 300;
+            building.MaterialsBank[NaturalResourceType.Glass] = 200;
+            building.MaterialsBank[ProductType.Plastic] = 250;
+            building.MaterialsBank[NaturalResourceType.Energy] = 150;
+
+            return building;
+        }
+    }
+
+    /// <summary>
     /// Завод по производству упаковки
     /// Производит различные виды упаковки из разных материалов
     /// </summary>
@@ -304,8 +398,8 @@ namespace Domain.Factories
         public MapObject Create()
         {
             var factory = new IndustrialBuilding(
-                2, 
-                80, 
+                2,
+                80,
                 new Area(5, 5),
                 type: IndustrialBuildingType.Warehouse
                 );
@@ -325,8 +419,8 @@ namespace Domain.Factories
             var factory = new IndustrialBuilding(floors: 1,
                 maxOccupancy: 60,
                 area: new Area(4, 4),
-                type: IndustrialBuildingType.Factory);           
-            factory.AddWorkshop(input: ResourceType.PlasticWaste,output: ResourceType.Plastic,coeff: 3);
+                type: IndustrialBuildingType.Factory);
+            factory.AddWorkshop(input: ResourceType.PlasticWaste, output: ResourceType.Plastic, coeff: 3);
             factory.MaterialsBank[ResourceType.PlasticWaste] = 100;
             return factory;
         }
@@ -350,7 +444,6 @@ namespace Domain.Factories
             );
     }
 
-    }
     public class BotanicalGardenParkFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -389,11 +482,11 @@ namespace Domain.Factories
     }
 
     public class RoadFactory : IRoadFactory
-        {
-            public MapObject Create() =>
-                new Road(
-                    area: new Area(1, 1)
-                );
+    {
+        public MapObject Create() =>
+            new Road(
+                area: new Area(1, 1)
+            );
     }
     public class UtilityOfficeFactory : IMapObjectFactory
     {
@@ -408,4 +501,4 @@ namespace Domain.Factories
                 type: PortType.AirPort
             );
     }
-
+}

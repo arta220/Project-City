@@ -39,17 +39,17 @@ namespace Services.Graphing
             });
 
             // Линия производства картона
-            var productionLine = new LineSeries 
-            { 
-                Title = "Производство картона", 
-                Color = OxyColors.Blue 
+            var productionLine = new LineSeries
+            {
+                Title = "Производство картона",
+                Color = OxyColors.Blue
             };
 
             // Линия использованных материалов
-            var materialsLine = new LineSeries 
-            { 
-                Title = "Материалы", 
-                Color = OxyColors.Orange 
+            var materialsLine = new LineSeries
+            {
+                Title = "Материалы",
+                Color = OxyColors.Orange
             };
 
             // Заполнение данными
@@ -101,17 +101,17 @@ namespace Services.Graphing
             });
 
             // Линия производства упаковки
-            var productionLine = new LineSeries 
-            { 
-                Title = "Производство упаковки", 
-                Color = OxyColors.Green 
+            var productionLine = new LineSeries
+            {
+                Title = "Производство упаковки",
+                Color = OxyColors.Green
             };
 
             // Линия использованных материалов
-            var materialsLine = new LineSeries 
-            { 
-                Title = "Материалы", 
-                Color = OxyColors.Red 
+            var materialsLine = new LineSeries
+            {
+                Title = "Материалы",
+                Color = OxyColors.Red
             };
 
             // Заполнение данными
@@ -119,6 +119,68 @@ namespace Services.Graphing
             {
                 productionLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.PackagingProduction));
                 materialsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.PackagingMaterialsUsed));
+            }
+
+            plotModel.Series.Add(productionLine);
+            plotModel.Series.Add(materialsLine);
+
+            return plotModel;
+        }
+    }
+
+    /// <summary>
+    /// Провайдер графика для производства косметики
+    /// </summary>
+    public class CosmeticsProductionGraphProvider : IGraphDataProvider
+    {
+        private readonly IIndustrialProductionService _productionService;
+
+        public string SystemName => "Производство косметики";
+        public string GraphTitle => "Статистика производства косметики";
+        public string XAxisTitle => "Время (тики)";
+        public string YAxisTitle => "Количество";
+
+        public CosmeticsProductionGraphProvider(IIndustrialProductionService productionService)
+        {
+            _productionService = productionService;
+        }
+
+        public PlotModel CreatePlotModel()
+        {
+            var plotModel = new PlotModel { Title = GraphTitle };
+            var statistics = _productionService.GetStatistics();
+
+            // Добавление осей
+            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                Title = XAxisTitle
+            });
+            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                Title = YAxisTitle
+            });
+
+            // Линия производства косметики
+            var productionLine = new LineSeries
+            {
+                Title = "Производство косметики",
+                Color = OxyColors.Purple
+            };
+
+            // Линия использованных материалов
+            var materialsLine = new LineSeries
+            {
+                Title = "Материалы",
+                Color = OxyColors.Pink
+            };
+
+            // Заполнение данными
+            foreach (var dataPoint in statistics.CosmeticsHistory)
+            {
+                productionLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.CosmeticsProduction));
+                materialsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.CosmeticsMaterialsUsed));
             }
 
             plotModel.Series.Add(productionLine);
