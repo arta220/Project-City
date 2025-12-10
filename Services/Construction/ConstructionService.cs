@@ -17,13 +17,25 @@ namespace Services.Construction
     {
         private readonly IBuildingRegistry _buildingRegistry;
         private readonly List<ConstructionSite> _activeConstructionSites = new();
+
+        /// <summary>
+        /// Событие завершения строительства на площадке
+        /// </summary>
         public event Action<ConstructionSite> ConstructionCompleted;
 
+        /// <summary>
+        /// Инициализирует сервис управления строительством
+        /// </summary>
+        /// <param name="buildingRegistry">Реестр зданий для доступа к размещенным объектам</param>
         public ConstructionService(IBuildingRegistry buildingRegistry)
         {
             _buildingRegistry = buildingRegistry;
         }
 
+        /// <summary>
+        /// Обновляет состояние всех активных строительных площадок
+        /// </summary>
+        /// <param name="time">Текущее время симуляции</param>
         public void Update(SimulationTime time)
         {
             var sitesToRemove = new List<ConstructionSite>();
@@ -46,6 +58,11 @@ namespace Services.Construction
             }
         }
 
+        /// <summary>
+        /// Начинает процесс строительства на указанной площадке
+        /// </summary>
+        /// <param name="constructionSite">Строительная площадка для запуска строительства</param>
+        /// <returns>True, если строительство успешно запущено, иначе false</returns>
         public bool StartConstruction(ConstructionSite constructionSite)
         {
             if (constructionSite == null || constructionSite.Project == null)
@@ -59,6 +76,11 @@ namespace Services.Construction
             return true;
         }
 
+        /// <summary>
+        /// Отменяет строительство на указанной площадке
+        /// </summary>
+        /// <param name="constructionSite">Строительная площадка для отмены строительства</param>
+        /// <returns>True, если строительство успешно отменено, иначе false</returns>
         public bool CancelConstruction(ConstructionSite constructionSite)
         {
             if (constructionSite == null || !_activeConstructionSites.Contains(constructionSite))
@@ -69,6 +91,10 @@ namespace Services.Construction
             return true;
         }
 
+        /// <summary>
+        /// Получает список всех активных строительных площадок
+        /// </summary>
+        /// <returns>Коллекция активных строительных площадок</returns>
         public IEnumerable<ConstructionSite> GetActiveConstructionSites()
         {
             return _activeConstructionSites.AsReadOnly();
@@ -77,6 +103,8 @@ namespace Services.Construction
         /// <summary>
         /// Обрабатывает процесс строительства на площадке
         /// </summary>
+        /// <param name="site">Строительная площадка для обработки</param>
+        /// <param name="time">Текущее время симуляции</param>
         private void ProcessConstruction(ConstructionSite site, SimulationTime time)
         {
             // Если отменено, пропускаем

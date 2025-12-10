@@ -212,15 +212,23 @@ namespace CitySimulatorWPF.ViewModels
 
             if (CurrentMode == MapInteractionMode.Build && SelectedObject != null)
             {
+                // Создаем объект для определения его размера
                 var obj = SelectedObject.Factory.Create();
                 var placement = new Placement(new Position(tile.X, tile.Y), obj.Area);
 
-                if (!_simulation.TryPlace(obj, placement))
+                // Используем TryPlaceFromFactory для автоматического создания строительных площадок
+                if (!_simulation.TryPlaceFromFactory(SelectedObject.Factory, placement, out var materialInfo))
                 {
                     _messageService.ShowMessage("Невозможно поставить объект");
                 }
                 else
                 {
+                    // Проверяем доступность материалов и показываем предупреждение, если нужно
+                    if (materialInfo != null && !materialInfo.AllMaterialsAvailable)
+                    {
+                        ShowMaterialUnavailabilityWarning(materialInfo);
+                    }
+
                     // Левый верхний тайл здания — якорный, на нём и показываем иконку
                     tile.IsMainObjectTile = true;
                 }
@@ -237,6 +245,59 @@ namespace CitySimulatorWPF.ViewModels
 
             if (CurrentMode == MapInteractionMode.Remove)
                 _simulation.TryRemove(tile.MapObject);
+        }
+
+        /// <summary>
+        /// Показывает предупреждение о недоступных материалах для строительства
+        /// </summary>
+        /// <param name="materialInfo">Информация о доступности материалов</param>
+        private void ShowMaterialUnavailabilityWarning(Services.Construction.MaterialAvailabilityInfo materialInfo)
+        {
+            if (materialInfo == null || materialInfo.AllMaterialsAvailable)
+                return;
+
+            var message = "Внимание! Для строительства этого здания требуются материалы, которые пока недоступны:\n\n";
+
+            foreach (var material in materialInfo.UnavailableMaterials)
+            {
+                var materialName = GetMaterialName(material.Key);
+                message += $"• {materialName}\n";
+                
+                if (material.Value.Count > 0)
+                {
+                    message += "  Производится заводами:\n";
+                    foreach (var factoryName in material.Value)
+                    {
+                        message += $"    - {factoryName}\n";
+                    }
+                }
+                message += "\n";
+            }
+
+            message += "Строительная площадка создана, но строительство не начнется, пока материалы не будут доставлены.\n";
+            message += "Разместите необходимые заводы для производства материалов.";
+
+            _messageService.ShowMessage(message, "Предупреждение: Недоступные материалы");
+        }
+
+        /// <summary>
+        /// Получает читаемое название материала
+        /// </summary>
+        /// <param name="materialType">Тип материала</param>
+        /// <returns>Название материала</returns>
+        private string GetMaterialName(System.Enum materialType)
+        {
+            return materialType switch
+            {
+                Domain.Common.Enums.ConstructionMaterialType.Cement => "Цемент",
+                Domain.Common.Enums.ConstructionMaterialType.Bricks => "Кирпич",
+                Domain.Common.Enums.ConstructionMaterialType.Concrete => "Бетон",
+                Domain.Common.Enums.ConstructionMaterialType.Rebar => "Арматура",
+                Domain.Common.Enums.ProductType.Steel => "Сталь",
+                Domain.Common.Enums.NaturalResourceType.Wood => "Дерево",
+                Domain.Common.Enums.NaturalResourceType.Glass => "Стекло",
+                _ => materialType.ToString()
+            };
         }
 
         private void ShowRepairDialog(ResidentialBuilding building, TileVM tile)

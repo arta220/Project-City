@@ -146,35 +146,6 @@ namespace CitySimulatorWPF.Models
             ));
             #endregion
 
-            #region Construction Sites
-            // Строительные площадки (использование кастомных картинок)
-            var construction = new BuildingCategory { Name = "Строительство" };
-
-            construction.Objects.Add(new ObjectVM(
-                new SmallHouseConstructionSiteFactory(),
-                "Строительство: Маленький дом",
-                "/Icons/SmallResidentialBuilding.png"
-            ));
-
-            construction.Objects.Add(new ObjectVM(
-                new ApartmentConstructionSiteFactory(),
-                "Строительство: Многоквартирный дом",
-                "/Icons/HighResidentialBuilding.png"
-            ));
-
-            construction.Objects.Add(new ObjectVM(
-                new FactoryConstructionSiteFactory(),
-                "Строительство: Завод",
-                "/Icons/Factory.png"
-            ));
-
-            construction.Objects.Add(new ObjectVM(
-                new WarehouseConstructionSiteFactory(),
-                "Строительство: Склад",
-                "/Icons/Warehouse.png"
-            ));
-            #endregion
-
             // Инфраструктура
             var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
 
@@ -253,7 +224,6 @@ namespace CitySimulatorWPF.Models
             Categories.Add(residential);
             Categories.Add(commercial);
             Categories.Add(industrial);
-            Categories.Add(construction);
         }
     }
 }

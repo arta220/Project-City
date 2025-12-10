@@ -30,6 +30,7 @@ using Services.Time.Clock;
 using Services.TransportSimulation;
 using Services.TransportSimulation.StateHandlers;
 using Services.Utilities;
+using Services.Construction;
 using System.Windows;
 
 namespace CitySkylines_REMAKE
@@ -148,6 +149,24 @@ namespace CitySkylines_REMAKE
             {
                 var tileService = sp.GetRequiredService<IMapTileService>();
                 return new PathConstructionService(tileService.Tiles);
+            });
+
+            // Сервисы строительства
+            services.AddSingleton<IConstructionProjectFactory, ConstructionProjectFactory>();
+            services.AddSingleton<IConstructionMaterialAvailabilityService>(sp =>
+            {
+                var buildingRegistry = sp.GetRequiredService<IBuildingRegistry>();
+                return new ConstructionMaterialAvailabilityService(buildingRegistry);
+            });
+            services.AddSingleton<IConstructionService>(sp =>
+            {
+                var buildingRegistry = sp.GetRequiredService<IBuildingRegistry>();
+                return new ConstructionService(buildingRegistry);
+            });
+            services.AddSingleton<IConstructionMaterialLogisticsService>(sp =>
+            {
+                var buildingRegistry = sp.GetRequiredService<IBuildingRegistry>();
+                return new ConstructionMaterialLogisticsService(buildingRegistry);
             });
 
             services.AddSingleton<Simulation>();

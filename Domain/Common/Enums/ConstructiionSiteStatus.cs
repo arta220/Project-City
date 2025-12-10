@@ -11,9 +11,24 @@ namespace Domain.Common.Enums
     /// </summary>
     public enum ConstructionSiteStatus
     {
-        Preparing,       // Подготовка (ожидание материалов)
-        Building,       // Строительство в процессе
-        Completed,      // Строительство завершено
-        Cancelled       // Строительство отменено
+        /// <summary>
+        /// Подготовка - ожидание материалов и рабочих
+        /// </summary>
+        Preparing,
+        
+        /// <summary>
+        /// Строительство в процессе
+        /// </summary>
+        Building,
+        
+        /// <summary>
+        /// Строительство завершено
+        /// </summary>
+        Completed,
+        
+        /// <summary>
+        /// Строительство отменено
+        /// </summary>
+        Cancelled
     }
 }

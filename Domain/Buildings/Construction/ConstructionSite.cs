@@ -18,6 +18,9 @@ namespace Domain.Buildings.Construction
         /// </summary>
         public ConstructionProject Project { get; set; }
 
+        /// <summary>
+        /// Банк строительных материалов на площадке
+        /// </summary>
         public Dictionary<Enum, int> MaterialsBank { get; } = new Dictionary<Enum, int>();
 
         /// <summary>
@@ -31,6 +34,11 @@ namespace Domain.Buildings.Construction
         /// </summary>
         public bool IsCancelled { get; set; }
 
+        /// <summary>
+        /// Инициализирует новую строительную площадку
+        /// </summary>
+        /// <param name="area">Площадь, занимаемая строительной площадкой</param>
+        /// <param name="project">Проект строительства для данной площадки</param>
         public ConstructionSite(Area area, ConstructionProject project)
             : base(floors: 0, maxOccupancy: project.MinWorkersRequired * 3, area)
         {
@@ -87,16 +95,19 @@ namespace Domain.Buildings.Construction
         /// <summary>
         /// Проверяет, достаточно ли материалов для продолжения строительства
         /// </summary>
+        /// <returns>True, если материалов достаточно, иначе false</returns>
         public bool HasEnoughMaterials() => Project.HasAllMaterials(MaterialsBank);
 
         /// <summary>
         /// Получает процент готовности материалов
         /// </summary>
+        /// <returns>Коэффициент готовности материалов от 0.0 до 1.0</returns>
         public double GetMaterialsReadiness() => Project.GetMaterialsReadiness(MaterialsBank);
 
         /// <summary>
         /// Проверяет, достаточно ли рабочих для строительства
         /// </summary>
+        /// <returns>True, если рабочих достаточно, иначе false</returns>
         public bool HasEnoughWorkers() => CurrentWorkers.Count >= Project.MinWorkersRequired;
     }
 }
