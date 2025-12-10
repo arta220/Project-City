@@ -15,7 +15,7 @@ namespace CitySimulatorWPF.Services
         void StartSimulation(TransportSimulationService simulation);
         void StopSimulation();
     }
-    // ý
+
     public class CarManagerService : ICarManagerService
     {
         private TransportSimulationService? _simulation;
