@@ -93,9 +93,9 @@ namespace CitySimulatorWPF.ViewModels
 
             // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
 
+            CreateTestJobScenario();
 
-
-            CreateTestScenario();
+            //CreateTestScenario();
 
             StartSimulationAfterUIReady();
 
@@ -181,8 +181,54 @@ namespace CitySimulatorWPF.ViewModels
             );
         }
 
+        private void CreateTestJobScenario()
+        {
+            // 1. Создаём жителя
+            var citizen = _citizenFactory.CreateCitizen(
+                pos: new Position(15, 15),
+                speed: 1.0f,
+                profession: CitizenProfession.Chef
+            );
+            _simulation.AddCitizen(citizen);
+            //Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
 
+            // 2. Создаём кафе
+            var cafeFactory = new CafeFactory();
+            var cafe = cafeFactory.Create();
+            var cafePlacement = new Placement(new Position(25, 25), cafe.Area);
+            if (!_simulation.TryPlace(cafe, cafePlacement))
+            {
+                _messageService.ShowMessage("Не удалось разместить кафе");
+                return;
+            }
+            //citizen.WorkPlace = (Building)cafe;
+            //Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
 
+            // 3. Создаём тестовый жилой дом
+            var residentialFactory = new SmallHouseFactory();
+            var residentialBuilding = (ResidentialBuilding)residentialFactory.Create();
+            var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
+            if (!_simulation.TryPlace(residentialBuilding, housePlacement))
+            {
+                _messageService.ShowMessage("Не удалось разместить жилой дом");
+                return;
+            }
+            Debug.WriteLine($"Создан жилой дом на позиции (35,35)");
+
+            // 4. Ломаем коммуналку для теста
+            //_utilityService.BreakUtilityForTesting(residentialBuilding, UtilityType.Electricity, currentTick: 1);
+            //var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
+            //Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
+
+            //// 7. Информация о тесте
+            //_messageService.ShowMessage(
+            //    "Тестовый сценарий создан!\n" +
+            //    "1. Работник ЖКХ: (15,15)\n" +
+            //    "2. Офис ЖКХ: (25,25)\n" +
+            //    "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
+            //    "Работник должен побежать чинить сломанное ЖКХ."
+            //);
+        }
 
         private void OnTileConstructionStart(TileVM tile)
         {

@@ -10,6 +10,7 @@
         Studying,
         GoingShopping,
         Shopping,
+        LookingForJob, // Поиск работы
         WorkingOnSite, // работник на выездном задании
     }
 

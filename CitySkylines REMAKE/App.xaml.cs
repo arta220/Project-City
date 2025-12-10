@@ -106,6 +106,7 @@ namespace CitySkylines_REMAKE
 
             // Сценарии поведения жителей
             services.AddSingleton<ICitizenScenario, HomeScenario>();
+            services.AddScoped<ICitizenScenario, JobSearchScenario>();
             services.AddScoped<ICitizenScenario, UtilityWorkerScenario>();
 
             // Контроллер граждан

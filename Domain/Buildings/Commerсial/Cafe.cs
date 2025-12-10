@@ -9,15 +9,11 @@ namespace Domain.Buildings
         public override CommercialType CommercialType => CommercialType.Cafe;
 
         public Cafe(Area area)
-            : base(area, serviceTime: 12, maxQueue: 12, workerCount: 4)
+            : base(area, serviceTime: 12, maxQueue: 12, workerCount: 2)
         {
             // ПРИМЕР НАСТРОЙКИ ЗДАНИЯ ДЛЯ ВАКАНСИИ
             // количество вакансий
-            Vacancies[CitizenProfession.Chef] = 1;
-            Vacancies[CitizenProfession.Seller] = 3;
-            // максимальный возраст для вакансий
-            MaxAges[CitizenProfession.Chef] = 40;
-            MaxAges[CitizenProfession.Seller] = 50;
+            Vacancies[CitizenProfession.Chef] = 2;
         }
     }
 }
