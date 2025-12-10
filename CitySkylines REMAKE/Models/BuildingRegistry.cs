@@ -31,13 +31,13 @@ namespace CitySimulatorWPF.Models
             residential.Objects.Add(new ObjectVM(
                 new SmallHouseFactory(),
                 "Маленький дом",
-                "Assets/Icons/SmallHouse.png"
+                "/Icons/SmallResidentialBuilding.png"
             ));
 
             residential.Objects.Add(new ObjectVM(
                 new ApartmentFactory(),
                 "Многоквартирный дом",
-                "Assets/Icons/Apartment.png"
+                "/Icons/HighResidentialBuilding.png"
             ));
 
             var commercial = new BuildingCategory { Name = "Коммерческие" };
@@ -45,53 +45,81 @@ namespace CitySimulatorWPF.Models
             commercial.Objects.Add(new ObjectVM(
                 new PharmacyFactory(),
                 "Аптека",
-                "Assets/Icons/Pharmacy.png"
+                "/Icons/Pharmacy.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new ShopFactory(),
                 "Магазин",
-                "Assets/Icons/Shop.png"
+                "/Icons/Shop.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new SupermarketFactory(),
                 "Супермаркет",
-                "Assets/Icons/Supermarket.png"
+                "/Icons/Supermarket.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new CafeFactory(),
                 "Кафе",
-                "Assets/Icons/Cafe.png"
+                "/Icons/Cafe.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new RestaurantFactory(),
                 "Ресторан",
-                "Assets/Icons/Restaurant.png"
+                "/Icons/Restaurant.png"
             ));
 
             commercial.Objects.Add(new ObjectVM(
                 new GasStationFactory(),
                 "Заправка",
-                "Assets/Icons/GasStation.png"
+                "/Icons/GasStation.png"
             ));
 
+            #region Industrial Buildings ViewModels
             // Промышленные
             var industrial = new BuildingCategory { Name = "Промышленные" };
 
             industrial.Objects.Add(new ObjectVM(
                 new FactoryBuildingFactory(),
                 "Завод",
-                "Assets/Icons/Factory.png"
+                "/Icons/Factory.png"
             ));
 
             industrial.Objects.Add(new ObjectVM(
                 new WarehouseFactory(),
                 "Склад",
-                "Assets/Icons/Warehouse.png"
+                "/Icons/Warehouse.png"
             ));
+
+            //Фармацевтический завод
+            industrial.Objects.Add(new ObjectVM(
+                new PharmaceuticalFactoryFactory(),
+                "Фармацевтический завод",
+                "Assets/Icons/PharmaceuticalFactory.png"
+            ));
+
+            //Завод по переработке отходов и вторичной переработке
+            industrial.Objects.Add(new ObjectVM(
+                new RecyclingPlantFactoryFactory(),
+                "Завод по переработке отходов и вторичной переработке",
+                "Assets/Icons/RecyclingPlantFactory.png"
+                            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new CardboardFactory(),
+                "Завод картона",
+                "Assets/Icons/FactoryCardBoard.png"
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new PackagingFactory(),
+                "Завод упаковки",
+                "Assets/Icons/FactoryPacking.png"
+            ));
+            #endregion
 
             // Инфраструктура
             var infrastructure = new BuildingCategory { Name = "Инфраструктура" };
@@ -99,13 +127,13 @@ namespace CitySimulatorWPF.Models
             infrastructure.Objects.Add(new ObjectVM(
                 new UrbanParkFactory(),
                 "Городской парк",
-                "Assets/Icons/UrbanPark.png"
+                "/Icons/UrbanPark.png"
             ));
 
             infrastructure.Objects.Add(new ObjectVM(
                 new SquareParkFactory(),
                     "Сквер",
-                    "Assets/Icons/Square.png"
+                    "/Icons/Square.png"
                 )
             );
 
@@ -113,7 +141,7 @@ namespace CitySimulatorWPF.Models
                 new ObjectVM(
                     new BotanicalGardenParkFactory(),
                     "Ботанический сад",
-                    "Assets/Icons/BotanicalGarden.png"
+                    "/Icons/BotanGarden.png"
                 )
             );
 
@@ -121,7 +149,7 @@ namespace CitySimulatorWPF.Models
                 new ObjectVM(
                     new PlaygroundParkFactory(),
                     "Детская площадка",
-                    "Assets/Icons/Playground.png"
+                    "/Icons/ChildPlayground.png"
                 )
             );
 
@@ -129,27 +157,42 @@ namespace CitySimulatorWPF.Models
                 new ObjectVM(
                     new RecreationAreaParkFactory(),
                     "Зона отдыха",
-                    "Assets/Icons/RecreationArea.png"
+                    "/Icons/RestArea.png"
                 )
             );
 
             infrastructure.Objects.Add(new ObjectVM(
                 new RoadFactory(),
                 "Дорога",
-                "Assets/Icons/Road.png"
+                "/Icons/Road.png"
             ));
 
             infrastructure.Objects.Add(new ObjectVM(
-            new PedestrianPathFactory(),
-            "Пешеходная дорожка",
-            "Assets/Icons/PedestrianPath.png" 
+                new PedestrianPathFactory(),
+                "Пешеходная дорожка",
+                ""
             ));
 
             infrastructure.Objects.Add(new ObjectVM(
                 new BicyclePathFactory(),
                 "Велосипедная дорожка",
-                "Assets/Icons/BicyclePath.png" 
+                ""
             ));
+
+            // Офис ЖКХ
+            infrastructure.Objects.Add(new ObjectVM(
+                new UtilityOfficeFactory(),
+                "Офис ЖКХ",
+                "Assets/Icons/UtilityOffice.png" // Нужно будет добавить иконку
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new AirPortFactory(),
+                    "Аэрпорт",
+                    "Assets/Icons/AirPort.png"
+                )
+            ); 
+
 
             // Добавление категорий в реестр
             Categories.Add(infrastructure);

@@ -1,8 +1,10 @@
-﻿using Services.Interfaces;
+﻿// Services/Citizens/Job/FindJobService.cs
+using Domain.Buildings;
 using Domain.Citizens.States;
 using Domain.Common.Base;
 using Services.BuildingRegistry;
-using Domain.Buildings;
+using Services.Interfaces;
+using System.Linq;
 
 namespace Services.Citizens.Job
 {
@@ -12,10 +14,11 @@ namespace Services.Citizens.Job
 
         public FindJobService(IBuildingRegistry registry) => _registry = registry;
 
-        public IEnumerable<CommercialBuilding> FindJob(CitizenProfession profession)
+        public IEnumerable<Building> FindJob(CitizenProfession profession)
         {
-            return _registry.GetBuildings<CommercialBuilding>() // Пока только для коммерции
-                            .Where(b => b.HasVacancy(profession));
+            // Получаем все здания с нужной профессией
+            return _registry.GetBuildings<Building>()
+                       .Where(b => b.HasVacancy(profession));
         }
     }
 }

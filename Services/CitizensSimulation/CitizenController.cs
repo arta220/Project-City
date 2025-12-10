@@ -1,19 +1,25 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
-using Services.CitizensSimulation.StateHandlers;
 
+namespace Services.CitizensSimulatiom;
 public class CitizenController
 {
-    private readonly IEnumerable<ICitizenStateHandler> _stateHandlers;
-
-    public CitizenController(IEnumerable<ICitizenStateHandler> stateHandlers)
-    {
-        _stateHandlers = stateHandlers;
-    }
-
     public void UpdateCitizen(Citizen citizen, SimulationTime time)
     {
-        var handler = _stateHandlers.FirstOrDefault(h => h.CanHandle(citizen.State));
-        handler?.Update(citizen, time);
+        // Берём следующую таску
+        if (citizen.CurrentTask == null)
+        {
+            if (citizen.Tasks.Count > 0)
+                citizen.CurrentTask = citizen.Tasks.Dequeue();
+        }
+
+        // Если таска есть — выполняем
+        if (citizen.CurrentTask != null)
+        {
+            citizen.CurrentTask.Execute(citizen, time);
+
+            if (citizen.CurrentTask.IsCompleted)
+                citizen.CurrentTask = null;
+        }
     }
 }

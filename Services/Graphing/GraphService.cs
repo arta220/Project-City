@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Services.Utilities;
 using Services.Finance;
+using Services.IndustrialProduction;
 
 namespace Services.Graphing
 {
@@ -18,6 +19,12 @@ namespace Services.Graphing
         {
             _utilityService = utilityService;
             _financeService = financeService;
+        private readonly IIndustrialProductionService? _productionService;
+
+        public GraphService(IUtilityService utilityService, IIndustrialProductionService? productionService = null)
+        {
+            _utilityService = utilityService;
+            _productionService = productionService;
             RegisterDefaultProviders();
         }
 
@@ -30,6 +37,12 @@ namespace Services.Graphing
         { 
             RegisterProvider(new UtilitiesGraphProvider(_utilityService));
             RegisterProvider(new FinancialGraphProvider(_financeService));
+            
+            if (_productionService != null)
+            {
+                RegisterProvider(new CardboardProductionGraphProvider(_productionService));
+                RegisterProvider(new PackagingProductionGraphProvider(_productionService));
+            }
         }
 
         public IEnumerable<IGraphDataProvider> GetAvailableGraphs()

@@ -4,10 +4,10 @@ using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Common.Time;
 using Domain.Map;
-using Domain.Transports.Ground;
 using Services.CitizensSimulation;
 using Services.Common;
 using Services.Finance;
+using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.PlaceBuilding;
 using Services.Time;
@@ -28,6 +28,7 @@ namespace Services
         private readonly ISimulationTimeService _timeService;
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
+        private readonly IIndustrialProductionService _productionService;
 
         private readonly CitizenSimulationService _citizenSimulationService;
         private readonly TransportSimulationService _transportSimulationService;
@@ -53,6 +54,7 @@ namespace Services
         CitizenSimulationService citizenSimulationService,
         TransportSimulationService transportSimulationService,
         IUtilityService utilityService,
+                    IIndustrialProductionService productionService,
         IFinanceService financeService,
         ICityMaintenanceService cityMaintenanceService)
         {
@@ -65,6 +67,8 @@ namespace Services
             FinanceService = financeService;
 
             _cityMaintenanceService = cityMaintenanceService;
+            _utilityService = utilityService;
+            _productionService = productionService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
@@ -74,6 +78,7 @@ namespace Services
             {
                 _updatableServices.Add(updatableFinance);
             }
+            _updatableServices.Add(productionService);
 
             _timeService.TimeChanged += OnTimeChanged;
         }
@@ -109,7 +114,13 @@ namespace Services
             if (!found || placement is null)
                 return false;
 
-            return _placementService.TryRemove(MapModel, (Placement)placement);
+            if (_placementService.TryRemove(MapModel, (Placement)placement))
+            {
+                MapObjectRemoved?.Invoke(mapObject);
+                return true;
+            }
+
+            return false;
         }
 
         public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);

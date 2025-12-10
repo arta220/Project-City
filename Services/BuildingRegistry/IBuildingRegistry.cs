@@ -7,6 +7,7 @@ namespace Services.BuildingRegistry
     {
         IEnumerable<T> GetBuildings<T>();
         (Placement? placement, bool found) TryGetPlacement(MapObject building);
+        IEnumerable<Position> GetAccessibleNeighborTiles(MapObject obj, MapModel map);
     }
 
 }

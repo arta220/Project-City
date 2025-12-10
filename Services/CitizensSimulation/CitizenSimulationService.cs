@@ -1,9 +1,12 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
 using Services.Citizens.Population;
+using Services.CitizensSimulatiom;
+using Services.CitizensSimulation.CitizenSchedule;
 using Services.Common;
 using Services.Interfaces;
 using Services.Finance;
+using Services.EntityMovement.Service;
 using System.Collections.ObjectModel;
 
 namespace Services.CitizensSimulation
@@ -15,9 +18,13 @@ namespace Services.CitizensSimulation
     {
         private int _lastProcessedYear = -1;
         private readonly CitizenController _controller;
+        private readonly ICitizenScheduler _scheduler;
         private readonly IPopulationService _populationService;
         private readonly IFinanceService _financeService;
         private int _lastProcessedMonth = -1;
+
+        private bool _isPaused = true; // по умолчанию при старте приостановлен
+
         public ObservableCollection<Citizen> Citizens { get; } = new();
 
         public Action<Citizen> CitizenAdded;
@@ -28,21 +35,31 @@ namespace Services.CitizensSimulation
             CitizenController controller,
             IPopulationService populationService,
             IFinanceService financeService)
+            ICitizenScheduler scheduler)
         {
+            _scheduler = scheduler;
             _controller = controller;
             _populationService = populationService;
             _financeService = financeService;
         }
+
+        /// <summary>
+        /// Основной метод обновления симуляции. Вызывается каждый тик.
+        /// </summary>
         public void Update(SimulationTime time)
         {
+            if (_isPaused) return;
+
             foreach (var citizen in Citizens)
             {
+                _scheduler.UpdateSchedule(citizen);
                 _controller.UpdateCitizen(citizen, time);
                 CitizenUpdated?.Invoke(citizen);
-                _populationService.ProcessDemography(Citizens.ToList(), time, CitizenAdded, CitizenRemoved);
 
                 if (time.Year != _lastProcessedYear)
                 {
+                    _populationService.ProcessDemography(
+                        Citizens.ToList(), time, CitizenAdded, CitizenRemoved);
                     _lastProcessedYear = time.Year;
                 }
             }
@@ -77,6 +94,7 @@ namespace Services.CitizensSimulation
                 _financeService.AddIncome(tax, Domain.Finance.IncomeCategory.Tax, $"Налог на доход от {citizen.GetHashCode()}");
             }
         }
+
         public void AddCitizen(Citizen citizen)
         {
             if (citizen == null) return;
@@ -89,6 +107,22 @@ namespace Services.CitizensSimulation
             if (citizen == null) return;
             Citizens.Remove(citizen);
             CitizenRemoved?.Invoke(citizen);
+        }
+
+        /// <summary>
+        /// Возобновляет симуляцию после полной загрузки UI или после паузы.
+        /// </summary>
+        public void Resume()
+        {
+            _isPaused = false;
+        }
+
+        /// <summary>
+        /// Ставит симуляцию на паузу.
+        /// </summary>
+        public void Pause()
+        {
+            _isPaused = true;
         }
     }
 }

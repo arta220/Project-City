@@ -1,64 +1,43 @@
 ﻿using Domain.Citizens;
 using Domain.Citizens.States;
-using Domain.Common.Base;
-using Domain.Common.Time;
 using Services.BuildingRegistry;
+using Services.Citizens.Scenaries;
 using Services.Time;
 
 namespace Services.CitizensSimulation.CitizenSchedule
 {
     public class CitizenScheduler : ICitizenScheduler
     {
-        private readonly ISimulationTimeService _timeService;
-        private readonly IBuildingRegistry _buildingRegistry;
+        private readonly ISimulationTimeService _time;
+        private readonly IBuildingRegistry _registry;
+        private readonly IEnumerable<ICitizenScenario> _scenarios;
 
         public CitizenScheduler(
-            ISimulationTimeService timeService,
-            IBuildingRegistry buildingRegistry)
+            ISimulationTimeService time,
+            IBuildingRegistry registry,
+            IEnumerable<ICitizenScenario> scenarios)
         {
-            _timeService = timeService;
-            _buildingRegistry = buildingRegistry;
+            _time = time;
+            _registry = registry;
+            _scenarios = scenarios;
         }
 
-        public CitizenState Decide(Citizen citizen, CitizenState current, SimulationTime time)
-            => DecideNextAction(citizen, current);
-
-        private CitizenState DecideNextAction(Citizen citizen, CitizenState current)
+        public void UpdateSchedule(Citizen citizen)
         {
-            var timeOfDay = _timeService.GetTimeOfDay();
-            var isWeekend = _timeService.IsWeekend();
-            var isAtHome = IsAt(citizen, citizen.Home);
+            // Если уже есть задачи — не пересчитываем расписание
+            if (citizen.CurrentTask != null || citizen.Tasks.Count > 0)
+                return;
 
-            if (!isAtHome && (timeOfDay == TimeOfDay.Evening || _timeService.IsNightTime()))
-                return CitizenState.GoingHome;
-
-            if (timeOfDay == TimeOfDay.Morning && !isWeekend && isAtHome)
+            foreach (var scenario in _scenarios)
             {
-                if (NeedsEducation(citizen) && !IsAt(citizen, citizen.StudyPlace))
-                    return CitizenState.GoingToStudy;
-
-                if (HasJob(citizen) && !IsAt(citizen, citizen.WorkPlace))
-                    return citizen.HasCar ? CitizenState.GoingToTransport : CitizenState.GoingToWork;
+                if (scenario.CanRun(citizen, _time))
+                {
+                    scenario.BuildTasks(citizen);
+                    return;
+                }
             }
 
-            if (current == CitizenState.GoingToWork && IsAt(citizen, citizen.WorkPlace))
-                return CitizenState.Working;
-
-            if (current == CitizenState.GoingToStudy && IsAt(citizen, citizen.StudyPlace))
-                return CitizenState.Studying;
-
-            return CitizenState.Idle;
+            citizen.State = CitizenState.Idle;
         }
-
-        private bool IsAt(Citizen citizen, MapObject obj)
-        {
-            var (placement, found) = _buildingRegistry.TryGetPlacement(obj);
-            return found &&
-                   placement != null &&
-                   citizen.Position.Equals(placement.Value.Position);
-        }
-
-        private bool HasJob(Citizen citizen) => citizen.WorkPlace != null;
-        private bool NeedsEducation(Citizen citizen) => citizen.StudyPlace != null;
     }
 }
