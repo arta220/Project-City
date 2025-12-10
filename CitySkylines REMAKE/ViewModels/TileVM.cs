@@ -5,6 +5,8 @@ using System.Windows.Threading;
 using Domain.Common.Enums;
 using Domain.Common.Base;
 using Domain.Buildings.Residential;
+using Domain.Base;
+using Domain.Infrastructure;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -34,10 +36,20 @@ namespace CitySimulatorWPF.ViewModels
         private DispatcherTimer _blinkTimer;
 
         public bool HasObject => TileModel.MapObject != null;
-        public bool CanBuild => !HasObject;
+        public bool CanBuild => !HasObject || TileModel.MapObject is Road || TileModel.MapObject is Path;
         public TerrainType TerrainType => TileModel.Terrain;
 
         public bool ShowBuildingIcon => HasObject && IsMainObjectTile;
+        
+        /// <summary>
+        /// Является ли объект на тайле дорогой.
+        /// </summary>
+        public bool IsRoad => TileModel.MapObject is Road;
+        
+        /// <summary>
+        /// Является ли объект на тайле путем (пешеходным или велосипедным).
+        /// </summary>
+        public bool IsPath => TileModel.MapObject is Path;
 
         /// <summary>
         /// Тип природного ресурса на клетке.
@@ -84,7 +96,10 @@ namespace CitySimulatorWPF.ViewModels
                 {
                     OnPropertyChanged(nameof(HasObject));
                     OnPropertyChanged(nameof(MapObject));
+                    OnPropertyChanged(nameof(CanBuild));
                     OnPropertyChanged(nameof(ShowBuildingIcon));
+                    OnPropertyChanged(nameof(IsRoad));
+                    OnPropertyChanged(nameof(IsPath));
                     UpdateBlinkingState();
 
                     if (TileModel.MapObject is ResidentialBuilding residential)

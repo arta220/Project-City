@@ -89,8 +89,35 @@
                                 <Rectangle Fill="#8800FF00"
                                            Visibility="{Binding IsPreviewTile, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
-                                <!-- Есть объект (здание и т.п.) -->
-                                <Grid Visibility="{Binding HasObject, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <!-- Дорога -->
+                                <Rectangle Fill="#404040" 
+                                           Stroke="#202020"
+                                           StrokeThickness="1"
+                                           Visibility="{Binding IsRoad, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                
+                                <!-- Путь (пешеходный/велосипедный) -->
+                                <Rectangle Fill="#808080" 
+                                           Stroke="#606060"
+                                           StrokeThickness="1"
+                                           Visibility="{Binding IsPath, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                
+                                <!-- Есть объект (здание и т.п., но не дорога/путь) -->
+                                <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding HasObject}" Value="True" />
+                                                        <Condition Binding="{Binding IsRoad}" Value="False" />
+                                                        <Condition Binding="{Binding IsPath}" Value="False" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
                                     <Rectangle Fill="Gray" />
                                     <!-- Иконку теперь рисуем отдельным слоем BuildingIcons -->
                                 </Grid>

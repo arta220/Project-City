@@ -31,8 +31,8 @@ namespace Services.MapGenerator
         {
             var map = new MapModel(width, height);
 
-            GenerateSimpleTerrain(map); // чисто для проверки работы всяких штук
-           //GenerateTerrain(map);
+           GenerateSimpleTerrain(map); // чисто для проверки работы всяких штук
+           // GenerateTerrain(map);
            // GenerateResources(map);
 
             return map;
@@ -44,7 +44,12 @@ namespace Services.MapGenerator
             {
                 for (int y = 0; y < map.Height; y++)
                 {
-                    map[x, y] = new TileModel() { Terrain = TerrainType.Plain};
+                    map[x, y] = new TileModel()
+                    {
+                        Position = new Position(x, y), 
+                        Terrain = TerrainType.Plain,
+                        Height = 0.4f 
+                    };
                 }
             }
         }

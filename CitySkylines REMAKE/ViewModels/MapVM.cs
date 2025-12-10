@@ -1,6 +1,7 @@
 using CitySimulatorWPF.Services;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Domain.Base;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Citizens;
@@ -8,11 +9,20 @@ using Domain.Citizens.States;
 using Domain.Common.Base;
 using Domain.Common.Base.MovingEntities;
 using Domain.Common.Enums;
+using Domain.Enums;
 using Domain.Factories;
+using Domain.Infrastructure;
 using Domain.Map;
+using Domain.Transports;
+using Domain.Transports.Ground;
+using Domain.Transports.States;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
+using Services.Citizens.Scenarios;
 using Services.CitizensSimulation;
+using Services.CitizensSimulation.Tasks;
+using Services.EntityMovement.Service;
+using Services.EntityMovement.Profile;
 using Services.Factories;
 using Services.TransportSimulation;
 using Services.Utilities;
@@ -38,6 +48,8 @@ namespace CitySimulatorWPF.ViewModels
         private readonly MessageService _messageService;
         private readonly IUtilityService _utilityService;
         private readonly IPathConstructionService _pathService;
+        private readonly TransportSimulationService _transportSimulation;
+        private readonly IEntityMovementService _movementService;
 
         private bool _simulationStarted = false;
 
@@ -61,7 +73,8 @@ namespace CitySimulatorWPF.ViewModels
                      TransportSimulationService transportSimulation,
                      IUtilityService utilityService,
                      IPathConstructionService pathService,
-                     CitizenFactory citizenFactory)
+                     CitizenFactory citizenFactory,
+                     IEntityMovementService movementService)
         {
             _simulation = simulation;
             _roadService = roadService;
@@ -72,6 +85,8 @@ namespace CitySimulatorWPF.ViewModels
             _utilityService = utilityService;
             _pathService = pathService;
             _citizenFactory = citizenFactory;
+            _transportSimulation = transportSimulation;
+            _movementService = movementService;
             _citizenManager.StartSimulation(citizenSimulation);
             _carManager.StartSimulation(transportSimulation);
 
@@ -96,7 +111,6 @@ namespace CitySimulatorWPF.ViewModels
 
 
             CreateTestScenario();
-
             StartSimulationAfterUIReady();
 
         }
@@ -105,6 +119,10 @@ namespace CitySimulatorWPF.ViewModels
         {
             var (placement, found) = _simulation.GetMapObjectPlacement(mapObject);
             if (!found || placement is null)
+                return;
+
+            // Дороги и пути не создают иконки зданий - они отображаются через HasObject в тайлах
+            if (mapObject is Road || mapObject is Path)
                 return;
 
             const int tileSize = 20; // как в CitizenVM / PersonalCarVM
@@ -134,51 +152,7 @@ namespace CitySimulatorWPF.ViewModels
 
         private void CreateTestScenario()
         {
-            // 1. Создаём жителя (работника ЖКХ)
-            var citizen = _citizenFactory.CreateCitizen(
-                pos: new Position(15, 15),
-                speed: 1.0f,
-                profession: CitizenProfession.UtilityWorker
-            );
-            _simulation.AddCitizen(citizen);
-            Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
-
-            // 2. Создаём офис ЖКХ
-            var utilityOfficeFactory = new UtilityOfficeFactory();
-            var utilityOffice = utilityOfficeFactory.Create();
-            var officePlacement = new Placement(new Position(25, 25), utilityOffice.Area);
-            if (!_simulation.TryPlace(utilityOffice, officePlacement))
-            {
-                _messageService.ShowMessage("Не удалось разместить офис ЖКХ");
-                return;
-            }
-            citizen.WorkPlace = (Building)utilityOffice;
-            Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
-
-            // 3. Создаём тестовый жилой дом
-            var residentialFactory = new SmallHouseFactory();
-            var residentialBuilding = (ResidentialBuilding)residentialFactory.Create();
-            var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
-            if (!_simulation.TryPlace(residentialBuilding, housePlacement))
-            {
-                _messageService.ShowMessage("Не удалось разместить жилой дом");
-                return;
-            }
-            Debug.WriteLine($"Создан жилой дом на позиции (35,35)");
-
-            // 4. Ломаем коммуналку для теста
-            _utilityService.BreakUtilityForTesting(residentialBuilding, UtilityType.Electricity, currentTick: 1);
-            var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
-            Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
-
-            // 7. Информация о тесте
-            _messageService.ShowMessage(
-                "Тестовый сценарий создан!\n" +
-                "1. Работник ЖКХ: (15,15)\n" +
-                "2. Офис ЖКХ: (25,25)\n" +
-                "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
-                "Работник должен побежать чинить сломанное ЖКХ."
-            );
+            
         }
 
 

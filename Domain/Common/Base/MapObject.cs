@@ -16,6 +16,7 @@ namespace Domain.Common.Base
         /// Площадь, занимаемая объектом на карте.
         /// </summary>
         public Area Area { get; }
+        public Position Position { get; set; }
 
         /// <summary>
         /// Создаёт объект с указанной площадью.

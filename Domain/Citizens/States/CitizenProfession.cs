@@ -6,6 +6,9 @@
         Seller,
         Doctor,
         UtilityWorker,
+        Driver,
+        BusDriver,      // Водитель автобуса
+        TaxiDriver,     // Таксист
         // ... 
     }
 }

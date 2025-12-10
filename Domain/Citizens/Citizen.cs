@@ -16,6 +16,8 @@ namespace Domain.Citizens
     public class Citizen(Area area, float speed) : MovingEntity(area, speed)
     {
         private static int _nextId = 1;
+        public readonly Position HomePosition;
+
         public int Id { get; } = _nextId++;
         public int Age { get; set; }
         public EducationType EducationLevel { get; set; }
@@ -34,5 +36,20 @@ namespace Domain.Citizens
         public float Health { get; set; }
         public float Happiness { get; set; }
         public float Money { get; set; }
+        /// <summary>
+        /// Целевая остановка для выхода из общественного транспорта
+        /// null - если гражданин не планирует выходить из транспорта
+        /// </summary>
+        public Position? TargetExitStop { get; set; }
+
+        /// <summary>
+        /// Проверяет, хочет ли гражданин выйти на указанной остановке
+        /// </summary>
+        /// <param name="stop">Позиция остановки</param>
+        /// <returns>true, если гражданин хочет выйти на этой остановке</returns>
+        public bool WantsToExitAt(Position stop)
+        {
+            return TargetExitStop != null && TargetExitStop.Equals(stop);
+        }
     }
 }

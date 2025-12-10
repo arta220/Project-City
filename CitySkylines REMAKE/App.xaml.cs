@@ -125,11 +125,18 @@ namespace CitySkylines_REMAKE
                 return new PersonalTransportController(handlers);
             });
 
+            // Сервис управления сессиями поездок
+            services.AddSingleton<RideSessionService>(sp =>
+            {
+                var movementService = sp.GetRequiredService<IEntityMovementService>();
+                return new RideSessionService(movementService);
+            });
+
             services.AddSingleton<TransportSimulationService>(sp =>
             {
                 var controller = sp.GetRequiredService<PersonalTransportController>();
-                var clock = sp.GetRequiredService<ISimulationClock>();
-                return new TransportSimulationService(controller);
+                var rideSessionService = sp.GetRequiredService<RideSessionService>();
+                return new TransportSimulationService(controller, rideSessionService);
             });
 
             // Менеджер машин

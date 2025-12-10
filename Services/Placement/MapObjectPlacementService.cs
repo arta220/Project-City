@@ -1,6 +1,9 @@
 ﻿using Services.Interfaces;
 using Domain.Map;
 using Domain.Common.Base;
+using Domain.Base;
+using Domain.Infrastructure;
+using Domain.Common.Enums;
 
 namespace Services.PlaceBuilding
 {
@@ -43,19 +46,42 @@ namespace Services.PlaceBuilding
             if (!map.IsAreaInBounds(area))
                 return false;
 
+            // Дороги и пути могут размещаться рядом друг с другом
+            bool isInfrastructure = mapObject is Road || mapObject is Domain.Infrastructure.Path;
+
             foreach (var position in area.GetAllPositions())
             {
                 TileModel tile = map[position];
-                if (!_validator.CanBuildOnTile(tile, mapObject))
-                    return false;
-
-                foreach (var neighbor in position.GetNeighbors())
+                
+                // Для инфраструктуры (дороги, пути) разрешаем размещение на тайлах с другой инфраструктурой
+                // Для зданий - используем стандартную проверку
+                if (isInfrastructure)
                 {
-                    if (!map.IsPositionInBounds(neighbor))
-                        continue;
-
-                    if (map[neighbor].MapObject != null)
+                    // Дороги и пути могут размещаться на тайлах, где уже есть другая инфраструктура
+                    // (например, пересечение дорог), но не могут размещаться на зданиях или воде/горах
+                    if (tile.MapObject != null && !(tile.MapObject is Road || tile.MapObject is Domain.Infrastructure.Path))
                         return false;
+                    
+                    // Проверяем рельеф (вода и горы непроходимы)
+                    if (tile.Terrain == TerrainType.Water || tile.Terrain == TerrainType.Mountain)
+                        return false;
+                }
+                else
+                {
+                    // Для зданий используем стандартную проверку
+                    if (!_validator.CanBuildOnTile(tile, mapObject))
+                        return false;
+                    
+                    // Здания не могут размещаться рядом с другими объектами
+                    foreach (var neighbor in position.GetNeighbors())
+                    {
+                        if (!map.IsPositionInBounds(neighbor))
+                            continue;
+
+                        var neighborObject = map[neighbor].MapObject;
+                        if (neighborObject != null)
+                            return false;
+                    }
                 }
             }
 

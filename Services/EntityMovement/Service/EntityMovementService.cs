@@ -8,11 +8,12 @@ namespace Services.EntityMovement.Service
     public class EntityMovementService : IEntityMovementService
     {
         private readonly IPathFinder _pathFinder;
-        private readonly INavigationProfile _navigationProfile;
-        public EntityMovementService(IPathFinder pathFinder, INavigationProfile navigationProfile)
+        private readonly INavigationProfile _defaultNavigationProfile;
+        
+        public EntityMovementService(IPathFinder pathFinder, INavigationProfile defaultNavigationProfile)
         {
             _pathFinder = pathFinder;
-            _navigationProfile = navigationProfile;
+            _defaultNavigationProfile = defaultNavigationProfile;
         }
 
         public void PlayMovement(MovingEntity entity, SimulationTime time)
@@ -29,7 +30,11 @@ namespace Services.EntityMovement.Service
         public void SetTarget(MovingEntity entity, Position target)
         {
             entity.TargetPosition = target;
-            var path = _pathFinder.FindPath(entity.Position, target, _navigationProfile)?.ToList();
+            
+            // Используем NavigationProfile из сущности, если он есть, иначе используем дефолтный
+            var profile = entity.NavigationProfile ?? _defaultNavigationProfile;
+            
+            var path = _pathFinder.FindPath(entity.Position, target, profile)?.ToList();
             if (path == null || path.Count == 0)
                 return;
 
