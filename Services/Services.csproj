@@ -7,15 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Citizens\Sessions\**" />
+    <EmbeddedResource Remove="Citizens\Sessions\**" />
+    <None Remove="Citizens\Sessions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="OxyPlot.Core" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Citizens\Sessions\" />
   </ItemGroup>
 
 </Project>

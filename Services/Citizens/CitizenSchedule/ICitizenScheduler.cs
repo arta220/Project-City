@@ -1,6 +1,6 @@
 ﻿using Domain.Citizens;
 
-namespace Services.CitizensSimulation.CitizenSchedule
+namespace Services.Citizens.CitizenSchedule
 {
     public interface ICitizenScheduler
     {

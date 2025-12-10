@@ -4,7 +4,7 @@ using Domain.Citizens.Tasks;
 using Domain.Common.Time;
 using Services.Utilities;
 
-namespace Services.Citizens.Tasks
+namespace Services.Citizens.Tasks.Job
 {
     public class RepairBuildingTask : ICitizenTask
     {
