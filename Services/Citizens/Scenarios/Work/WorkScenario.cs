@@ -1,9 +1,7 @@
-﻿using Domain.Buildings;
-using Domain.Citizens;
+﻿using Domain.Citizens;
 using Domain.Citizens.Tasks;
 using Services.BuildingRegistry;
-using Services.Citizens.Job;
-using Services.Citizens.Tasks;
+using Services.Citizens.Tasks.Job;
 using Services.EntityMovement.Service;
 using Services.Time;
 
