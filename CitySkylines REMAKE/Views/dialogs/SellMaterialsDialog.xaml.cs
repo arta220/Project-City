@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using CitySimulatorWPF.ViewModels;
 
 namespace CitySimulatorWPF.Views.dialogs
 {
@@ -7,9 +8,10 @@ namespace CitySimulatorWPF.Views.dialogs
     /// </summary>
     public partial class SellMaterialsDialog : Window
     {
-        public SellMaterialsDialog()
+        public SellMaterialsDialog(SellMaterialsViewModel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
         }
     }
 }

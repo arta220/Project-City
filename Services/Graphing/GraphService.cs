@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Services.Utilities;
+using Services.Finance;
 using Services.IndustrialProduction;
 
 namespace Services.Graphing
@@ -12,6 +13,12 @@ namespace Services.Graphing
     {
         private readonly List<IGraphDataProvider> _providers = new();
         private readonly IUtilityService _utilityService;
+        private readonly IFinanceService _financeService;
+
+        public GraphService(IUtilityService utilityService, IFinanceService financeService)
+        {
+            _utilityService = utilityService;
+            _financeService = financeService;
         private readonly IIndustrialProductionService? _productionService;
 
         public GraphService(IUtilityService utilityService, IIndustrialProductionService? productionService = null)
@@ -27,8 +34,9 @@ namespace Services.Graphing
         }
 
         private void RegisterDefaultProviders()
-        {
+        { 
             RegisterProvider(new UtilitiesGraphProvider(_utilityService));
+            RegisterProvider(new FinancialGraphProvider(_financeService));
             
             if (_productionService != null)
             {
