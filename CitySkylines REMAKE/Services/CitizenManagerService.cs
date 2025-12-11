@@ -1,7 +1,6 @@
 ﻿using CitySimulatorWPF.ViewModels;
 using Domain.Citizens;
-using Services.CitizensSimulation;
-using System;
+using Services.Citizens.CitizensSimulation;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;

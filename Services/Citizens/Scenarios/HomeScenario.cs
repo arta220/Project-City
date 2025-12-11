@@ -1,8 +1,6 @@
 ﻿using Domain.Citizens;
 using Domain.Citizens.States;
-using Domain.Common.Base;
 using Domain.Common.Time;
-using Domain.Map;
 using Services.BuildingRegistry;
 using Services.Citizens.Tasks;
 using Services.EntityMovement.Service;

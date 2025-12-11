@@ -7,14 +7,11 @@ using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.BuildingRegistry;
-using Services.Citizens.Education;
-using Services.Citizens.Job;
+using Services.Citizens.CitizenSchedule;
+using Services.Citizens.CitizensSimulation;
 using Services.Citizens.Population;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Scenarios;
-using Services.CitizensSimulatiom;
-using Services.CitizensSimulation;
-using Services.CitizensSimulation.CitizenSchedule;
 using Services.EntityMovement.PathFind;
 using Services.EntityMovement.Profile;
 using Services.EntityMovement.Service;
@@ -98,17 +95,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IMapObjectPlacementService, MapObjectPlacementService>();
 
             // Сервисы граждан
-            services.AddSingleton<IFindEducationService, FindEducationService>();
-            services.AddSingleton<IEducationService, EducationService>();
-            services.AddSingleton<IFindJobService, FindJobService>();
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
             services.AddSingleton<IEntityMovementService, EntityMovementService>();
-            services.AddSingleton<IPopulationService, PopulationService>();
 
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
 
             // Сценарии поведения жителей
-            services.AddSingleton<ICitizenScenario, HomeScenario>();
+            services.AddScoped<ICitizenScenario, HomeScenario>();
             services.AddScoped<ICitizenScenario, UtilityWorkerScenario>();
             services.AddScoped<ICitizenScenario, CommercialVisitScenario>();
 

@@ -4,7 +4,7 @@ using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Common.Time;
 using Domain.Map;
-using Services.CitizensSimulation;
+using Services.Citizens.CitizensSimulation;
 using Services.Common;
 using Services.IndustrialProduction;
 using Services.Interfaces;

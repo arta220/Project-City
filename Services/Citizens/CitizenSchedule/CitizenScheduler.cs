@@ -4,7 +4,7 @@ using Services.BuildingRegistry;
 using Services.Citizens.Scenaries;
 using Services.Time;
 
-namespace Services.CitizensSimulation.CitizenSchedule
+namespace Services.Citizens.CitizenSchedule
 {
     public class CitizenScheduler : ICitizenScheduler
     {

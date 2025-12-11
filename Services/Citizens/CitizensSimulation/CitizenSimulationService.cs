@@ -1,23 +1,20 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
+using Services.Citizens.CitizenSchedule;
 using Services.Citizens.Population;
-using Services.CitizensSimulatiom;
-using Services.CitizensSimulation.CitizenSchedule;
 using Services.Common;
 using Services.EntityMovement.Service;
 using System.Collections.ObjectModel;
 
-namespace Services.CitizensSimulation
+namespace Services.Citizens.CitizensSimulation
 {
     /// <summary>
     /// Сервис симуляции граждан. Управляет коллекцией граждан и обновляет их состояние на каждом тике симуляции.
     /// </summary>
     public class CitizenSimulationService : IUpdatable
     {
-        private int _lastProcessedYear = -1;
         private readonly CitizenController _controller;
         private readonly ICitizenScheduler _scheduler;
-        private readonly IPopulationService _populationService;
 
         private bool _isPaused = true; // по умолчанию при старте приостановлен
 
@@ -29,12 +26,10 @@ namespace Services.CitizensSimulation
 
         public CitizenSimulationService(
             CitizenController controller,
-            IPopulationService populationService,
             ICitizenScheduler scheduler)
         {
             _scheduler = scheduler;
             _controller = controller;
-            _populationService = populationService;
         }
 
         /// <summary>
@@ -49,13 +44,6 @@ namespace Services.CitizensSimulation
                 _scheduler.UpdateSchedule(citizen);
                 _controller.UpdateCitizen(citizen, time);
                 CitizenUpdated?.Invoke(citizen);
-
-                if (time.Year != _lastProcessedYear)
-                {
-                    _populationService.ProcessDemography(
-                        Citizens.ToList(), time, CitizenAdded, CitizenRemoved);
-                    _lastProcessedYear = time.Year;
-                }
             }
         }
 

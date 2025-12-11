@@ -6,7 +6,7 @@
     /// <remarks>
     /// Контекст использования:
     /// - Служит источником времени для всех симуляционных сервисов, таких как
-    ///   <see cref="CitizensSimulation.CitizenSimulationService"/> или <see cref="Simulation"/>.
+    ///   <see cref="Citizens.CitizensSimulation.CitizenSimulationService"/> или <see cref="Simulation"/>.
     /// - Позволяет синхронизировать обновления состояния граждан, перемещение объектов и т.д.
     /// - Можно расширить, добавив паузу, изменение скорости симуляции или обработку нескольких параллельных потоков.
     /// </remarks>
