@@ -5,8 +5,10 @@ using CitySimulatorWPF.ViewModels;
 using Domain.Map.Generation;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
-using System.Linq;
+using Domain.Citizens;
+using Services.CitizensSimulation;
 using Domain.Common.Base;
+using Domain.Map;
 
 namespace CitySimulatorWPF.Views.components
 {
