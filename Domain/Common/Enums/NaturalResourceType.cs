@@ -15,12 +15,16 @@ namespace Domain.Common.Enums
         Wood,
         Copper,
         Energy,
-        WoodChips,      // Древесная щепа (для картона)
-        RecycledPaper,   // Макулатура (для картона)
-        Chemicals,       // Химические реагенты (для картона и упаковки)
-        Water,           // Вода (для картона)
-        Glass,           // Стекло (для упаковки)
-        Aluminium,       // Алюминий (для упаковки)
-        Ink             // Краска (для упаковки)
+        WoodChips,     
+        RecycledPaper, 
+        Chemicals,     
+        Water,         
+        Glass,         
+        Aluminium,     
+        Ink,           
+        Sand,          
+        Gravel,        
+        Clay,          
+        Limestone      
     }
 }

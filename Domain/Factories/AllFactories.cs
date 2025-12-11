@@ -1,5 +1,6 @@
 using Domain.Base;
 using Domain.Buildings;
+using Domain.Buildings.Construction;
 using Domain.Buildings.Residential;
 using Domain.Buildings.Utility;
 using Domain.Citizens;
@@ -331,6 +332,161 @@ namespace Domain.Factories
             return factory;
         }
     }
+
+    #region Construction Material Factories
+
+    /// <summary>
+    /// Цементный завод
+    /// Производит цемент из известняка и глины
+    /// </summary>
+    public class CementFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 40,
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // Цех производства цемента из известняка и глины
+            building.AddWorkshop(
+                NaturalResourceType.Limestone,
+                ConstructionMaterialType.Cement,
+                coeff: 5
+            );
+
+            building.AddWorkshop(
+                NaturalResourceType.Clay,
+                ConstructionMaterialType.Cement,
+                coeff: 3
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Limestone] = 500;
+            building.MaterialsBank[NaturalResourceType.Clay] = 400;
+            building.MaterialsBank[NaturalResourceType.Energy] = 200;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Кирпичный завод
+    /// Производит кирпич из глины
+    /// </summary>
+    public class BrickFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 1,
+                maxOccupancy: 30,
+                area: new Area(4, 4),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // Цех производства кирпича
+            building.AddWorkshop(
+                NaturalResourceType.Clay,
+                ConstructionMaterialType.Bricks,
+                coeff: 8
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Clay] = 600;
+            building.MaterialsBank[NaturalResourceType.Energy] = 150;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Бетонный завод
+    /// Производит бетон из цемента, песка и щебня
+    /// </summary>
+    public class ConcreteFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 1,
+                maxOccupancy: 25,
+                area: new Area(4, 5),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // Цех производства бетона
+            building.AddWorkshop(
+                ConstructionMaterialType.Cement,
+                ConstructionMaterialType.Concrete,
+                coeff: 4
+            );
+
+            building.AddWorkshop(
+                NaturalResourceType.Sand,
+                ConstructionMaterialType.Concrete,
+                coeff: 6
+            );
+
+            building.AddWorkshop(
+                NaturalResourceType.Gravel,
+                ConstructionMaterialType.Concrete,
+                coeff: 5
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[ConstructionMaterialType.Cement] = 300;
+            building.MaterialsBank[NaturalResourceType.Sand] = 500;
+            building.MaterialsBank[NaturalResourceType.Gravel] = 400;
+            building.MaterialsBank[NaturalResourceType.Water] = 200;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Завод железобетонных изделий (ЖБИ)
+    /// Производит арматуру и железобетонные конструкции
+    /// </summary>
+    public class ReinforcedConcreteFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 50,
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // Цех производства арматуры из стали
+            building.AddWorkshop(
+                ProductType.Steel,
+                ConstructionMaterialType.Rebar,
+                coeff: 2
+            );
+
+            // Цех производства ЖБИ из бетона и арматуры
+            // Примечание: для упрощения, ЖБИ представлено как Rebar с повышенным коэффициентом
+            // В реальности это должны быть готовые железобетонные изделия
+            building.AddWorkshop(
+                ConstructionMaterialType.Concrete,
+                ConstructionMaterialType.Rebar,
+                coeff: 1
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[ProductType.Steel] = 400;
+            building.MaterialsBank[ConstructionMaterialType.Concrete] = 300;
+            building.MaterialsBank[NaturalResourceType.Energy] = 250;
+
+            return building;
+        }
+    }
+
+    #endregion
     #endregion
 
     public class UrbanParkFactory : IMapObjectFactory

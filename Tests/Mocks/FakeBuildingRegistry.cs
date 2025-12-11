@@ -13,6 +13,11 @@ namespace Tests.Mocks
 
         public void Add(MapObject building) => _buildings.Add(building);
 
+        public IEnumerable<Position> GetAccessibleNeighborTiles(MapObject obj, MapModel map)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<T> GetBuildings<T>() => _buildings.OfType<T>();
 
         public (Placement? placement, bool found) TryGetPlacement(MapObject building)

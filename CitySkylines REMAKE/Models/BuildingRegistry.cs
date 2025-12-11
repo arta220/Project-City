@@ -119,6 +119,31 @@ namespace CitySimulatorWPF.Models
                 "Завод упаковки",
                 "Assets/Icons/FactoryPacking.png"
             ));
+
+            // Заводы строительных материалов
+            industrial.Objects.Add(new ObjectVM(
+                new CementFactory(),
+                "Цементный завод",
+                "/Icons/Factory.png" // Потом найду что-нибудь
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new BrickFactory(),
+                "Кирпичный завод",
+                "/Icons/Factory.png" // Потом найду что-нибудь
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new ConcreteFactory(),
+                "Бетонный завод",
+                "/Icons/Factory.png" // Потом найду что-нибудь
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new ReinforcedConcreteFactory(),
+                "Завод ЖБИ",
+                "/Icons/Factory.png" // Потом найду что-нибудь
+            ));
             #endregion
 
             // Инфраструктура

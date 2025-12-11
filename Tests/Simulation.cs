@@ -46,6 +46,7 @@ namespace Services
         public Simulation(
             MapModel mapModel,
             IMapObjectPlacementService placementService,
+            Tests.Services.Time.SimulationTimeService simulationTimeService,
             ISimulationTimeService timeService,
             PlacementRepository placementRepository,
             CitizenSimulationService citizenSimulationService,

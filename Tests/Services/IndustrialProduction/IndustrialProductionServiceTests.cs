@@ -123,6 +123,11 @@ namespace Tests.Services.IndustrialProduction
             _buildings.Add(building);
         }
 
+        public IEnumerable<Position> GetAccessibleNeighborTiles(MapObject obj, MapModel map)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<T> GetBuildings<T>()
         {
             return _buildings.OfType<T>();
