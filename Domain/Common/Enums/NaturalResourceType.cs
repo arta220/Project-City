@@ -10,6 +10,7 @@ namespace Domain.Common.Enums
     {
         None = 0,
         Iron,
+        Coal,
         Oil,
         Gas,
         Wood,

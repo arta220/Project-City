@@ -4,7 +4,6 @@ using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Common.Time;
 using Domain.Map;
-using Domain.Transports.Ground;
 using Services.CitizensSimulation;
 using Services.Common;
 using Services.IndustrialProduction;
@@ -13,14 +12,12 @@ using Services.PlaceBuilding;
 using Services.Time;
 using Services.TransportSimulation;
 using Services.Utilities;
+using System.Collections.Generic;
 
 namespace Services
 {
     /// <summary>
-    /// Центральный сервис симуляции города. Отвечает за:
-    /// - хранение карты (<see cref="MapModel"/>),
-    /// - размещение объектов на карте,
-    /// - уведомление о тиках симуляции и изменениях объектов.
+    /// Центральный сервис симуляции города.
     /// </summary>
     public class Simulation
     {
@@ -35,10 +32,11 @@ namespace Services
 
         private readonly List<IUpdatable> _updatableServices = new();
 
+        // ДОБАВЛЯЕМ поле для хранения граждан
+        private readonly List<Citizen> _allCitizens = new();
+
         public event Action<SimulationTime> TimeChanged;
-
         public event Action<MapObject> MapObjectPlaced;
-
         public event Action<MapObject> MapObjectRemoved;
 
         public MapModel MapModel { get; private set; }
@@ -73,15 +71,20 @@ namespace Services
         private void OnTimeChanged(SimulationTime time)
         {
             TimeChanged?.Invoke(time);
-
             foreach (var service in _updatableServices)
                 service.Update(time);
         }
 
-        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building) => _utilityService.GetBrokenUtilities(building);
+        public Dictionary<UtilityType, int> GetBrokenUtilities(ResidentialBuilding building)
+            => _utilityService.GetBrokenUtilities(building);
 
-        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType) => _utilityService.FixUtility(building, utilityType);
+        public void FixBuildingUtility(ResidentialBuilding building, UtilityType utilityType)
+            => _utilityService.FixUtility(building, utilityType);
 
+        /// <summary>
+        /// Получить всех жителей
+        /// </summary>
+        public List<Citizen> GetAllCitizens() => _allCitizens;
 
         public bool TryPlace(MapObject mapObject, Placement placement)
         {
@@ -97,7 +100,6 @@ namespace Services
         public bool TryRemove(MapObject mapObject)
         {
             var (placement, found) = _placementRepository.TryGetPlacement(mapObject);
-
             if (!found || placement is null)
                 return false;
 
@@ -106,15 +108,18 @@ namespace Services
                 MapObjectRemoved?.Invoke(mapObject);
                 return true;
             }
-
             return false;
         }
 
-        public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);
+        public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject)
+            => _placementRepository.TryGetPlacement(mapObject);
 
-        public bool CanPlace(MapObject mapObject, Placement placement) => _placementService.CanPlace(MapModel, mapObject, placement);
-        public void AddCitizen(Domain.Citizens.MovingEntity citizen)
+        public bool CanPlace(MapObject mapObject, Placement placement)
+            => _placementService.CanPlace(MapModel, mapObject, placement);
+
+        public void AddCitizen(Citizen citizen)
         {
+            _allCitizens.Add(citizen); // Сохраняем в нашем списке
             _citizenSimulationService.AddCitizen(citizen);
             _placementRepository.Register(citizen, new Placement(citizen.Position, citizen.Area));
         }
@@ -125,7 +130,13 @@ namespace Services
             _placementRepository.Register(transport, new Placement(transport.Position, transport.Area));
         }
 
-        public void RemoveCitizen(Domain.Citizens.MovingEntity citizen) => _citizenSimulationService.RemoveCitizen(citizen);
-        public void RemoveTransport(Transport car) => _transportSimulationService.RemoveTransport(car);
+        public void RemoveCitizen(Citizen citizen)
+        {
+            _allCitizens.Remove(citizen); // Удаляем из нашего списка
+            _citizenSimulationService.RemoveCitizen(citizen);
+        }
+
+        public void RemoveTransport(Transport car)
+            => _transportSimulationService.RemoveTransport(car);
     }
 }

@@ -29,11 +29,14 @@ namespace Services.Graphing
         private void RegisterDefaultProviders()
         {
             RegisterProvider(new UtilitiesGraphProvider(_utilityService));
-            
+
             if (_productionService != null)
             {
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));
                 RegisterProvider(new PackagingProductionGraphProvider(_productionService));
+                RegisterProvider(new ResourceExtractionGraphProvider(_productionService));
+                RegisterProvider(new WoodProcessingGraphProvider(_productionService));
+                RegisterProvider(new RecyclingProcessingGraphProvider(_productionService));
             }
         }
 

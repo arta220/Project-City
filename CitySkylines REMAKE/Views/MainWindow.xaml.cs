@@ -13,4 +13,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = vm;
     }
+
+    private void Header_Loaded(object sender, RoutedEventArgs e)
+    {
+
+    }
 }

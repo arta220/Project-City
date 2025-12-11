@@ -35,7 +35,8 @@ namespace Domain.Common.Enums
         ShippingBox,        // Транспортная коробка
         CosmeticBottle,     // Косметический флакон
         PharmaceuticalPack, // Фармацевтическая упаковка
-        GiftBox            // Подарочная упаковка
+        GiftBox,            // Подарочная упаковка
+        Lumber
     }
 }
 

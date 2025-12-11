@@ -1,9 +1,11 @@
 ﻿using CitySimulatorWPF.Services;
 using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
+using CitySimulatorWPF.Views.dialogs;
 using CitySkylines_REMAKE.ViewModels;
 using Domain.Common.Base.MovingEntities;
 using Domain.Map;
+using Domain.Map.Generation;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.BuildingRegistry;
@@ -36,7 +38,7 @@ namespace CitySkylines_REMAKE
 {
     public partial class App : Application
     {
-        private ServiceProvider? _serviceProvider;
+        public ServiceProvider? _serviceProvider;
 
 
         protected override void OnStartup(StartupEventArgs e)
@@ -56,6 +58,8 @@ namespace CitySkylines_REMAKE
         private void ConfigureServices(IServiceCollection services)
         {
             // Map и генератор
+            services.AddTransient<ChartsWindow>();
+            services.AddTransient<ChartsWindowViewModel>();
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
@@ -83,7 +87,8 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IEntityMovementService, EntityMovementService>();
             services.AddSingleton<INavigationProfile, CitizenProfile>();
             services.AddSingleton<CitizenFactory>();
-
+            // Сохранение и загрузка игры
+            services.AddSingleton<GameSaveManager>();
 
 
             // Симуляция и часы
@@ -163,9 +168,6 @@ namespace CitySkylines_REMAKE
             // MainWindow
             services.AddSingleton<MainWindow>();
         }
-
-
-
         protected override void OnExit(ExitEventArgs e)
         {
             _serviceProvider?.Dispose();

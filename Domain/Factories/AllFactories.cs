@@ -124,6 +124,87 @@ namespace Domain.Factories
         }
     }
 
+
+    /// <summary>
+    /// Добыча природных ресурсов (железо, дерево, уголь)
+    /// </summary>
+    public class ResourceExtractionFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 1,
+                maxOccupancy: 20,
+                area: new Area(4, 4),
+                type: IndustrialBuildingType.Factory
+            );
+
+            building.Vacancies[CitizenProfession.FactoryWorker] = 15;
+
+            building.AddWorkshop(NaturalResourceType.None, NaturalResourceType.Iron, coeff: 8);
+            building.AddWorkshop(NaturalResourceType.None, NaturalResourceType.Wood, coeff: 12);
+            building.AddWorkshop(NaturalResourceType.None, NaturalResourceType.Coal, coeff: 10);
+
+            building.MaterialsBank[NaturalResourceType.None] = 500;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Деревообрабатывающий (пиломатериалы, мебель, бумага)
+    /// </summary>
+    public class WoodProcessingFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 25,
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
+            );
+
+            building.Vacancies[CitizenProfession.FactoryWorker] = 18;
+
+            building.AddWorkshop(NaturalResourceType.Wood, ProductType.Lumber, coeff: 6);
+            building.AddWorkshop(ProductType.Lumber, ProductType.Furniture, coeff: 3);
+            building.AddWorkshop(NaturalResourceType.Wood, ProductType.Paper, coeff: 8);
+            building.AddWorkshop(NaturalResourceType.Wood, ProductType.WoodenCrate, coeff: 5);
+
+            building.MaterialsBank[NaturalResourceType.Wood] = 300;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Перерабатывающий (сталь, пластик, топливо)
+    /// </summary>
+    public class RecyclingFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 30,
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.Factory
+            );
+
+            building.Vacancies[CitizenProfession.FactoryWorker] = 22;
+
+            building.AddWorkshop(NaturalResourceType.Iron, ProductType.Steel, coeff: 5);
+            building.AddWorkshop(NaturalResourceType.Oil, ProductType.Plastic, coeff: 6);
+            building.AddWorkshop(NaturalResourceType.Oil, ProductType.Fuel, coeff: 8);
+            building.AddWorkshop(ProductType.Plastic, ProductType.PlasticBottle, coeff: 10);
+
+            building.MaterialsBank[NaturalResourceType.Iron] = 400;
+            building.MaterialsBank[NaturalResourceType.Oil] = 500;
+
+            return building;
+        }
+    }
     /// <summary>
     /// Завод по производству картона
     /// Производит различные виды картона и картонных изделий

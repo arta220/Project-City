@@ -6,6 +6,8 @@ using System.Windows.Input;
 using Services.Graphing;
 using CitySimulatorWPF.Views.dialogs;
 using CitySkylines_REMAKE.ViewModels;
+using CitySkylines_REMAKE;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -68,6 +70,44 @@ namespace CitySimulatorWPF.ViewModels
             {
                 MapVM.CurrentMode = MapInteractionMode.Remove;
             };
+        }
+
+        [RelayCommand]
+        private void ShowCharts()
+        {
+            try
+            {
+                // Получаем App и ServiceProvider
+                var app = Application.Current as App;
+                if (app?._serviceProvider == null)
+                {
+                    MessageBox.Show("DI контейнер не инициализирован");
+                    return;
+                }
+
+                // Получаем GraphService
+                var graphService = app._serviceProvider.GetService<GraphService>();
+                if (graphService == null)
+                {
+                    MessageBox.Show("GraphService не найден в DI контейнере");
+                    return;
+                }
+
+                // Создаем ViewModel и окно
+                var viewModel = new ChartsWindowViewModel(graphService);
+                var chartsWindow = new ChartsWindow
+                {
+                    DataContext = viewModel,
+                    Owner = Application.Current.MainWindow // Делаем главное окно владельцем
+                };
+
+                chartsWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при открытии графиков:\n{ex.Message}", "Ошибка",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

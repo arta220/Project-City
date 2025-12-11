@@ -137,36 +137,89 @@ namespace CitySimulatorWPF.ViewModels
 
         private void CreateTestScenario()
         {
-            // 1. Создаём жителя (работника ЖКХ)
-            var citizen = _citizenFactory.CreateCitizen(
+            // 1. Создаём жителей (работников для заводов)
+            var factoryWorker1 = _citizenFactory.CreateCitizen(
                 pos: new Position(15, 15),
                 speed: 1.0f,
-                profession: CitizenProfession.UtilityWorker
+                profession: CitizenProfession.FactoryWorker,
+                state: CitizenState.Idle
             );
-            var citizen2 = _citizenFactory.CreateCitizen(
+
+            var factoryWorker2 = _citizenFactory.CreateCitizen(
                 pos: new Position(25, 15),
                 speed: 1.0f,
                 profession: CitizenProfession.FactoryWorker,
-                state: CitizenState.GoingWork
+                state: CitizenState.Idle
             );
-            _simulation.AddCitizen(citizen);
-            _simulation.AddCitizen(citizen2);
-            Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
-            Debug.WriteLine($"Создан работник завода ID: {citizen2.Id} на позиции ({citizen2.Position.X}, {citizen2.Position.Y})");
 
-            // 2. Создаём офис ЖКХ
-            var utilityOfficeFactory = new UtilityOfficeFactory();
-            var utilityOffice = utilityOfficeFactory.Create();
-            var officePlacement = new Placement(new Position(25, 25), utilityOffice.Area);
-            if (!_simulation.TryPlace(utilityOffice, officePlacement))
+            var factoryWorker3 = _citizenFactory.CreateCitizen(
+                pos: new Position(35, 15),
+                speed: 1.0f,
+                profession: CitizenProfession.FactoryWorker,
+                state: CitizenState.Idle
+            );
+
+            _simulation.AddCitizen(factoryWorker1);
+            _simulation.AddCitizen(factoryWorker2);
+            _simulation.AddCitizen(factoryWorker3);
+
+            Debug.WriteLine($"Созданы работники заводов: ID {factoryWorker1.Id}, {factoryWorker2.Id}, {factoryWorker3.Id}");
+
+            // 2. Создаём ДОБЫВАЮЩИЙ ЗАВОД (ResourceExtractionFactory)
+            var mineFactory = new ResourceExtractionFactory();
+            var mineBuilding = mineFactory.Create() as Domain.Buildings.IndustrialBuilding;
+            if (mineBuilding != null)
             {
-                _messageService.ShowMessage("Не удалось разместить офис ЖКХ");
-                return;
+                var minePlacement = new Placement(new Position(5, 5), mineBuilding.Area);
+                if (_simulation.TryPlace(mineBuilding, minePlacement))
+                {
+                    Debug.WriteLine("Создан добывающий завод на позиции (5,5)");
+                    // Назначаем рабочему место работы
+                    factoryWorker1.WorkPlace = mineBuilding;
+                    if (mineBuilding.Hire(factoryWorker1))
+                    {
+                        Debug.WriteLine($"Рабочий {factoryWorker1.Id} нанят на добывающий завод");
+                    }
+                }
             }
-            citizen.WorkPlace = (Building)utilityOffice;
-            Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
 
-            // 3. Создаём тестовый жилой дом
+            // 3. Создаём ДЕРЕВООБРАБАТЫВАЮЩИЙ ЗАВОД (WoodProcessingFactory)
+            var sawmillFactory = new WoodProcessingFactory();
+            var sawmillBuilding = sawmillFactory.Create() as Domain.Buildings.IndustrialBuilding;
+            if (sawmillBuilding != null)
+            {
+                var sawmillPlacement = new Placement(new Position(15, 15), sawmillBuilding.Area);
+                if (_simulation.TryPlace(sawmillBuilding, sawmillPlacement))
+                {
+                    Debug.WriteLine("Создан деревообрабатывающий завод на позиции (15,5)");
+                    // Назначаем рабочему место работы
+                    factoryWorker2.WorkPlace = sawmillBuilding;
+                    if (sawmillBuilding.Hire(factoryWorker2))
+                    {
+                        Debug.WriteLine($"Рабочий {factoryWorker2.Id} нанят на деревообрабатывающий завод");
+                    }
+                }
+            }
+
+            // 4. Создаём ПЕРЕРАБАТЫВАЮЩИЙ ЗАВОД (RecyclingFactory)
+            var recyclingFactory = new RecyclingFactory();
+            var recyclingBuilding = recyclingFactory.Create() as Domain.Buildings.IndustrialBuilding;
+            if (recyclingBuilding != null)
+            {
+                var recyclingPlacement = new Placement(new Position(25, 25), recyclingBuilding.Area);
+                if (_simulation.TryPlace(recyclingBuilding, recyclingPlacement))
+                {
+                    Debug.WriteLine("Создан перерабатывающий завод на позиции (25,5)");
+                    // Назначаем рабочему место работы
+                    factoryWorker3.WorkPlace = recyclingBuilding;
+                    if (recyclingBuilding.Hire(factoryWorker3))
+                    {
+                        Debug.WriteLine($"Рабочий {factoryWorker3.Id} нанят на перерабатывающий завод");
+                    }
+                }
+            }
+
+            // 5. Создаём тестовый жилой дом (чтобы город не был пустым)
             var residentialFactory = new SmallHouseFactory();
             var residentialBuilding = (ResidentialBuilding)residentialFactory.Create();
             var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
@@ -177,49 +230,37 @@ namespace CitySimulatorWPF.ViewModels
             }
             Debug.WriteLine($"Создан жилой дом на позиции (35,35)");
 
-            // 4. Ломаем коммуналку для теста
-            _utilityService.BreakUtilityForTesting(residentialBuilding, UtilityType.Electricity, currentTick: 1);
-            var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
-            Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
-
-            //// 5. Создаём тестовые заводы для проверки двойного клика
-            //var cardboardFactory = new CardboardFactory();
-            //var cardboardBuilding = cardboardFactory.Create();
-            //if (cardboardBuilding != null)
-            //{
-            //    var cardboardPlacement = new Placement(new Position(10, 10), cardboardBuilding.Area);
-            //    if (_simulation.TryPlace(cardboardBuilding, cardboardPlacement))
-            //    {
-            //        Debug.WriteLine("Создан завод картона на позиции (10,10)");
-            //    }
-            //}
-
-            var packagingFactory = new PackagingFactory();
-            var packagingBuilding = packagingFactory.Create() as Domain.Buildings.IndustrialBuilding;
-            if (packagingBuilding != null)
-            {
-                var packagingPlacement = new Placement(new Position(5, 5), packagingBuilding.Area);
-                if (_simulation.TryPlace(packagingBuilding, packagingPlacement))
-                {
-                    Debug.WriteLine("Создан завод упаковки на позиции (5,5)");
-                    // Назначаем рабочему место работы
-                    citizen2.WorkPlace = packagingBuilding;
-                    packagingBuilding.Hire(citizen2);
-                    Debug.WriteLine($"Назначен как WorkPlace работнику {citizen2.Id} на завод упаковки");
-                }
-            }
-
-            // 7. Информация о тесте
+            // 6. Информация о тесте
             _messageService.ShowMessage(
-                "Тестовый сценарий создан!\n" +
-                "1. Работник ЖКХ: (15,15)\n" +
-                "2. Офис ЖКХ: (25,25)\n" +
-                "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n" +
-                "4. Завод картона: (10,10) - ДВАЖДЫ КЛИКНИТЕ!\n" +
-                "5. Завод упаковки: (20,20) - ДВАЖДЫ КЛИКНИТЕ!\n\n" +
-                "Работник должен побежать чинить сломанное ЖКХ.\n" +
-                "Дважды кликните по заводам для управления!"
+                "💪 ТЕСТ ПРОМЫШЛЕННОЙ ЦЕПОЧКИ\n\n" +
+                "1. ДОБЫВАЮЩИЙ ЗАВОД (5,5) - ДВАЖДЫ КЛИКНИТЕ!\n" +
+                "   • Производит: Железо, Дерево, Уголь\n" +
+                "   • Рабочий: " + (mineBuilding?.GetWorkerCount() ?? 0) + "/" + (mineBuilding?.MaxOccupancy ?? 0) + "\n\n" +
+
+                "2. ДЕРЕВООБРАБАТЫВАЮЩИЙ ЗАВОД (15,5) - ДВАЖДЫ КЛИКНИТЕ!\n" +
+                "   • Производит: Пиломатериалы, Мебель, Бумагу, Ящики\n" +
+                "   • Рабочий: " + (sawmillBuilding?.GetWorkerCount() ?? 0) + "/" + (sawmillBuilding?.MaxOccupancy ?? 0) + "\n\n" +
+
+                "3. ПЕРЕРАБАТЫВАЮЩИЙ ЗАВОД (25,5) - ДВАЖДЫ КЛИКНИТЕ!\n" +
+                "   • Производит: Сталь, Пластик, Топливо, Бутылки\n" +
+                "   • Рабочий: " + (recyclingBuilding?.GetWorkerCount() ?? 0) + "/" + (recyclingBuilding?.MaxOccupancy ?? 0) + "\n\n" +
+
+                "4. ЖИЛОЙ ДОМ (35,35)\n\n" +
+
+                "⚙️ КАК ПРОВЕРИТЬ:\n" +
+                "• Дважды кликни по каждому заводу\n" +
+                "• В диалоге найми еще рабочих (если есть вакансии)\n" +
+                "• Смотри как меняются материалы и продукция\n" +
+                "• Производство работает каждые 15 тиков\n" +
+                "• Рабочие приходят на работу в рабочее время"
             );
+
+            // 7. Выводим в консоль информацию о цепочке производства
+            Debug.WriteLine("\n=== ПРОМЫШЛЕННАЯ ЦЕПОЧКА ===");
+            Debug.WriteLine("Добывающий завод → Дерево и Железо");
+            Debug.WriteLine("Деревообрабатывающий завод → Пиломатериалы и Мебель");
+            Debug.WriteLine("Перерабатывающий завод → Сталь и Пластик");
+            Debug.WriteLine("=================================\n");
         }
 
 

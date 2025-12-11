@@ -32,7 +32,11 @@ namespace CitySimulatorWPF.ViewModels
 
             if (AvailableGraphs.Any())
             {
+                // Вместо прямого присваивания:
                 SelectedProvider = AvailableGraphs.First();
+
+                // Принудительно создаем график
+                OnSelectedProviderChanged(AvailableGraphs.First());
             }
         }
 

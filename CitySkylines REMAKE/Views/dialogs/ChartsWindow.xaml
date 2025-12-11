@@ -19,7 +19,8 @@
                        FontWeight="Bold"
                        Margin="10,10,10,5" />
 
-            <ListBox ItemsSource="{Binding AvailableGraphs}"
+            <ListBox x:Name="GraphsListBox"
+                     ItemsSource="{Binding AvailableGraphs}"
                      SelectedItem="{Binding SelectedProvider}"
                      DisplayMemberPath="SystemName"
                      Margin="10,0,10,10" />
