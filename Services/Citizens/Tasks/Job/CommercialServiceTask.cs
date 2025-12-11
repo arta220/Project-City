@@ -5,7 +5,7 @@ using Domain.Citizens.Tasks;
 using Domain.Common.Time;
 using Services.CommercialVisits;
 
-namespace Services.Citizens.Tasks
+namespace Services.Citizens.Tasks.Job
 {
     public class CommercialServiceTask : ICitizenTask
     {

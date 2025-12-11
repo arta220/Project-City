@@ -4,6 +4,8 @@ using Domain.Citizens.States;
 using Services.BuildingRegistry;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Tasks;
+using Services.Citizens.Tasks.Job;
+using Services.Citizens.Tasks.Move;
 using Services.EntityMovement.Service;
 using Services.Time;
 using Services.Utilities;

@@ -12,6 +12,7 @@
         GoingToCommercial,
         AtCommercial,
         GoingHomeFromCommercial,
+        Dead,
     }
 
 }

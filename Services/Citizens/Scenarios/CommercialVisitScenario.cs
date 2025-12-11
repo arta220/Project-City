@@ -1,67 +1,56 @@
-using System;
 using Domain.Buildings;
 using Domain.Citizens;
-using Domain.Citizens.States;
+using Domain.Citizens.Tasks;
+using Domain.Common.Base;
 using Services.BuildingRegistry;
-using Services.Citizens.Scenaries;
-using Services.Citizens.Tasks;
+using Services.Citizens.Scenarios.Base;
+using Services.Citizens.Tasks.Job;
 using Services.CommercialVisits;
 using Services.EntityMovement.Service;
 using Services.Time;
 
 namespace Services.Citizens.Scenarios
 {
-    public class CommercialVisitScenario : ICitizenScenario
+    public class CommercialVisitScenario : MoveAndPerformTaskScenario
     {
-        private readonly IBuildingRegistry _registry;
-        private readonly IEntityMovementService _movement;
         private readonly ICommercialVisitService _visitService;
-        private readonly Random _random = new();
+        private readonly Random _random = new Random();
 
         public CommercialVisitScenario(
-            IBuildingRegistry registry,
             IEntityMovementService movement,
+            IBuildingRegistry registry,
             ICommercialVisitService visitService)
+            : base(movement, registry)
         {
-            _registry = registry;
-            _movement = movement;
             _visitService = visitService;
         }
 
-        public bool CanRun(Citizen citizen, ISimulationTimeService time)
+        public override bool CanRun(Citizen citizen, ISimulationTimeService time)
         {
             if (citizen.Home == null)
                 return false;
 
-            return IsAtHome(citizen);
-        }
-
-        public void BuildTasks(Citizen citizen)
-        {
-            var commercialBuildings = _registry.GetBuildings<CommercialBuilding>()
-                                               .Where(b => b.CanAcceptMoreVisitors)
-                                               .ToList();
-
-            if (commercialBuildings.Count == 0)
-            {
-                citizen.State = CitizenState.Idle;
-                return;
-            }
-
-            var target = commercialBuildings[_random.Next(commercialBuildings.Count)];
-
-            citizen.State = CitizenState.GoingToCommercial;
-
-            citizen.Tasks.Enqueue(new MoveToBuildingTask(target, _movement, _registry));
-            citizen.Tasks.Enqueue(new CommercialServiceTask(target, _visitService));
-            citizen.Tasks.Enqueue(new MoveToBuildingTask(citizen.Home!, _movement, _registry));
-        }
-
-        private bool IsAtHome(Citizen citizen)
-        {
-            var (placement, ok) = _registry.TryGetPlacement(citizen.Home!);
+            var (placement, ok) = _registry.TryGetPlacement(citizen.Home);
             return ok && citizen.Position == placement.Value.Entrance;
+        }
+
+        protected override Building GetTargetBuilding(Citizen citizen)
+        {
+            var list = _registry.GetBuildings<CommercialBuilding>()
+                                .Where(b => b.CanAcceptMoreVisitors)
+                                .ToList();
+
+            return list[_random.Next(list.Count)];
+        }
+
+        protected override ICitizenTask CreateMainTask(Citizen citizen, Building target)
+        {
+            return new CommercialServiceTask((CommercialBuilding)target, _visitService);
+        }
+
+        protected override Building? GetReturnTarget(Citizen citizen)
+        {
+            return citizen.Home;
         }
     }
 }
-
