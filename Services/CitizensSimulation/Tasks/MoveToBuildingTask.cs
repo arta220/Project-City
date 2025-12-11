@@ -43,20 +43,30 @@ namespace Services.Citizens.Tasks
                     return;
                 }
 
-                var accessibleTiles = placement!.Value // "Вход" в здание считается доступным, если вокруг здания есть хотя бы одна пустая клетка.
+                var entrance = placement!.Value.Entrance;
+                var neighbors = placement.Value
                     .GetAllPositions()
-                    .SelectMany(pos => pos.GetNeighbors())
-                    .Where(tilePos => citizen.NavigationProfile.CanEnter(tilePos));
+                    .SelectMany(pos => pos.GetNeighbors());
 
-
-                if (!accessibleTiles.Any())
+                // Предпочитаем вход, если он проходим
+                if (citizen.NavigationProfile.CanEnter(entrance))
                 {
-                    citizen.State = CitizenState.Idle;
-                    IsCompleted = true;
-                    return;
+                    _movement.SetTarget(citizen, entrance);
                 }
+                else
+                {
+                    var accessibleTiles = neighbors
+                        .Where(tilePos => citizen.NavigationProfile.CanEnter(tilePos));
 
-                _movement.SetTarget(citizen, accessibleTiles.First());
+                    if (!accessibleTiles.Any())
+                    {
+                        citizen.State = CitizenState.Idle;
+                        IsCompleted = true;
+                        return;
+                    }
+
+                    _movement.SetTarget(citizen, accessibleTiles.First());
+                }
                 _pathSet = true;
             }
 
