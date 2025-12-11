@@ -42,7 +42,7 @@ namespace Services.TransportSimulation
 
             foreach (var transport in Transports)
             {
-                if (transport is PersonalCar car) // временная проверка
+                if (transport is PersonalCar car) // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 {
                     _controller.UpdateTransport(car, time);
                     TransportUpdated?.Invoke(transport);
@@ -51,7 +51,7 @@ namespace Services.TransportSimulation
         }
 
         /// <summary>
-        /// Возобновляет симуляцию транспорта.
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
         /// </summary>
         public void Resume()
         {
@@ -59,7 +59,7 @@ namespace Services.TransportSimulation
         }
 
         /// <summary>
-        /// Ставит симуляцию транспорта на паузу.
+        /// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.
         /// </summary>
         public void Pause()
         {

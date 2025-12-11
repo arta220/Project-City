@@ -1,4 +1,4 @@
-﻿using Domain.Common.Base;
+using Domain.Common.Base;
 
 namespace Domain.Map
 {

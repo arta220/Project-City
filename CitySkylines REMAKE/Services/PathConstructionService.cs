@@ -1,4 +1,4 @@
-﻿using CitySimulatorWPF.ViewModels;
+using CitySimulatorWPF.ViewModels;
 using Domain.Common.Enums;
 using Domain.Enums;
 using Domain.Infrastructure;

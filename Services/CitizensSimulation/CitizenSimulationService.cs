@@ -1,4 +1,4 @@
-﻿using Domain.Citizens;
+using Domain.Citizens;
 using Domain.Common.Time;
 using Services.Citizens.Population;
 using Services.CitizensSimulatiom;

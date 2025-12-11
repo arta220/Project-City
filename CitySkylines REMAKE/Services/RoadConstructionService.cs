@@ -1,4 +1,4 @@
-﻿using CitySimulatorWPF.ViewModels;
+using CitySimulatorWPF.ViewModels;
 using Domain.Base;
 using Domain.Map;
 

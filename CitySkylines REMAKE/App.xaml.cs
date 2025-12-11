@@ -1,4 +1,4 @@
-﻿using CitySimulatorWPF.Services;
+using CitySimulatorWPF.Services;
 using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
 using CitySimulatorWPF.Views.dialogs;
