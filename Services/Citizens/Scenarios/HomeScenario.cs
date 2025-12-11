@@ -3,6 +3,7 @@ using Domain.Citizens.States;
 using Domain.Common.Time;
 using Services.BuildingRegistry;
 using Services.Citizens.Tasks;
+using Services.Citizens.Tasks.Move;
 using Services.EntityMovement.Service;
 using Services.Time;
 
