@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using CitySkylines_REMAKE;
 using CitySimulatorWPF.ViewModels;
@@ -13,7 +13,7 @@ using Domain.Map;
 namespace CitySimulatorWPF.Views.components
 {
     /// <summary>
-    /// Логика взаимодействия для Header.xaml
+    /// ������ �������������� ��� Header.xaml
     /// </summary>
     public partial class Header : UserControl
     {
@@ -22,13 +22,13 @@ namespace CitySimulatorWPF.Views.components
             InitializeComponent();
         }
 
-        // ТВОЙ СТАРЫЙ МЕТОД - НЕ ТРОГАЕМ
+        // ���� ������ ����� - �� �������
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            // Твой код для графиков
+            // ���� ��� ��� ��������
         }
 
-        // Кнопка сохранения
+        // ������ ����������
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -39,24 +39,24 @@ namespace CitySimulatorWPF.Views.components
 
                 if (simulation == null || saveManager == null)
                 {
-                    MessageBox.Show("Не могу получить доступ к сервисам", "Ошибка",
+                    MessageBox.Show("�� ���� �������� ������ � ��������", "������",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
-                // Сохраняем текущее состояние
+                // ��������� ������� ���������
                 saveManager.SaveCurrentState(simulation.MapModel);
-                MessageBox.Show("💾 Игра сохранена!", "Сохранение",
+                MessageBox.Show("?? ���� ���������!", "����������",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ Ошибка сохранения: {ex.Message}", "Ошибка",
+                MessageBox.Show($"? ������ ����������: {ex.Message}", "������",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // Кнопка загрузки
+        // ������ ��������
         private void LoadButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -68,28 +68,28 @@ namespace CitySimulatorWPF.Views.components
 
                 if (simulation == null || saveManager == null)
                 {
-                    MessageBox.Show("Не могу получить доступ к сервисам", "Ошибка",
+                    MessageBox.Show("�� ���� �������� ������ � ��������", "������",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 if (!saveManager.HasSavedGame())
                 {
-                    MessageBox.Show("Нет сохраненной игры", "Загрузка",
+                    MessageBox.Show("��� ����������� ����", "��������",
                         MessageBoxButton.OK, MessageBoxImage.Information);
                     return;
                 }
 
-                // Загружаем сохраненное состояние
+                // ��������� ����������� ���������
                 saveManager.LoadSavedState(simulation.MapModel);
 
-                // Обновляем иконки зданий в MapVM
+                // ��������� ������ ������ � MapVM
                 if (mapVM != null)
                 {
-                    // Очищаем все иконки
+                    // ������� ��� ������
                     mapVM.BuildingIcons.Clear();
 
-                    // Добавляем иконки для всех объектов на карте
+                    // ��������� ������ ��� ���� �������� �� �����
                     for (int x = 0; x < simulation.MapModel.Width; x++)
                     {
                         for (int y = 0; y < simulation.MapModel.Height; y++)
@@ -109,42 +109,42 @@ namespace CitySimulatorWPF.Views.components
                     }
                 }
 
-                MessageBox.Show("📂 Игра загружена!", "Загрузка",
+                MessageBox.Show("?? ���� ���������!", "��������",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ Ошибка загрузки: {ex.Message}", "Ошибка",
+                MessageBox.Show($"? ������ ��������: {ex.Message}", "������",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        // Кнопка очистки карты
+        // ������ ������� �����
         private void ClearButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Спрашиваем подтверждение
+                // ���������� �������������
                 var result = MessageBox.Show(
-                    "УДАЛИТЬ ВСЕ ЗДАНИЯ С КАРТЫ?\n\nЭто действие нельзя отменить!",
-                    "Очистка карты",
+                    "������� ��� ������ � �����?\n\n��� �������� ������ ��������!",
+                    "������� �����",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
 
                 if (result != MessageBoxResult.Yes)
                     return;
 
-                // Получаем доступ к симуляции через App
+                // �������� ������ � ��������� ����� App
                 var app = Application.Current as App;
                 var simulation = app?._serviceProvider?.GetService<Simulation>();
 
                 if (simulation == null)
                 {
-                    MessageBox.Show("Не могу получить доступ к симуляции");
+                    MessageBox.Show("�� ���� �������� ������ � ���������");
                     return;
                 }
 
-                // Собираем все объекты на карте
+                // �������� ��� ������� �� �����
                 var objectsToRemove = new List<MapObject>();
                 for (int x = 0; x < simulation.MapModel.Width; x++)
                 {
@@ -158,7 +158,7 @@ namespace CitySimulatorWPF.Views.components
                     }
                 }
 
-                // Удаляем все объекты используя TryRemove (это вызовет события и удалит иконки)
+                // ������� ��� ������� ��������� TryRemove (��� ������� ������� � ������ ������)
                 int removedCount = 0;
                 foreach (var mapObject in objectsToRemove)
                 {
@@ -168,9 +168,9 @@ namespace CitySimulatorWPF.Views.components
                     }
                 }
 
-                // Также удаляем всех граждан и машины через сервисы
-                var citizenService = app?._serviceProvider?.GetService<Services.CitizensSimulation.CitizenSimulationService>();
-                var transportService = app?._serviceProvider?.GetService<Services.TransportSimulation.TransportSimulationService>();
+                // ����� ������� ���� ������� � ������ ����� �������
+                var citizenService = app?._serviceProvider?.GetService<CitizenSimulationService>();
+                var transportService = app?._serviceProvider?.GetService<global::Services.TransportSimulation.TransportSimulationService>();
 
                 int citizensRemoved = 0;
                 int transportsRemoved = 0;
@@ -195,12 +195,12 @@ namespace CitySimulatorWPF.Views.components
                     }
                 }
 
-                MessageBox.Show($"✅ Карта очищена!\nУдалено объектов: {removedCount}\nУдалено граждан: {citizensRemoved}\nУдалено машин: {transportsRemoved}",
-                    "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show($"? ����� �������!\n������� ��������: {removedCount}\n������� �������: {citizensRemoved}\n������� �����: {transportsRemoved}",
+                    "�����", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"❌ Ошибка: {ex.Message}", "Ошибка",
+                MessageBox.Show($"? ������: {ex.Message}", "������",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
