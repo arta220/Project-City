@@ -188,7 +188,7 @@ namespace CitySimulatorWPF.ViewModels
             var sawmillBuilding = sawmillFactory.Create() as Domain.Buildings.IndustrialBuilding;
             if (sawmillBuilding != null)
             {
-                var sawmillPlacement = new Placement(new Position(15, 15), sawmillBuilding.Area);
+                var sawmillPlacement = new Placement(new Position(15, 5), sawmillBuilding.Area);
                 if (_simulation.TryPlace(sawmillBuilding, sawmillPlacement))
                 {
                     Debug.WriteLine("Создан деревообрабатывающий завод на позиции (15,5)");

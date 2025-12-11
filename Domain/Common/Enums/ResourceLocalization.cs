@@ -68,6 +68,7 @@ namespace Domain.Common.Enums
             { ProductType.CosmeticBottle, "Косметический флакон" },
             { ProductType.PharmaceuticalPack, "Фармацевтическая упаковка" },
             { ProductType.GiftBox, "Подарочная упаковка" },
+            { ProductType.Lumber, "Пиломатериалы" },
         };
 
         /// <summary>
