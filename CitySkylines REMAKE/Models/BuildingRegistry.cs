@@ -118,19 +118,25 @@ namespace CitySimulatorWPF.Models
                 "Завод упаковки",
                 "Assets/Icons/FactoryPacking.png"
             ));
+
+
             //Завод противопожарного оборудования
             industrial.Objects.Add(new ObjectVM(
                 new FireEquipmentFactory(),
-                "Завод противопожарного оборудования",
-                "Assets/Icons/Factory.png" // Можно использовать существующую иконку завода
+                "Завод противоп. оборудования",
+                "C:\\Users\\Admin\\Source\\Repos\\Project-City32\\Domain\\Icons\\FireDep.png" // Можно использовать существующую иконку завода
             ));
 
             //Завод промышленных роботов
             industrial.Objects.Add(new ObjectVM(
                 new RoboticsFactory(),
-                "Завод промышленных роботов",
-                "Assets/Icons/Factory.png" // Можно использовать существующую иконку завода
+                "Завод пром. роботов",
+                "C:\\Users\\Admin\\Source\\Repos\\Project-City32\\Domain\\Icons\\robotDep.png" // Можно использовать существующую иконку завода
             ));
+
+
+
+
             #endregion
 
             // Инфраструктура
