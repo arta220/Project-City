@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+/*using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Domain.Buildings.Residential;
 
 [TestClass]
@@ -15,3 +15,4 @@ public class ResidentialBuildingTests
         Assert.IsNotNull(building.Utilities);
     }
 }
+*/

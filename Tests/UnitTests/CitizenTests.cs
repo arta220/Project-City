@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+/*using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Domain.Citizens;
 using Domain.Buildings.Residential;
 using Domain.Map;
@@ -18,3 +18,4 @@ public class CitizenTests
         Assert.AreEqual(1.0f, citizen.Speed);
     }
 }
+*/

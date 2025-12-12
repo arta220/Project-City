@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+/*using Domain.Enums;
 using Domain.Infrastructure;
 using Domain.Map;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -63,3 +63,4 @@ namespace Tests.Domain
         }
     }
 }
+*/

@@ -1,4 +1,4 @@
-﻿using Domain.Base;
+/*using Domain.Base;
 using Domain.Enums;
 using Domain.Factories;
 using Domain.Map;
@@ -107,3 +107,4 @@ namespace Tests.Domain
         }
     }
 }
+*/

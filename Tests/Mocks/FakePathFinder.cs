@@ -1,20 +1,35 @@
-﻿using Domain.Map;
-using Services.PathFind;
+using Domain.Common.Base.MovingEntities;
+using Domain.Map;
+using Services.EntityMovement.PathFind;
+using System.Collections.Generic;
 
-public class FakePathFinder : IPathFinder
+namespace Tests.Mocks
 {
-    public List<Position> FindPath(Position from, Position to)
+    public class FakePathFinder : IPathFinder
     {
-        var path = new List<Position>();
-        int x = from.X, y = from.Y;
-        while (x != to.X || y != to.Y)
+        public IEnumerable<Position>? FindPath(Position from, Position to, INavigationProfile profile)
         {
-            if (x < to.X) x++;
-            else if (x > to.X) x--;
-            if (y < to.Y) y++;
-            else if (y > to.Y) y--;
-            path.Add(new Position(x, y));
+            var path = new List<Position>();
+            int x = from.X, y = from.Y;
+            while (x != to.X || y != to.Y)
+            {
+                if (x < to.X) x++;
+                else if (x > to.X) x--;
+                if (y < to.Y) y++;
+                else if (y > to.Y) y--;
+                
+                var pos = new Position(x, y);
+                if (profile.CanEnter(pos))
+                {
+                    path.Add(pos);
+                }
+                else
+                {
+                    // Если не можем войти, возвращаем null
+                    return null;
+                }
+            }
+            return path;
         }
-        return path;
     }
 }

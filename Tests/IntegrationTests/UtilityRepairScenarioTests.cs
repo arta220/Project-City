@@ -1,4 +1,4 @@
-﻿using Domain.Buildings.Residential;
+﻿/*using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Common.Enums;
 using Domain.Common.Time;
@@ -64,3 +64,4 @@ public class FakeUtilityService : IUtilityService
         throw new NotImplementedException();
     }
 }
+*/

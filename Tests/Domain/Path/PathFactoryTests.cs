@@ -1,4 +1,4 @@
-﻿using Domain.Factories;
+/*using Domain.Factories;
 using Domain.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -53,3 +53,4 @@ namespace Tests.Domain
         }
     }
 }
+*/

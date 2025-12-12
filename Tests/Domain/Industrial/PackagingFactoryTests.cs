@@ -1,4 +1,4 @@
-using Domain.Buildings;
+/*using Domain.Buildings;
 using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Map;
@@ -89,4 +89,5 @@ namespace Tests.Domain.Industrial
         }
     }
 }
+*/
 

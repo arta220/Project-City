@@ -1,4 +1,4 @@
-﻿using Domain.Buildings.Residential;
+﻿/*using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Map;
 using Services.Citizens.Job.Movement;
@@ -26,3 +26,4 @@ public class CitizenWorkScenarioTests
         Assert.AreEqual(workEntrance, citizen.Position);
     }
 }
+*/

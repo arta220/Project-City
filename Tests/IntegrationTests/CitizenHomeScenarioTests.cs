@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/*using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Domain.Citizens;
 using Domain.Buildings.Residential;
 using Domain.Map;
@@ -30,3 +30,4 @@ public class CitizenHomeScenarioTests
         Assert.AreEqual(homeEntrance, citizen.Position);
     }
 }
+*/

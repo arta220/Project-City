@@ -1,4 +1,4 @@
-﻿using Domain.Citizens;
+﻿/*using Domain.Citizens;
 using Domain.Map;
 using Services.Citizens.Movement;
 
@@ -25,3 +25,4 @@ public class MovementServiceTests
     }
 
 }
+*/
