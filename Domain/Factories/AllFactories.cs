@@ -389,7 +389,100 @@ namespace Domain.Factories
             return building;
         }
     }
+    /// <summary>
+    /// Алкогольный завод
+    /// Производит различные виды алкогольной продукции
+    /// </summary>
+    public class AlcoholFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 80,
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
+            );
 
+            // 1. Цех производства пива
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Beer,
+                coeff: 6
+            );
+
+            // 2. Цех производства водки
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Vodka,
+                coeff: 4
+            );
+
+            // 3. Цех производства вина
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Wine,
+                coeff: 5
+            );
+
+            // 4. Цех производства виски
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Whiskey,
+                coeff: 3
+            );
+
+            // 5. Цех производства рома
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Rum,
+                coeff: 4
+            );
+
+            // 6. Цех производства текилы
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Tequila,
+                coeff: 5
+            );
+
+            // 7. Цех производства джина
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Gin,
+                coeff: 4
+            );
+
+            // 8. Цех производства бренди
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Brandy,
+                coeff: 3
+            );
+
+            // 9. Цех производства шампанского
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Champagne,
+                coeff: 5
+            );
+
+            // 10. Цех производства ликёров
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Liqueur,
+                coeff: 6
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Water] = 500;
+            building.MaterialsBank[NaturalResourceType.Energy] = 200;
+            building.MaterialsBank[ProductType.Plastic] = 150;
+            building.MaterialsBank[ProductType.GlassJar] = 100;
+
+            return building;
+        }
+    }
     /// <summary>
     /// Фармацевтический завод
     /// </summary>

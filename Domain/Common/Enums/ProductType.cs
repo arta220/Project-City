@@ -47,7 +47,18 @@ namespace Domain.Common.Enums
         MakeupKit,          // Набор для макияжа
         HygieneProduct,     // Гигиенический продукт
         ScentedCandle,      // Ароматическая свеча
-        CosmeticSet         // Косметический набор
+        CosmeticSet,        // Косметический набор
+        // Продукты алкогольного завода
+        Beer,               // Пиво
+        Vodka,              // Водка
+        Wine,               // Вино
+        Whiskey,            // Виски
+        Rum,                // Ром
+        Tequila,            // Текила
+        Gin,                // Джин
+        Brandy,             // Бренди
+        Champagne,          // Шампанское
+        Liqueur             // Ликёр
 
 
     }

@@ -35,6 +35,7 @@ namespace Services.Graphing
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));
                 RegisterProvider(new PackagingProductionGraphProvider(_productionService));
                 RegisterProvider(new CosmeticsProductionGraphProvider(_productionService));
+                RegisterProvider(new AlcoholProductionGraphProvider(_productionService));
             }
         }
 

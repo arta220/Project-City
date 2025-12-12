@@ -127,6 +127,67 @@ namespace Services.Graphing
             return plotModel;
         }
     }
+    /// <summary>
+    /// Провайдер графика для производства алкоголя
+    /// </summary>
+    public class AlcoholProductionGraphProvider : IGraphDataProvider
+    {
+        private readonly IIndustrialProductionService _productionService;
+
+        public string SystemName => "Производство алкоголя";
+        public string GraphTitle => "Статистика производства алкоголя";
+        public string XAxisTitle => "Время (тики)";
+        public string YAxisTitle => "Количество";
+
+        public AlcoholProductionGraphProvider(IIndustrialProductionService productionService)
+        {
+            _productionService = productionService;
+        }
+
+        public PlotModel CreatePlotModel()
+        {
+            var plotModel = new PlotModel { Title = GraphTitle };
+            var statistics = _productionService.GetStatistics();
+
+            // Добавление осей
+            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                Title = XAxisTitle
+            });
+            plotModel.Axes.Add(new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                Title = YAxisTitle
+            });
+
+            // Линия производства алкоголя
+            var productionLine = new LineSeries
+            {
+                Title = "Производство алкоголя",
+                Color = OxyColors.Gold
+            };
+
+            // Линия использованных материалов
+            var materialsLine = new LineSeries
+            {
+                Title = "Материалы",
+                Color = OxyColors.Brown
+            };
+
+            // Заполнение данными
+            foreach (var dataPoint in statistics.AlcoholHistory)
+            {
+                productionLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.AlcoholProduction));
+                materialsLine.Points.Add(new DataPoint(dataPoint.Tick, dataPoint.AlcoholMaterialsUsed));
+            }
+
+            plotModel.Series.Add(productionLine);
+            plotModel.Series.Add(materialsLine);
+
+            return plotModel;
+        }
+    }
 
     /// <summary>
     /// Провайдер графика для производства косметики
