@@ -33,6 +33,12 @@ namespace CitySimulatorWPF.ViewModels
 
         private DispatcherTimer _blinkTimer;
         private DispatcherTimer _disasterBlinkTimer;
+        
+        // Флаги для отслеживания состояния мигания
+        private bool _shouldBlinkRed = false;
+        private bool _shouldBlinkBlue = false;
+        private bool _blinkRedState = false;
+        private bool _blinkBlueState = false;
 
         public bool HasObject => TileModel.MapObject != null;
         public bool CanBuild => !HasObject;
@@ -72,16 +78,22 @@ namespace CitySimulatorWPF.ViewModels
             _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _blinkTimer.Tick += (s, e) =>
             {
-                if (IsBlinkingRed)
-                    OnPropertyChanged(nameof(IsBlinkingRed));
+                if (_shouldBlinkRed)
+                {
+                    _blinkRedState = !_blinkRedState;
+                    IsBlinkingRed = _blinkRedState;
+                }
             };
             _blinkTimer.Start();
 
             _disasterBlinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
             _disasterBlinkTimer.Tick += (s, e) =>
             {
-                if (IsBlinkingBlue)
-                    OnPropertyChanged(nameof(IsBlinkingBlue));
+                if (_shouldBlinkBlue)
+                {
+                    _blinkBlueState = !_blinkBlueState;
+                    IsBlinkingBlue = _blinkBlueState;
+                }
             };
             _disasterBlinkTimer.Start();
 
@@ -133,16 +145,26 @@ namespace CitySimulatorWPF.ViewModels
             // Приоритет: бедствия (синий) важнее чем ЖКХ (красный)
             if (hasDisaster)
             {
+                _shouldBlinkBlue = true;
+                _shouldBlinkRed = false;
+                // Сбрасываем состояние мигания, чтобы начать с нужной фазы
+                _blinkBlueState = true;
                 IsBlinkingBlue = true;
                 IsBlinkingRed = false;
             }
             else if (hasBrokenUtilities)
             {
+                _shouldBlinkBlue = false;
+                _shouldBlinkRed = true;
+                // Сбрасываем состояние мигания, чтобы начать с нужной фазы
+                _blinkRedState = true;
                 IsBlinkingBlue = false;
                 IsBlinkingRed = true;
             }
             else
             {
+                _shouldBlinkBlue = false;
+                _shouldBlinkRed = false;
                 IsBlinkingBlue = false;
                 IsBlinkingRed = false;
             }

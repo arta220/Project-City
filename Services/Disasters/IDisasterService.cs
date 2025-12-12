@@ -10,5 +10,10 @@ namespace Services.Disasters
         void FixDisaster(Building building, DisasterType disasterType);
         Dictionary<DisasterType, int> GetActiveDisasters(Building building);
         Dictionary<Building, List<DisasterType>> GetDisasterMap();
+        
+        /// <summary>
+        /// Событие, которое вызывается при уничтожении здания (здоровье <= 0).
+        /// </summary>
+        event Action<Building> BuildingDestroyed;
     }
 }

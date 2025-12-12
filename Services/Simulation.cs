@@ -67,6 +67,16 @@ namespace Services
             _updatableServices.Add(disasterService);
 
             _timeService.TimeChanged += OnTimeChanged;
+            
+            // Подписываемся на уничтожение зданий
+            _disasterService.BuildingDestroyed += OnBuildingDestroyed;
+        }
+
+        private void OnBuildingDestroyed(Building building)
+        {
+            // Удаляем уничтоженное здание с карты
+            // MapObjectRemoved уже вызывается в TryRemove
+            TryRemove(building);
         }
 
         private void OnTimeChanged(SimulationTime time)
@@ -100,7 +110,14 @@ namespace Services
             if (!found || placement is null)
                 return false;
 
-            return _placementService.TryRemove(MapModel, (Placement)placement);
+            if (_placementService.TryRemove(MapModel, (Placement)placement))
+            {
+                _placementRepository.Remove(mapObject);
+                MapObjectRemoved?.Invoke(mapObject);
+                return true;
+            }
+
+            return false;
         }
 
         public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);

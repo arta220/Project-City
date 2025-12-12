@@ -54,7 +54,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
-            services.AddSingleton<IDisasterService, DisasterService>();
+            services.AddSingleton<IDisasterService>(sp =>
+            {
+                var buildingRegistry = sp.GetRequiredService<IBuildingRegistry>();
+                var placementRepository = sp.GetRequiredService<PlacementRepository>();
+                var mapModel = sp.GetRequiredService<MapModel>();
+                return new DisasterService(buildingRegistry, placementRepository, mapModel);
+            });
             services.AddSingleton<GraphService>();
             services.AddTransient<ChartsWindowViewModel>();
 
