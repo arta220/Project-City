@@ -92,8 +92,8 @@ namespace CitySkylines_REMAKE.ViewModels
             {
                 if (_saveLoadService.LoadGame(openDialog.FileName, _simulation))
                 {
-                    // Обновляем UI после загрузки
-                    _mapVM?.ClearMap();
+                    // Обновляем иконки зданий после загрузки
+                    _mapVM?.RefreshBuildingIcons();
                     MessageBox.Show("Игра успешно загружена!", "Загрузка", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else

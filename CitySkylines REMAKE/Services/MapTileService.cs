@@ -69,9 +69,11 @@ namespace CitySimulatorWPF.Services
         {
             Tiles.Clear();
 
-            for (int x = 0; x < mapModel.Width; x++)
+            // UniformGrid заполняет элементы построчно (сначала первая строка, потом вторая)
+            // Поэтому нужно создавать тайлы в порядке: для каждого y все x
+            for (int y = 0; y < mapModel.Height; y++)
             {
-                for (int y = 0; y < mapModel.Height; y++)
+                for (int x = 0; x < mapModel.Width; x++)
                 {
                     var tileVM = new TileVM(mapModel[x, y]);
 

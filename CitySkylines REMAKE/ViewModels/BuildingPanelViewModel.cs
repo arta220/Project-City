@@ -1,7 +1,9 @@
 using CitySimulatorWPF.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 
 namespace CitySimulatorWPF.ViewModels
@@ -66,11 +68,55 @@ namespace CitySimulatorWPF.ViewModels
         /// Команда выбора конкретного здания.
         /// </summary>
         /// <param name="@object">Объект здания.</param>
+        private static void LogToFile(string message)
+        {
+            try
+            {
+                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CitySimulator", "debug.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath));
+                File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] {message}\n");
+            }
+            catch { }
+        }
+
         [RelayCommand]
         private void SelectBuilding(ObjectVM @object)
         {
-            SelectedObject = @object;
-            BuildingSelected?.Invoke(SelectedObject);
+            try
+            {
+                var msg = $"[SelectBuilding] Called with: {@object?.Factory?.GetType().Name ?? "null"}, Factory: {@object?.Factory?.GetType().FullName ?? "null"}";
+                System.Diagnostics.Debug.WriteLine(msg);
+                LogToFile(msg);
+                
+                if (@object == null)
+                {
+                    var nullMsg = "[SelectBuilding] Received null object!";
+                    System.Diagnostics.Debug.WriteLine(nullMsg);
+                    LogToFile(nullMsg);
+                    return;
+                }
+                
+                SelectedObject = @object;
+                var msg2 = $"[SelectBuilding] SelectedObject set to: {SelectedObject?.Factory?.GetType().Name ?? "null"}";
+                System.Diagnostics.Debug.WriteLine(msg2);
+                LogToFile(msg2);
+                
+                var hasSubscribers = BuildingSelected != null;
+                var msg3 = $"[SelectBuilding] BuildingSelected event has subscribers: {hasSubscribers}";
+                System.Diagnostics.Debug.WriteLine(msg3);
+                LogToFile(msg3);
+                
+                BuildingSelected?.Invoke(SelectedObject);
+                var msg4 = $"[SelectBuilding] BuildingSelected event invoked";
+                System.Diagnostics.Debug.WriteLine(msg4);
+                LogToFile(msg4);
+            }
+            catch (Exception ex)
+            {
+                var errorMsg = $"[SelectBuilding] ERROR: {ex.Message}\n{ex.StackTrace}";
+                System.Diagnostics.Debug.WriteLine(errorMsg);
+                LogToFile(errorMsg);
+            }
         }
 
         /// <summary>

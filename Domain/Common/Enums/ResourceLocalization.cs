@@ -14,6 +14,7 @@ namespace Domain.Common.Enums
             // Natural Resources
             { NaturalResourceType.None, "Отсутствует" },
             { NaturalResourceType.Iron, "Железо" },
+            { NaturalResourceType.Coal, "Уголь" },
             { NaturalResourceType.Oil, "Нефть" },
             { NaturalResourceType.Gas, "Газ" },
             { NaturalResourceType.Wood, "Дерево" },

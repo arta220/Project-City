@@ -43,6 +43,7 @@ namespace CitySimulatorWPF.Converters
                 return type switch
                 {
                     NaturalResourceType.Iron => Brushes.LightGray,    // железо
+                    NaturalResourceType.Coal => Brushes.DarkGray,     // уголь
                     NaturalResourceType.Copper => Brushes.Orange,       // медь
                     NaturalResourceType.Oil => Brushes.Black,        // нефть
                     NaturalResourceType.Gas => Brushes.LightSkyBlue, // газ

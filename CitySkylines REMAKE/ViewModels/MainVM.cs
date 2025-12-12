@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.Input;
+using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using Services.Graphing;
@@ -29,6 +31,16 @@ namespace CitySimulatorWPF.ViewModels
     /// </remarks>
     public partial class MainVM : ObservableObject
     {
+        private static void LogToFile(string message)
+        {
+            try
+            {
+                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CitySimulator", "debug.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath));
+                File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] {message}\n");
+            }
+            catch { }
+        }
 
         private readonly GraphService _graphService;
         /// <summary>
@@ -62,8 +74,28 @@ namespace CitySimulatorWPF.ViewModels
             // Подписка на событие выбора здания в панели
             BuildingPanelVM.BuildingSelected += building =>
             {
-                MapVM.SelectedObject = building;
-                MapVM.CurrentMode = MapInteractionMode.Build;
+                var msg1 = $"[MainVM] BuildingSelected event: {building?.Factory?.GetType().Name ?? "null"}";
+                System.Diagnostics.Debug.WriteLine(msg1);
+                LogToFile(msg1);
+                if (building != null)
+                {
+                    // Сначала устанавливаем объект, потом режим (чтобы OnSelectedObjectChanged сработал правильно)
+                    MapVM.SelectedObject = building;
+                    // Убеждаемся, что режим Build установлен
+                    if (MapVM.CurrentMode != MapInteractionMode.Build)
+                    {
+                        MapVM.CurrentMode = MapInteractionMode.Build;
+                    }
+                    var msg2 = $"[MainVM] Set CurrentMode={MapVM.CurrentMode}, SelectedObject={MapVM.SelectedObject?.Factory?.GetType().Name ?? "null"}";
+                    System.Diagnostics.Debug.WriteLine(msg2);
+                    LogToFile(msg2);
+                }
+                else
+                {
+                    var msg3 = "[MainVM] BuildingSelected event received null building!";
+                    System.Diagnostics.Debug.WriteLine(msg3);
+                    LogToFile(msg3);
+                }
             };
 
             HeaderPanelVM.RemoveModeOn += () =>

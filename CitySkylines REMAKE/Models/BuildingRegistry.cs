@@ -119,34 +119,26 @@ namespace CitySimulatorWPF.Models
                 "Завод упаковки",
                 "Icons/Factory.png"
             ));
+
+            // Добывающий завод (ResourceExtractionFactory)
             industrial.Objects.Add(new ObjectVM(
                 new ResourceExtractionFactory(),
-                "Добыча природных ресурсов",
-                "Assets/Icons/RecyclingPlantFactory.png"
-                            ));
+                "Добывающий завод",
+                "/Icons/MiningFactory.png"
+            ));
 
+            // Древообрабатывающий завод (WoodProcessingFactory)
             industrial.Objects.Add(new ObjectVM(
                 new WoodProcessingFactory(),
-                "Древообрабатывающий",
-                "Icons/Factory.png"
+                "Древообрабатывающий завод",
+                "/Icons/WoodProcessingFactory.jpg"
             ));
 
+            // Перерабатывающий завод (RecyclingFactory)
             industrial.Objects.Add(new ObjectVM(
                 new RecyclingFactory(),
-                "Перерабатывающий",
-                "Icons/Factory.png"
-            ));
-
-            industrial.Objects.Add(new ObjectVM(
-                new MiningFactoryFactory(),
-                "Добывающий завод",
-                "/Icons/Factory.png"
-            ));
-
-            industrial.Objects.Add(new ObjectVM(
-                new WoodProcessingFactoryFactory(),
-                "Древообрабатывающий завод",
-                "/Icons/Factory.png"
+                "Перерабатывающий завод",
+                "/Icons/RecyclingFactory.png"
             ));
             #endregion
 
