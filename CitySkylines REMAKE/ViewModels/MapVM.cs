@@ -225,10 +225,10 @@ namespace CitySimulatorWPF.ViewModels
             var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
             if (!_simulation.TryPlace(residentialBuilding, housePlacement))
             {
-                _messageService.ShowMessage("Не удалось разместить жилой дом");
+                _messageService.ShowMessage("Не удалось разместить добывающий завод");
                 return;
             }
-            Debug.WriteLine($"Создан жилой дом на позиции (35,35)");
+            Debug.WriteLine($"Создан добывающий завод на позиции (30,10)");
 
             // 6. Информация о тесте
             _messageService.ShowMessage(
@@ -427,6 +427,25 @@ namespace CitySimulatorWPF.ViewModels
                 tile.UpdateBlinkingState();
                 _messageService.ShowMessage($"{utilityToFix} отремонтирован!");
             }
+        }
+
+        /// <summary>
+        /// Очищает карту от всех объектов и тайлов.
+        /// </summary>
+        public void ClearMap()
+        {
+            _simulation.ClearMap();
+            
+            // Очищаем иконки зданий
+            BuildingIcons.Clear();
+            
+            // Обновляем все тайлы
+            foreach (var tile in Tiles)
+            {
+                tile.UpdateBlinkingState();
+            }
+            
+            _messageService.ShowMessage("Карта очищена");
         }
     }
 }

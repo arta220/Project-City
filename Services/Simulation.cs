@@ -12,6 +12,7 @@ using Services.PlaceBuilding;
 using Services.Time;
 using Services.TransportSimulation;
 using Services.Utilities;
+using System.Linq;
 
 namespace Services
 {
@@ -112,6 +113,11 @@ namespace Services
         public (Placement? placement, bool found) GetMapObjectPlacement(MapObject mapObject) => _placementRepository.TryGetPlacement(mapObject);
 
         public bool CanPlace(MapObject mapObject, Placement placement) => _placementService.CanPlace(MapModel, mapObject, placement);
+
+        /// <summary>
+        /// Получает все здания на карте.
+        /// </summary>
+        public IEnumerable<MapObject> GetAllBuildings() => _placementRepository.GetAll().Where(obj => obj is Building);
         public void AddCitizen(Citizen citizen)
         {
             _citizenSimulationService.AddCitizen(citizen);
@@ -126,5 +132,39 @@ namespace Services
 
         public void RemoveCitizen(Citizen citizen) => _citizenSimulationService.RemoveCitizen(citizen);
         public void RemoveTransport(Transport car) => _transportSimulationService.RemoveTransport(car);
+
+        /// <summary>
+        /// Очищает карту от всех объектов и тайлов.
+        /// </summary>
+        public void ClearMap()
+        {
+            // Получаем все объекты из репозитория
+            var allObjects = _placementRepository.GetAll().ToList();
+            
+            // Удаляем все объекты
+            foreach (var obj in allObjects)
+            {
+                var (placement, found) = _placementRepository.TryGetPlacement(obj);
+                if (found && placement != null)
+                {
+                    // Удаляем объект с карты
+                    _placementService.TryRemove(MapModel, placement.Value);
+                    // Удаляем из репозитория
+                    _placementRepository.Remove(obj);
+                    // Уведомляем об удалении
+                    MapObjectRemoved?.Invoke(obj);
+                }
+            }
+
+            // Очищаем все тайлы карты
+            for (int x = 0; x < MapModel.Width; x++)
+            {
+                for (int y = 0; y < MapModel.Height; y++)
+                {
+                    var tile = MapModel[x, y];
+                    tile.MapObject = null;
+                }
+            }
+        }
     }
 }

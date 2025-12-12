@@ -49,14 +49,8 @@ namespace Services.PlaceBuilding
                 if (!_validator.CanBuildOnTile(tile, mapObject))
                     return false;
 
-                foreach (var neighbor in position.GetNeighbors())
-                {
-                    if (!map.IsPositionInBounds(neighbor))
-                        continue;
-
-                    if (map[neighbor].MapObject != null)
-                        return false;
-                }
+                // Убрана проверка соседей - здания могут быть рядом друг с другом
+                // Проверяем только, что сам тайл свободен (это уже проверяется в CanBuildOnTile)
             }
 
             return true;

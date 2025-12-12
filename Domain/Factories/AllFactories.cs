@@ -418,6 +418,114 @@ namespace Domain.Factories
             return factory;
         }
     }
+
+    /// <summary>
+    /// Добывающий завод
+    /// Добывает природные ресурсы из земли (железо, медь, нефть, газ, дерево)
+    /// </summary>
+    public class MiningFactoryFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var factory = new IndustrialBuilding(
+                floors: 1,
+                maxOccupancy: 40,
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // Цех добычи железа
+            factory.AddWorkshop(
+                NaturalResourceType.Energy, // Требуется энергия для добычи
+                NaturalResourceType.Iron,
+                coeff: 5
+            );
+
+            // Цех добычи меди
+            factory.AddWorkshop(
+                NaturalResourceType.Energy,
+                NaturalResourceType.Copper,
+                coeff: 4
+            );
+
+            // Цех добычи нефти
+            factory.AddWorkshop(
+                NaturalResourceType.Energy,
+                NaturalResourceType.Oil,
+                coeff: 3
+            );
+
+            // Цех добычи газа
+            factory.AddWorkshop(
+                NaturalResourceType.Energy,
+                NaturalResourceType.Gas,
+                coeff: 4
+            );
+
+            // Цех добычи дерева
+            factory.AddWorkshop(
+                NaturalResourceType.Energy,
+                NaturalResourceType.Wood,
+                coeff: 6
+            );
+
+            // Инициализация начальных материалов
+            factory.MaterialsBank[NaturalResourceType.Energy] = 500;
+
+            return factory;
+        }
+    }
+
+    /// <summary>
+    /// Древообрабатывающий завод
+    /// Обрабатывает дерево в различные продукты (доски, мебель, бумага)
+    /// </summary>
+    public class WoodProcessingFactoryFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var factory = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 30,
+                area: new Area(4, 4),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // Цех обработки дерева в доски
+            factory.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.Paper,
+                coeff: 3
+            );
+
+            // Цех производства мебели
+            factory.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.Furniture,
+                coeff: 2
+            );
+
+            // Цех производства деревянных ящиков
+            factory.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.WoodenCrate,
+                coeff: 4
+            );
+
+            // Цех производства древесной щепы
+            factory.AddWorkshop(
+                NaturalResourceType.Wood,
+                NaturalResourceType.WoodChips,
+                coeff: 5
+            );
+
+            // Инициализация начальных материалов
+            factory.MaterialsBank[NaturalResourceType.Wood] = 300;
+            factory.MaterialsBank[NaturalResourceType.Energy] = 100;
+
+            return factory;
+        }
+    }
     #endregion
 
     public class UrbanParkFactory : IMapObjectFactory

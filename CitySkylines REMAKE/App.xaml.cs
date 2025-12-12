@@ -32,6 +32,7 @@ using Services.Time.Clock;
 using Services.TransportSimulation;
 using Services.TransportSimulation.StateHandlers;
 using Services.Utilities;
+using Services.SaveLoad;
 using System.Windows;
 
 namespace CitySkylines_REMAKE
@@ -159,11 +160,21 @@ namespace CitySkylines_REMAKE
 
             services.AddSingleton<Simulation>();
 
+            // Сохранение и загрузка
+            services.AddSingleton<ISaveLoadService, SaveLoadService>();
+
             // ViewModels
-            services.AddTransient<HeaderPanelViewModel>();
             services.AddTransient<BuildingPanelViewModel>();
+            services.AddSingleton<MapVM>(); // Singleton чтобы избежать двойного создания и двойного вызова CreateTestScenario
+            services.AddTransient<HeaderPanelViewModel>(sp =>
+            {
+                var graphService = sp.GetRequiredService<GraphService>();
+                var mapVM = sp.GetRequiredService<MapVM>();
+                var simulation = sp.GetRequiredService<Simulation>();
+                var saveLoadService = sp.GetRequiredService<ISaveLoadService>();
+                return new HeaderPanelViewModel(graphService, mapVM, simulation, saveLoadService);
+            });
             services.AddTransient<MainVM>();
-            services.AddTransient<MapVM>();
 
             // MainWindow
             services.AddSingleton<MainWindow>();
