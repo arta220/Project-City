@@ -14,7 +14,16 @@ namespace Domain.Common.Enums
 
         //RecyclingPlantFactory
         PlasticWaste,     // Пластиковые отходы
-        Plastic
+        Plastic,
 
+        Petroleum,           // Нефть
+        NaturalGas,          // Природный газ
+        Salt,               // Соль
+        Sulfur,             // Сера
+        Ammonia,            // Аммиак
+        OrganicCompounds,   // Органические соединения
+        Minerals,           // Минералы
+        Water,              // Вода (уже в NaturalResourceType, но для единообразия)
+        Energy              // Энергия
     }
 }

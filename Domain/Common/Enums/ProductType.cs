@@ -35,7 +35,23 @@ namespace Domain.Common.Enums
         ShippingBox,        // Транспортная коробка
         CosmeticBottle,     // Косметический флакон
         PharmaceuticalPack, // Фармацевтическая упаковка
-        GiftBox            // Подарочная упаковка
+        GiftBox,            // Подарочная упаковка
+        // Новые для химической промышленности
+        Fertilizers,          // Удобрения
+        Pesticides,           // Пестициды
+        Pharmaceuticals,      // Лекарства
+        Plastics,             // Пластмассы
+        SyntheticRubber,      // Синтетический каучук
+        Petrochemicals,       // Нефтехимическая продукция
+        Detergents,           // Моющие средства
+        Paints,               // Краски
+        Cosmetics,            // Косметика
+        IndustrialSolvents,   // Промышленные растворители
+        Explosives,           // Взрывчатые вещества
+        Adhesives,            // Клеи
+        Dyes,                 // Красители
+        Cleaners,             // Чистящие средства
+        TextileChemicals      // Химикаты для текстиля
     }
 }
 

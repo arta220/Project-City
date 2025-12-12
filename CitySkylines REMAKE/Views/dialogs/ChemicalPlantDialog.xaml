@@ -1,0 +1,159 @@
+<Window x:Class="CitySimulatorWPF.Views.dialogs.ChemicalPlantDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Химический завод - Управление" 
+        Height="500" 
+        Width="600"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" FontSize="16" FontWeight="Bold" Text="Химический завод" HorizontalAlignment="Center"/>
+
+        <!-- Основная информация -->
+        <GroupBox Grid.Row="1" Header="Информация о заводе" Margin="0,10">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Специализация:"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Specialization}" FontWeight="Bold"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Технологический уровень:"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TechnologyLevel}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Безопасность:"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SafetyLevelWithPercent}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Загрязнение:"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PollutionLevelWithPercent}"/>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Эффективность:"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding ProductionEfficiencyWithPercent}"/>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Производство -->
+        <GroupBox Grid.Row="2" Header="Производство" Margin="0,10">
+            <StackPanel>
+                <Button Content="Запустить производственный цикл" 
+                        Click="RunProduction_Click"/>
+
+                <Button Content="Улучшить технологии (+5 к эффективности)" 
+                        Click="UpgradeTechnology_Click"/>
+
+                <Button Content="Повысить безопасность (+10%)" 
+                        Click="ImproveSafety_Click"/>
+
+                <Button Content="Уменьшить загрязнение (-15%)" 
+                        Click="ReducePollution_Click"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Сырье и продукция -->
+        <GroupBox Grid.Row="3" Header="Склад" Margin="0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Сырье -->
+                <StackPanel Grid.Column="0" Margin="5">
+                    <TextBlock Text="Сырье:" FontWeight="Bold"/>
+                    <ScrollViewer MaxHeight="100">
+                        <ItemsControl ItemsSource="{Binding MaterialsList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding Amount}"/>
+                                        <TextBlock Text="ед." Margin="5,0,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+
+                <!-- Продукция -->
+                <StackPanel Grid.Column="1" Margin="5">
+                    <TextBlock Text="Продукция:" FontWeight="Bold"/>
+                    <ScrollViewer MaxHeight="100">
+                        <ItemsControl ItemsSource="{Binding ProductsList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" Margin="0,0,5,0"/>
+                                        <TextBlock Text="{Binding Amount}"/>
+                                        <TextBlock Text="ед." Margin="5,0,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+
+        <!-- Персонал -->
+        <GroupBox Grid.Row="4" Header="Персонал" Margin="0,10">
+            <StackPanel>
+                <TextBlock Text="{Binding WorkerInfo}" TextWrapping="Wrap"/>
+
+                <WrapPanel>
+                    <Button Content="Нанять химика" 
+                            Click="HireWorker_Click"/>
+
+                    <Button Content="Нанять рабочего" 
+                            Click="HireWorker_Click"/>
+
+                    <Button Content="Уволить сотрудника" 
+                            Click="FireWorker_Click"/>
+                </WrapPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Кнопки управления -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
+            <Button Content="Обновить" 
+                    Click="Refresh_Click"/>
+            <Button Content="Закрыть" 
+                    Click="CloseButton_Click" 
+                    IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

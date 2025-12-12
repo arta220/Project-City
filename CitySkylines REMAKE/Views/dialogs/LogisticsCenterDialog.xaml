@@ -1,0 +1,145 @@
+<Window x:Class="CitySimulatorWPF.Views.dialogs.LogisticsCenterDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Логистический центр - Управление" 
+        Height="550" 
+        Width="650"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" FontSize="16" FontWeight="Bold" Text="Логистический центр" HorizontalAlignment="Center"/>
+
+        <!-- Статистика -->
+        <GroupBox Grid.Row="1" Header="Статистика" Margin="0,10">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Товаров на складе:"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentWarehouseLoad}" FontWeight="Bold"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Вместимость:"/>
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding WarehouseCapacity}"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Эффективность:"/>
+                    <ProgressBar Grid.Row="1" Grid.Column="1" Value="{Binding LogisticsEfficiency, Mode=OneWay}" 
+                                 Maximum="100" Height="20" Margin="5"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding LogisticsEfficiency}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="%"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Транспорт:"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding VehicleCount}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="ед."/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="3" Text="Заказов:"/>
+                    <TextBlock Grid.Row="2" Grid.Column="4" Text="{Binding ActiveOrdersCount}"/>
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Управление логистикой -->
+        <GroupBox Grid.Row="2" Header="Управление" Margin="0,10">
+            <StackPanel>
+                <Button Content="Обработать логистику" 
+                        Click="ProcessLogistics_Click"/>
+
+                <Button Content="Подготовить отгрузку" 
+                        Click="PrepareShipment_Click"/>
+
+                <Button Content="Оптимизировать склад" 
+                        Click="OptimizeWarehouse_Click"/>
+
+                <Button Content="Добавить транспорт" 
+                        Click="AddVehicle_Click"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Складские запасы -->
+        <GroupBox Grid.Row="3" Header="Складские запасы" Margin="0,10">
+            <ScrollViewer MaxHeight="150">
+                <ItemsControl ItemsSource="{Binding WarehouseStock}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Amount}" Margin="10,0"/>
+                                    <TextBlock Grid.Column="2" Text="ед."/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </GroupBox>
+
+        <!-- Персонал -->
+        <GroupBox Grid.Row="4" Header="Персонал" Margin="0,10">
+            <StackPanel>
+                <TextBlock Text="{Binding WorkerInfo}" TextWrapping="Wrap"/>
+
+                <WrapPanel>
+                    <Button Content="Нанять логиста" 
+                            Click="HireManager_Click"/>
+
+                    <Button Content="Нанять водителя" 
+                            Click="HireDriver_Click"/>
+
+                    <Button Content="Нанять кладовщика" 
+                            Click="HireWarehouseWorker_Click"/>
+
+                    <Button Content="Уволить сотрудника" 
+                            Click="FireWorker_Click"/>
+                </WrapPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Кнопки управления -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
+            <Button Content="Обновить" 
+                    Click="Refresh_Click"/>
+            <Button Content="Закрыть" 
+                    Click="CloseButton_Click" 
+                    IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

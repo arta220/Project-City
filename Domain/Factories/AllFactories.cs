@@ -1,5 +1,7 @@
 using Domain.Base;
 using Domain.Buildings;
+using Domain.Buildings.Industrial;
+using Domain.Buildings.Logistics;
 using Domain.Buildings.Residential;
 using Domain.Buildings.Utility;
 using Domain.Citizens;
@@ -10,6 +12,7 @@ using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Infrastructure;
 using Domain.Map;
+using Domain.Transports.Ground;
 
 namespace Domain.Factories
 {
@@ -414,4 +417,52 @@ namespace Domain.Factories
                 type: PortType.AirPort
             );
     }
+public class ChemicalPlantFactory : IMapObjectFactory
+{
+    public MapObject Create()
+    {
+        // Теперь ChemicalPlantSpecialization будет найден благодаря using
+        return CreateWithSpecialization(ChemicalPlantSpecialization.ConsumerChemicals);
+    }
 
+    public MapObject CreateWithSpecialization(ChemicalPlantSpecialization specialization)
+    {
+        int floors = specialization switch
+        {
+            ChemicalPlantSpecialization.Petrochemicals => 3,
+            ChemicalPlantSpecialization.IndustrialChemicals => 3,
+            _ => 2
+        };
+
+        int maxOccupancy = specialization switch
+        {
+            ChemicalPlantSpecialization.Petrochemicals => 120,
+            ChemicalPlantSpecialization.IndustrialChemicals => 130,
+            _ => 90
+        };
+
+        Area area = specialization switch
+        {
+            ChemicalPlantSpecialization.Petrochemicals => new Area(7, 7),
+            ChemicalPlantSpecialization.IndustrialChemicals => new Area(7, 7),
+            _ => new Area(6, 6)
+        };
+
+        var plant = new ChemicalPlant(floors, maxOccupancy, area, specialization);
+        return plant;
+    }
+}
+// Логистические объекты
+public class LogisticsCenterFactory : IMapObjectFactory
+{
+    public MapObject Create()
+    {
+        var center = new LogisticsCenter(
+            floors: 2,
+            maxOccupancy: 50,
+            area: new Area(6, 6)
+        );
+
+        return center;
+    }
+}

@@ -83,6 +83,18 @@ namespace CitySimulatorWPF.Models
             var industrial = new BuildingCategory { Name = "Промышленные" };
 
             industrial.Objects.Add(new ObjectVM(
+                new ChemicalPlantFactory(),
+                "Химический завод",
+                "Assets/Icons/ChemicalPlant.png" 
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
+                new LogisticsCenterFactory(),
+                "Логистический центр",
+                "Assets/Icons/LogisticsCenter.png"
+            ));
+
+            industrial.Objects.Add(new ObjectVM(
                 new FactoryBuildingFactory(),
                 "Завод",
                 "Assets/Icons/Factory.png"
