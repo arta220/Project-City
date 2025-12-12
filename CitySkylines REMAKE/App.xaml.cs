@@ -105,8 +105,10 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
 
             // Сценарии поведения жителей
-            services.AddSingleton<ICitizenScenario, HomeScenario>();
+            // Заводские сценарии должны выполняться раньше домашних
+            services.AddScoped<ICitizenScenario, FactoryWorkerScenario>();
             services.AddScoped<ICitizenScenario, UtilityWorkerScenario>();
+            services.AddSingleton<ICitizenScenario, HomeScenario>();
 
             // Контроллер граждан
             services.AddSingleton<CitizenController>();

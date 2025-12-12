@@ -27,9 +27,9 @@ namespace Tests.Services.Graphing
             var productionService = new IndustrialProductionService(mockRegistry);
             var provider = new CardboardProductionGraphProvider(productionService);
 
-            // Добавляем данные
-            productionService.Update(new SimulationTime(1));
-            productionService.Update(new SimulationTime(2));
+            // Добавляем данные (производство каждые 15 тиков)
+            productionService.Update(new SimulationTime(15));
+            productionService.Update(new SimulationTime(30));
 
             // Act
             var plotModel = provider.CreatePlotModel();
@@ -52,9 +52,9 @@ namespace Tests.Services.Graphing
             var productionService = new IndustrialProductionService(mockRegistry);
             var provider = new PackagingProductionGraphProvider(productionService);
 
-            // Добавляем данные
-            productionService.Update(new SimulationTime(1));
-            productionService.Update(new SimulationTime(2));
+            // Добавляем данные (производство каждые 15 тиков)
+            productionService.Update(new SimulationTime(15));
+            productionService.Update(new SimulationTime(30));
 
             // Act
             var plotModel = provider.CreatePlotModel();

@@ -1,4 +1,5 @@
 using CitySimulatorWPF.Services;
+using CitySimulatorWPF.Views.dialogs;
 using CitySkylines_REMAKE.Models.Enums;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Domain.Buildings;
@@ -17,6 +18,7 @@ using Services.Factories;
 using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
+using System;
 using System.Diagnostics;
 using System.Windows.Threading;
 
@@ -78,6 +80,7 @@ namespace CitySimulatorWPF.ViewModels
             _mapTileService.InitializeTiles(
                 _simulation.MapModel,
                 onTileClicked: OnTileClicked,
+                onTileDoubleClicked: OnTileDoubleClicked,
                 onTileConstructionStart: OnTileConstructionStart,
                 onMouseOverPreview: tile =>
                 {
@@ -140,8 +143,16 @@ namespace CitySimulatorWPF.ViewModels
                 speed: 1.0f,
                 profession: CitizenProfession.UtilityWorker
             );
+            var citizen2 = _citizenFactory.CreateCitizen(
+                pos: new Position(25, 15),
+                speed: 1.0f,
+                profession: CitizenProfession.FactoryWorker,
+                state: CitizenState.GoingWork
+            );
             _simulation.AddCitizen(citizen);
+            _simulation.AddCitizen(citizen2);
             Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
+            Debug.WriteLine($"Создан работник завода ID: {citizen2.Id} на позиции ({citizen2.Position.X}, {citizen2.Position.Y})");
 
             // 2. Создаём офис ЖКХ
             var utilityOfficeFactory = new UtilityOfficeFactory();
@@ -171,13 +182,43 @@ namespace CitySimulatorWPF.ViewModels
             var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
             Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
 
+            //// 5. Создаём тестовые заводы для проверки двойного клика
+            //var cardboardFactory = new CardboardFactory();
+            //var cardboardBuilding = cardboardFactory.Create();
+            //if (cardboardBuilding != null)
+            //{
+            //    var cardboardPlacement = new Placement(new Position(10, 10), cardboardBuilding.Area);
+            //    if (_simulation.TryPlace(cardboardBuilding, cardboardPlacement))
+            //    {
+            //        Debug.WriteLine("Создан завод картона на позиции (10,10)");
+            //    }
+            //}
+
+            var packagingFactory = new PackagingFactory();
+            var packagingBuilding = packagingFactory.Create() as Domain.Buildings.IndustrialBuilding;
+            if (packagingBuilding != null)
+            {
+                var packagingPlacement = new Placement(new Position(5, 5), packagingBuilding.Area);
+                if (_simulation.TryPlace(packagingBuilding, packagingPlacement))
+                {
+                    Debug.WriteLine("Создан завод упаковки на позиции (5,5)");
+                    // Назначаем рабочему место работы
+                    citizen2.WorkPlace = packagingBuilding;
+                    packagingBuilding.Hire(citizen2);
+                    Debug.WriteLine($"Назначен как WorkPlace работнику {citizen2.Id} на завод упаковки");
+                }
+            }
+
             // 7. Информация о тесте
             _messageService.ShowMessage(
                 "Тестовый сценарий создан!\n" +
                 "1. Работник ЖКХ: (15,15)\n" +
                 "2. Офис ЖКХ: (25,25)\n" +
-                "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
-                "Работник должен побежать чинить сломанное ЖКХ."
+                "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n" +
+                "4. Завод картона: (10,10) - ДВАЖДЫ КЛИКНИТЕ!\n" +
+                "5. Завод упаковки: (20,20) - ДВАЖДЫ КЛИКНИТЕ!\n\n" +
+                "Работник должен побежать чинить сломанное ЖКХ.\n" +
+                "Дважды кликните по заводам для управления!"
             );
         }
 
@@ -192,6 +233,19 @@ namespace CitySimulatorWPF.ViewModels
                 _pathService.StartConstruction(tile, PathType.Pedestrian);
             else if (SelectedObject?.Factory is BicyclePathFactory)
                 _pathService.StartConstruction(tile, PathType.Bicycle);
+        }
+
+        private void OnTileDoubleClicked(TileVM tile)
+        {
+            if (CurrentMode == MapInteractionMode.None && tile.MapObject != null && tile.MapObject.GetType().Name.Contains("IndustrialBuilding"))
+            {
+                Debug.WriteLine($"Double click detected on IndustrialBuilding at ({tile.X}, {tile.Y})");
+                ShowIndustrialBuildingDialog((Domain.Buildings.IndustrialBuilding)tile.MapObject, tile);
+            }
+            else
+            {
+                Debug.WriteLine($"Double click on tile ({tile.X}, {tile.Y}), but not IndustrialBuilding. Type: {tile.MapObject?.GetType().Name}, Mode: {CurrentMode}");
+            }
         }
 
         private void OnTileClicked(TileVM tile)
@@ -237,6 +291,71 @@ namespace CitySimulatorWPF.ViewModels
 
             if (CurrentMode == MapInteractionMode.Remove)
                 _simulation.TryRemove(tile.MapObject);
+        }
+
+        private void ShowIndustrialBuildingDialog(Domain.Buildings.IndustrialBuilding building, TileVM tile)
+        {
+            var dialog = new IndustrialBuildingInfoDialog(
+                building,
+                onHireWorker: (b) => HireWorkerForFactory(b, tile),
+                onFireWorker: (b) => FireWorkerFromFactory(b)
+            );
+            dialog.ShowDialog();
+        }
+
+        private void HireWorkerForFactory(Domain.Buildings.IndustrialBuilding building, TileVM tile)
+        {
+            if (building.HasVacancy(CitizenProfession.FactoryWorker))
+            {
+                // Создаем нового рабочего
+                var worker = new Citizen(new Area(1, 1), speed: 1.0f)
+                {
+                    Profession = CitizenProfession.FactoryWorker,
+                    Age = 25 + new Random().Next(20), // 25-44 года
+                    Position = new Position(tile.X + 1, tile.Y + 1),
+                    Home = null, // У заводских рабочих может не быть дома
+                    WorkPlace = null, // Важно: не устанавливаем WorkPlace заранее!
+                    State = CitizenState.Idle,
+                    Health = 100,
+                    Happiness = 70,
+                    Money = 500
+                };
+
+                // Пытаемся нанять
+                if (building.Hire(worker))
+                {
+                    _simulation.AddCitizen(worker);
+                    _messageService.ShowMessage($"Рабочий нанят на завод! Теперь рабочих: {building.GetWorkerCount()}/{building.MaxOccupancy}");
+                }
+                else
+                {
+                    _messageService.ShowMessage("Не удалось нанять рабочего");
+                }
+            }
+            else
+            {
+                _messageService.ShowMessage("Нет свободных вакансий на заводе");
+            }
+        }
+
+        private void FireWorkerFromFactory(Domain.Buildings.IndustrialBuilding building)
+        {
+            if (building.GetWorkerCount() > 0)
+            {
+                // Находим первого рабочего
+                var workerToFire = building.CurrentWorkers.FirstOrDefault();
+                if (workerToFire != null)
+                {
+                    // Увольняем
+                    building.Fire(workerToFire);
+                    _simulation.RemoveCitizen(workerToFire);
+                    _messageService.ShowMessage($"Рабочий уволен с завода. Теперь рабочих: {building.GetWorkerCount()}/{building.MaxOccupancy}");
+                }
+            }
+            else
+            {
+                _messageService.ShowMessage("На заводе нет рабочих для увольнения");
+            }
         }
 
         private void ShowRepairDialog(ResidentialBuilding building, TileVM tile)

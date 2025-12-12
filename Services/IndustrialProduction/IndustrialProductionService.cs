@@ -16,6 +16,8 @@ namespace Services.IndustrialProduction
         private int _totalPackagingProduction = 0;
         private int _totalCardboardMaterialsUsed = 0;
         private int _totalPackagingMaterialsUsed = 0;
+        private int _productionTickCounter = 0;
+        private const int PRODUCTION_INTERVAL = 15; // Производство каждые 15 тиков
 
         public IndustrialProductionService(IBuildingRegistry buildingRegistry)
         {
@@ -24,6 +26,14 @@ namespace Services.IndustrialProduction
 
         public void Update(SimulationTime time)
         {
+            _productionTickCounter++;
+
+            // Производство выполняется только каждые 15 тиков
+            if (_productionTickCounter < PRODUCTION_INTERVAL)
+                return;
+
+            _productionTickCounter = 0; // Сброс счетчика
+
             var industrialBuildings = _buildingRegistry.GetBuildings<IndustrialBuilding>().ToList();
 
             int cardboardProduction = 0;
@@ -33,8 +43,11 @@ namespace Services.IndustrialProduction
 
             foreach (var building in industrialBuildings)
             {
-                // Запуск производства
-                building.RunOnce();
+                // Запуск производства только если есть рабочие
+                if (building.GetWorkerCount() > 0)
+                {
+                    building.RunOnce();
+                }
 
                 // Подсчёт производства картона
                 var cardboardProducts = building.ProductsBank
