@@ -20,6 +20,7 @@ using Services.Utilities;
 using System.Collections.ObjectModel;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Threading;
 
 namespace CitySimulatorWPF.ViewModels
@@ -32,6 +33,39 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty]
         private MapInteractionMode _currentMode = MapInteractionMode.None;
 
+        private static void LogToFile(string message)
+        {
+            try
+            {
+                var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CitySimulator", "debug.log");
+                Directory.CreateDirectory(Path.GetDirectoryName(logPath));
+                File.AppendAllText(logPath, $"[{DateTime.Now:HH:mm:ss.fff}] {message}\n");
+            }
+            catch { }
+        }
+
+        partial void OnSelectedObjectChanged(ObjectVM value)
+        {
+            var msg = $"[MapVM] SelectedObject changed to: {value?.Factory?.GetType().Name ?? "null"}";
+            Debug.WriteLine(msg);
+            LogToFile(msg);
+            // Если выбран объект, но режим не Build, устанавливаем режим Build
+            if (value != null && CurrentMode != MapInteractionMode.Build)
+            {
+                var msg2 = $"[MapVM] Auto-setting CurrentMode to Build because SelectedObject is set";
+                Debug.WriteLine(msg2);
+                LogToFile(msg2);
+                CurrentMode = MapInteractionMode.Build;
+            }
+        }
+
+        partial void OnCurrentModeChanged(MapInteractionMode value)
+        {
+            var msg = $"[MapVM] CurrentMode changed to: {value}";
+            Debug.WriteLine(msg);
+            LogToFile(msg);
+        }
+
         private readonly Simulation _simulation;
         private readonly IRoadConstructionService _roadService;
         private readonly ICitizenManagerService _citizenManager;
@@ -42,6 +76,7 @@ namespace CitySimulatorWPF.ViewModels
         private readonly IPathConstructionService _pathService;
 
         private bool _simulationStarted = false;
+        private static bool _testScenarioCreated = false; // Защита от повторного вызова CreateTestScenario
 
         public ObservableCollection<TileVM> Tiles => _mapTileService.Tiles;
         public ObservableCollection<CitizenVM> Citizens => _citizenManager.Citizens;
@@ -96,9 +131,12 @@ namespace CitySimulatorWPF.ViewModels
 
             // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
 
-
-
-            CreateTestScenario();
+            // Защита от повторного вызова CreateTestScenario
+            if (!_testScenarioCreated)
+            {
+                CreateTestScenario();
+                _testScenarioCreated = true;
+            }
 
             StartSimulationAfterUIReady();
 
@@ -206,7 +244,7 @@ namespace CitySimulatorWPF.ViewModels
             var recyclingBuilding = recyclingFactory.Create() as Domain.Buildings.IndustrialBuilding;
             if (recyclingBuilding != null)
             {
-                var recyclingPlacement = new Placement(new Position(25, 25), recyclingBuilding.Area);
+                var recyclingPlacement = new Placement(new Position(25, 5), recyclingBuilding.Area);
                 if (_simulation.TryPlace(recyclingBuilding, recyclingPlacement))
                 {
                     Debug.WriteLine("Создан перерабатывающий завод на позиции (25,5)");
@@ -219,18 +257,44 @@ namespace CitySimulatorWPF.ViewModels
                 }
             }
 
-            // 5. Создаём тестовый жилой дом (чтобы город не был пустым)
+            // 5. Создаём жилой дом с жителями (размещаем в другом месте, чтобы избежать конфликтов)
             var residentialFactory = new SmallHouseFactory();
             var residentialBuilding = (ResidentialBuilding)residentialFactory.Create();
-            var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
-            if (!_simulation.TryPlace(residentialBuilding, housePlacement))
+            // Пробуем разместить дом в свободном месте
+            var housePositions = new[] { new Position(35, 35), new Position(40, 40), new Position(45, 45), new Position(30, 30) };
+            bool housePlaced = false;
+            foreach (var pos in housePositions)
             {
-                _messageService.ShowMessage("Не удалось разместить добывающий завод");
+                var housePlacement = new Placement(pos, residentialBuilding.Area);
+                if (_simulation.TryPlace(residentialBuilding, housePlacement))
+                {
+                    Debug.WriteLine($"Создан жилой дом на позиции ({pos.X}, {pos.Y})");
+                    housePlaced = true;
+                    break;
+                }
+            }
+            
+            if (!housePlaced)
+            {
+                _messageService.ShowMessage("Не удалось разместить жилой дом");
                 return;
             }
-            Debug.WriteLine($"Создан добывающий завод на позиции (30,10)");
 
-            // 6. Информация о тесте
+            // Создаём жителей в доме
+            var residents = new List<Citizen>();
+            for (int i = 0; i < 5; i++)
+            {
+                var resident = _citizenFactory.CreateCitizen(
+                    pos: new Position(10 + i % 2, 10 + i / 2),
+                    speed: 1.0f,
+                    profession: CitizenProfession.FactoryWorker
+                );
+                _simulation.AddCitizen(resident);
+                residents.Add(resident);
+                Debug.WriteLine($"Создан житель ID: {resident.Id} на позиции ({resident.Position.X}, {resident.Position.Y})");
+            }
+
+            // Информация о сценарии
             _messageService.ShowMessage(
                 "💪 ТЕСТ ПРОМЫШЛЕННОЙ ЦЕПОЧКИ\n\n" +
                 "1. ДОБЫВАЮЩИЙ ЗАВОД (5,5) - ДВАЖДЫ КЛИКНИТЕ!\n" +
@@ -241,11 +305,11 @@ namespace CitySimulatorWPF.ViewModels
                 "   • Производит: Пиломатериалы, Мебель, Бумагу, Ящики\n" +
                 "   • Рабочий: " + (sawmillBuilding?.GetWorkerCount() ?? 0) + "/" + (sawmillBuilding?.MaxOccupancy ?? 0) + "\n\n" +
 
-                "3. ПЕРЕРАБАТЫВАЮЩИЙ ЗАВОД (25,5) - ДВАЖДЫ КЛИКНИТЕ!\n" +
+                "3. ПЕРЕРАБАТЫВАЮЩИЙ ЗАВОД (25,5) - ДВАFЖДЫ КЛИКНИТЕ!\n" +
                 "   • Производит: Сталь, Пластик, Топливо, Бутылки\n" +
                 "   • Рабочий: " + (recyclingBuilding?.GetWorkerCount() ?? 0) + "/" + (recyclingBuilding?.MaxOccupancy ?? 0) + "\n\n" +
 
-                "4. ЖИЛОЙ ДОМ (35,35)\n\n" +
+                "4. ЖИЛОЙ ДОМ - 5 жителей\n\n" +
 
                 "⚙️ КАК ПРОВЕРИТЬ:\n" +
                 "• Дважды кликни по каждому заводу\n" +
@@ -255,7 +319,7 @@ namespace CitySimulatorWPF.ViewModels
                 "• Рабочие приходят на работу в рабочее время"
             );
 
-            // 7. Выводим в консоль информацию о цепочке производства
+            // Выводим в консоль информацию о цепочке производства
             Debug.WriteLine("\n=== ПРОМЫШЛЕННАЯ ЦЕПОЧКА ===");
             Debug.WriteLine("Добывающий завод → Дерево и Железо");
             Debug.WriteLine("Деревообрабатывающий завод → Пиломатериалы и Мебель");
@@ -291,6 +355,10 @@ namespace CitySimulatorWPF.ViewModels
 
         private void OnTileClicked(TileVM tile)
         {
+            var msg = $"[OnTileClicked] Mode={CurrentMode}, SelectedObject={SelectedObject?.Factory?.GetType().Name ?? "null"}, Tile=({tile.X}, {tile.Y})";
+            Debug.WriteLine(msg);
+            LogToFile(msg);
+
             if (_roadService.IsBuilding)
             {
                 _roadService.FinishConstruction(tile, (road, placement) => _simulation.TryPlace(road, placement));
@@ -307,19 +375,30 @@ namespace CitySimulatorWPF.ViewModels
 
             if (CurrentMode == MapInteractionMode.Build && SelectedObject != null)
             {
+                var msg1 = $"[OnTileClicked] Attempting to place building: {SelectedObject.Factory.GetType().Name}";
+                Debug.WriteLine(msg1);
+                LogToFile(msg1);
                 var obj = SelectedObject.Factory.Create();
                 var placement = new Placement(new Position(tile.X, tile.Y), obj.Area);
 
                 if (!_simulation.TryPlace(obj, placement))
                 {
+                    var msg2 = $"[OnTileClicked] Failed to place building at ({tile.X}, {tile.Y})";
+                    Debug.WriteLine(msg2);
+                    LogToFile(msg2);
                     _messageService.ShowMessage("Невозможно поставить объект");
                 }
                 else
                 {
+                    var msg3 = $"[OnTileClicked] Successfully placed building at ({tile.X}, {tile.Y})";
+                    Debug.WriteLine(msg3);
+                    LogToFile(msg3);
                     // Левый верхний тайл здания — якорный, на нём и показываем иконку
                     tile.IsMainObjectTile = true;
                 }
 
+                // Сбрасываем выбранный объект и режим после размещения
+                SelectedObject = null;
                 CurrentMode = MapInteractionMode.None;
                 return;
             }
@@ -446,6 +525,37 @@ namespace CitySimulatorWPF.ViewModels
             }
             
             _messageService.ShowMessage("Карта очищена");
+        }
+
+        /// <summary>
+        /// Обновляет иконки зданий после загрузки игры.
+        /// </summary>
+        public void RefreshBuildingIcons()
+        {
+            BuildingIcons.Clear();
+            
+            // Пересоздаем иконки для всех зданий на карте
+            for (int x = 0; x < _simulation.MapModel.Width; x++)
+            {
+                for (int y = 0; y < _simulation.MapModel.Height; y++)
+                {
+                    var tile = _simulation.MapModel[x, y];
+                    if (tile.MapObject != null)
+                    {
+                        var (placement, found) = _simulation.GetMapObjectPlacement(tile.MapObject);
+                        if (found && placement != null)
+                        {
+                            // Проверяем, что это главный тайл здания (левый верхний угол)
+                            if (placement.Value.Position.X == x && placement.Value.Position.Y == y)
+                            {
+                                const int tileSize = 20;
+                                var iconVm = new BuildingIconVM(tile.MapObject, placement.Value, tileSize);
+                                BuildingIcons.Add(iconVm);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
