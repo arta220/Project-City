@@ -8,21 +8,24 @@ using System.Threading.Tasks;
 using Services.JewelryProduction;
 using Services.IndustrialProduction;
 using Services.Disasters;
+using Services.GlassProduction;
 
 namespace Services.Graphing
 {
     public class GraphService
     {
         private readonly IJewelryProductionService _jewelryProductionService;
+        private readonly IGlassProductionService _glassProductionService;
         private readonly List<IGraphDataProvider> _providers = new();
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService? _productionService;
         private readonly IDisasterService? _disasterService;
 
-        public GraphService(IJewelryProductionService jewelryProductionService, IUtilityService utilityService, IIndustrialProductionService? productionService = null, IDisasterService? disasterService = null)
+        public GraphService(IJewelryProductionService jewelryProductionService, IGlassProductionService glassProductionService, IUtilityService utilityService, IIndustrialProductionService? productionService = null, IDisasterService? disasterService = null)
         {
             _utilityService = utilityService;
             _jewelryProductionService = jewelryProductionService;
+            _glassProductionService = glassProductionService;
             _productionService = productionService;
             _disasterService = disasterService;
             RegisterDefaultProviders();
@@ -37,6 +40,7 @@ namespace Services.Graphing
         {
             RegisterProvider(new UtilitiesGraphProvider(_utilityService));
             RegisterProvider(new JewelryGraphProvider(_jewelryProductionService));
+            RegisterProvider(new GlassGraphProvider(_glassProductionService));
             if (_productionService != null)
             {
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));

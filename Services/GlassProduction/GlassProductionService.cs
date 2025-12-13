@@ -33,7 +33,7 @@ namespace Services.GlassProduction
 
             int totalProduction = 0;
             int materialsUsed = 0;
-            
+
             // Статистика по категориям
             int bottlesProduction = 0;
             int vasesProduction = 0;
@@ -52,12 +52,12 @@ namespace Services.GlassProduction
                 foreach (var kvp in building.ProductsBank)
                 {
                     if (!IsGlassProduct(kvp.Key)) continue;
-                    
+
                     var productType = (ProductType)kvp.Key;
                     int quantity = kvp.Value;
-                    
+
                     totalProduction += quantity;
-                    
+
                     // Категория: Бутылки
                     if (IsBottle(productType))
                     {
@@ -83,13 +83,13 @@ namespace Services.GlassProduction
                     {
                         tablewareProduction += quantity;
                     }
-                    
+
                     // Премиум изделия
                     if (IsPremium(productType))
                     {
                         premiumProduction += quantity;
                     }
-                    
+
                     // Эксклюзивные изделия
                     if (IsExclusive(productType))
                     {

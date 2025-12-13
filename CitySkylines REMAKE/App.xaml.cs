@@ -1,7 +1,7 @@
 using CitySimulatorWPF.Services;
 using CitySimulatorWPF.ViewModels;
 using CitySimulatorWPF.Views;
-using CitySkylines_REMAKE.ViewModels;
+using CitySimulatorWPF.ViewModels;
 using Domain.Common.Base.MovingEntities;
 using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,14 +62,17 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
             services.AddSingleton<IIndustrialProductionService, IndustrialProductionService>();
+            services.AddSingleton<IJewelryProductionService, JewelryProductionService>();
+            services.AddSingleton<IGlassProductionService, GlassProductionService>();
+
             services.AddSingleton<GraphService>(sp =>
             {
-                var utilityService = sp.GetRequiredService<IUtilityService>();
                 var jewelryProductionService = sp.GetRequiredService<IJewelryProductionService>();
-                var glassProductionService = sp.GetRequiredService<IGlassProductionService>();
+                var utilityService = sp.GetRequiredService<IUtilityService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
                 var disasterService = sp.GetRequiredService<IDisasterService>();
-                return new GraphService(utilityService, productionService, disasterService);
+                var glassProductionService = sp.GetRequiredService<IGlassProductionService>();
+                return new GraphService(jewelryProductionService, glassProductionService, utilityService, productionService, disasterService);
             });
             services.AddTransient<ChartsWindowViewModel>();
 
@@ -172,9 +175,11 @@ namespace CitySkylines_REMAKE
                 var citizenSimulationService = sp.GetRequiredService<CitizenSimulationService>();
                 var transportSimulationService = sp.GetRequiredService<TransportSimulationService>();
                 var utilityService = sp.GetRequiredService<IUtilityService>();
+                var disasterService = sp.GetRequiredService<IDisasterService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
                 var jewelryProductionService = sp.GetRequiredService<IJewelryProductionService>();
                 var glassProductionService = sp.GetRequiredService<IGlassProductionService>();
+
                 return new Simulation(
                     mapModel,
                     placementService,
@@ -183,6 +188,7 @@ namespace CitySkylines_REMAKE
                     citizenSimulationService,
                     transportSimulationService,
                     utilityService,
+                    disasterService,
                     productionService,
                     jewelryProductionService,
                     glassProductionService);
