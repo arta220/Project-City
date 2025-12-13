@@ -101,12 +101,6 @@ namespace CitySimulatorWPF.ViewModels
             _simulation.MapObjectPlaced += OnMapObjectPlaced;
             _simulation.MapObjectRemoved += OnMapObjectRemoved;
 
-            // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
-
-
-
-            //CreateTestScenario();
-
             StartSimulationAfterUIReady();
 
         }
@@ -168,53 +162,30 @@ namespace CitySimulatorWPF.ViewModels
             }, DispatcherPriority.Background);
         }
 
-        private void CreateTestScenario()
+        private void DebugUtilityWorker()
         {
-            // 1. Создаём жителя (работника ЖКХ)
-            var citizen = _citizenFactory.CreateCitizen(
-                pos: new Position(15, 15),
-                speed: 1.0f,
-                profession: CitizenProfession.UtilityWorker
-            );
-            _simulation.AddCitizen(citizen);
-            Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
-
-            // 2. Создаём офис ЖКХ
-            var utilityOfficeFactory = new UtilityOfficeFactory();
-            var utilityOffice = utilityOfficeFactory.Create();
-            var officePlacement = new Placement(new Position(25, 25), utilityOffice.Area);
-            if (!_simulation.TryPlace(utilityOffice, officePlacement))
+            Dispatcher.CurrentDispatcher.InvokeAsync(() =>
             {
-                _messageService.ShowMessage("Не удалось разместить офис ЖКХ");
-                return;
-            }
-            citizen.WorkPlace = (Building)utilityOffice;
-            Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
+                var timer = new DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(3);
+                timer.Tick += (s, e) =>
+                {
+                    var workerVM = _citizenManager.Citizens.FirstOrDefault(c =>
+                        c.Citizen.Profession == CitizenProfession.UtilityWorker);
 
-            // 3. Создаём тестовый жилой дом
-            var residentialFactory = new SmallHouseFactory();
-            var residentialBuilding = (ResidentialBuilding)residentialFactory.Create();
-            var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
-            if (!_simulation.TryPlace(residentialBuilding, housePlacement))
-            {
-                _messageService.ShowMessage("Не удалось разместить жилой дом");
-                return;
-            }
-            Debug.WriteLine($"Создан жилой дом на позиции (35,35)");
+                    if (workerVM != null)
+                    {
+                        var worker = workerVM.Citizen;
+                        Debug.WriteLine($"=== ОТЛАДКА УтилитиВоркер ===");
+                        Debug.WriteLine($"ID: {worker.Id}, State: {worker.State}");
+                        Debug.WriteLine($"Position: {worker.Position}");
+                        Debug.WriteLine($"WorkPlace: {worker.WorkPlace != null}");
+                        Debug.WriteLine($"Tasks in queue: {worker.Tasks.Count}");
+                    }
+                };
+                timer.Start();
+            }, DispatcherPriority.Background);
 
-            // 4. Ломаем коммуналку для теста
-            _utilityService.BreakUtilityForTesting(residentialBuilding, UtilityType.Electricity, currentTick: 1);
-            var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
-            Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
-
-            // 7. Информация о тесте
-            _messageService.ShowMessage(
-                "Тестовый сценарий создан!\n" +
-                "1. Работник ЖКХ: (15,15)\n" +
-                "2. Офис ЖКХ: (25,25)\n" +
-                "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
-                "Работник должен побежать чинить сломанное ЖКХ."
-            );
         }
 
         private void OnTileConstructionStart(TileVM tile)

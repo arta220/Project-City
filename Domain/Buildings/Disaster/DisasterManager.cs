@@ -28,6 +28,13 @@ namespace Domain.Buildings.Disaster
 
         public void StartDisaster(DisasterType disasterType, int currentTick)
         {
+            // Stop all other disasters before starting a new one
+            var activeDisasters = _states.Where(s => s.Value).Select(s => s.Key).ToList();
+            foreach (var activeDisaster in activeDisasters)
+            {
+                StopDisaster(activeDisaster);
+            }
+
             if (!_states[disasterType])
             {
                 _states[disasterType] = true;
