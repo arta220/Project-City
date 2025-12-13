@@ -1,4 +1,4 @@
-﻿using Domain.Buildings.Residential;
+using Domain.Buildings.Residential;
 using Domain.Citizens;
 using Domain.Common.Base;
 using Domain.Common.Enums;
@@ -6,6 +6,7 @@ using Domain.Common.Time;
 using Domain.Map;
 using Services.CitizensSimulation;
 using Services.Common;
+using Services.Disasters;
 using Services.IndustrialProduction;
 using Services.Interfaces;
 using Services.PlaceBuilding;
@@ -27,6 +28,7 @@ namespace Services
         private readonly ISimulationTimeService _timeService;
         private readonly PlacementRepository _placementRepository;
         private readonly IUtilityService _utilityService;
+        private readonly IDisasterService _disasterService;
         private readonly IIndustrialProductionService _productionService;
 
         private readonly CitizenSimulationService _citizenSimulationService;
@@ -50,6 +52,7 @@ namespace Services
             CitizenSimulationService citizenSimulationService,
             TransportSimulationService transportSimulationService,
             IUtilityService utilityService,
+            IDisasterService disasterService,
             IIndustrialProductionService productionService)
         {
             MapModel = mapModel;
@@ -59,14 +62,26 @@ namespace Services
             _citizenSimulationService = citizenSimulationService;
             _transportSimulationService = transportSimulationService;
             _utilityService = utilityService;
+            _disasterService = disasterService;
             _productionService = productionService;
 
             _updatableServices.Add(citizenSimulationService);
             _updatableServices.Add(utilityService);
             _updatableServices.Add(transportSimulationService);
+            _updatableServices.Add(disasterService);
             _updatableServices.Add(productionService);
 
             _timeService.TimeChanged += OnTimeChanged;
+            
+            // Подписываемся на уничтожение зданий
+            _disasterService.BuildingDestroyed += OnBuildingDestroyed;
+        }
+
+        private void OnBuildingDestroyed(Building building)
+        {
+            // Удаляем уничтоженное здание с карты
+            // MapObjectRemoved уже вызывается в TryRemove
+            TryRemove(building);
         }
 
         private void OnTimeChanged(SimulationTime time)
@@ -98,14 +113,20 @@ namespace Services
             var (placement, found) = _placementRepository.TryGetPlacement(mapObject);
 
             if (!found || placement is null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Simulation] TryRemove: Placement not found for {mapObject?.GetType().Name ?? "null"}");
                 return false;
+            }
 
             if (_placementService.TryRemove(MapModel, (Placement)placement))
             {
+                _placementRepository.Remove(mapObject);
+                System.Diagnostics.Debug.WriteLine($"[Simulation] TryRemove: Removing {mapObject?.GetType().Name ?? "null"} at {placement.Value.Position.X}, {placement.Value.Position.Y}, invoking MapObjectRemoved");
                 MapObjectRemoved?.Invoke(mapObject);
                 return true;
             }
 
+            System.Diagnostics.Debug.WriteLine($"[Simulation] TryRemove: Failed to remove map object from map");
             return false;
         }
 

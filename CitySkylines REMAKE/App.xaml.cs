@@ -15,6 +15,7 @@ using Services.Citizens.Scenarios;
 using Services.CitizensSimulatiom;
 using Services.CitizensSimulation;
 using Services.CitizensSimulation.CitizenSchedule;
+using Services.Disasters;
 using Services.EntityMovement.PathFind;
 using Services.EntityMovement.Profile;
 using Services.EntityMovement.Service;
@@ -64,7 +65,8 @@ namespace CitySkylines_REMAKE
             {
                 var utilityService = sp.GetRequiredService<IUtilityService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
-                return new GraphService(utilityService, productionService);
+                var disasterService = sp.GetRequiredService<IDisasterService>();
+                return new GraphService(utilityService, productionService, disasterService);
             });
             services.AddTransient<ChartsWindowViewModel>();
 
@@ -76,6 +78,13 @@ namespace CitySkylines_REMAKE
 
             // Реестр зданий
             services.AddSingleton<IBuildingRegistry, BuildingRegistryService>();
+            services.AddSingleton<IDisasterService>(sp =>
+            {
+                var buildingRegistry = sp.GetRequiredService<IBuildingRegistry>();
+                var placementRepository = sp.GetRequiredService<PlacementRepository>();
+                var mapModel = sp.GetRequiredService<MapModel>();
+                return new DisasterService(buildingRegistry, placementRepository, mapModel);
+            });
 
             // Навигация и PathFinding
             services.AddSingleton<INavigationProfile, CitizenProfile>();

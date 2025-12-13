@@ -27,8 +27,8 @@ namespace CitySimulatorWPF.ViewModels
         {
             MapObject = mapObject;
 
-            CanvasLeft = placement.Position.X * tileSize;
-            CanvasTop = placement.Position.Y * tileSize;
+            CanvasLeft = placement.Position.Y * tileSize;
+            CanvasTop = placement.Position.X * tileSize;
 
             Width  = placement.Area.Height * tileSize;
             Height = placement.Area.Width  * tileSize;

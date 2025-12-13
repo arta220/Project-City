@@ -13,11 +13,14 @@ using Domain.Map;
 using Microsoft.Extensions.DependencyInjection;
 using Services;
 using Services.CitizensSimulation;
+using Services.Disasters;
 using Services.Factories;
 using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace CitySimulatorWPF.ViewModels
@@ -38,8 +41,13 @@ namespace CitySimulatorWPF.ViewModels
         private readonly MessageService _messageService;
         private readonly IUtilityService _utilityService;
         private readonly IPathConstructionService _pathService;
+        private readonly IDisasterService _disasterService;
 
         private bool _simulationStarted = false;
+
+        // Поля для отслеживания двойного клика
+        private TileVM _lastClickedTile;
+        private DateTime _lastTileClickTime = DateTime.MinValue;
 
         public ObservableCollection<TileVM> Tiles => _mapTileService.Tiles;
         public ObservableCollection<CitizenVM> Citizens => _citizenManager.Citizens;
@@ -61,6 +69,7 @@ namespace CitySimulatorWPF.ViewModels
                      TransportSimulationService transportSimulation,
                      IUtilityService utilityService,
                      IPathConstructionService pathService,
+                     IDisasterService disasterService,
                      CitizenFactory citizenFactory)
         {
             _simulation = simulation;
@@ -71,6 +80,7 @@ namespace CitySimulatorWPF.ViewModels
             _messageService = messageService;
             _utilityService = utilityService;
             _pathService = pathService;
+            _disasterService = disasterService;
             _citizenFactory = citizenFactory;
             _citizenManager.StartSimulation(citizenSimulation);
             _carManager.StartSimulation(transportSimulation);
@@ -88,14 +98,14 @@ namespace CitySimulatorWPF.ViewModels
 
 
             // Подписка на событие размещения/удаления объектов, чтобы управлять крупными иконками зданий
-            _simulation.MapObjectPlaced  += OnMapObjectPlaced;
+            _simulation.MapObjectPlaced += OnMapObjectPlaced;
             _simulation.MapObjectRemoved += OnMapObjectRemoved;
 
             // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
 
 
 
-            CreateTestScenario();
+            //CreateTestScenario();
 
             StartSimulationAfterUIReady();
 
@@ -115,9 +125,35 @@ namespace CitySimulatorWPF.ViewModels
 
         private void OnMapObjectRemoved(MapObject mapObject)
         {
-            var icon = BuildingIcons.FirstOrDefault(b => ReferenceEquals(b.MapObject, mapObject));
-            if (icon != null)
-                BuildingIcons.Remove(icon);
+            // Удаление должно происходить в UI потоке
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                // Ищем иконку по ссылке на объект
+                BuildingIconVM iconToRemove = null;
+                foreach (var icon in BuildingIcons)
+                {
+                    if (ReferenceEquals(icon.MapObject, mapObject))
+                    {
+                        iconToRemove = icon;
+                        break;
+                    }
+                }
+
+                if (iconToRemove != null)
+                {
+                    BuildingIcons.Remove(iconToRemove);
+                    System.Diagnostics.Debug.WriteLine($"[MapVM] Successfully removed icon for building of type {mapObject?.GetType().Name ?? "null"}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[MapVM] WARNING: Icon not found for building of type {mapObject?.GetType().Name ?? "null"}, total icons: {BuildingIcons.Count}");
+                    // Выводим список всех иконок для отладки
+                    foreach (var icon in BuildingIcons)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[MapVM] Icon exists for {icon.MapObject?.GetType().Name ?? "null"} object");
+                    }
+                }
+            });
         }
 
         private void StartSimulationAfterUIReady()
@@ -181,9 +217,6 @@ namespace CitySimulatorWPF.ViewModels
             );
         }
 
-
-
-
         private void OnTileConstructionStart(TileVM tile)
         {
             if (SelectedObject?.Factory is IRoadFactory)
@@ -196,6 +229,33 @@ namespace CitySimulatorWPF.ViewModels
 
         private void OnTileClicked(TileVM tile)
         {
+            var now = DateTime.Now;
+            var isDoubleClick = (_lastClickedTile == tile &&
+                                (now - _lastTileClickTime).TotalMilliseconds < 500);
+
+            _lastTileClickTime = now;
+            _lastClickedTile = tile;
+
+            // ПРОСТО: Двойной клик = устранить бедствие
+            if (isDoubleClick && CurrentMode == MapInteractionMode.None)
+            {
+                if (tile.MapObject is Building building && building.Disasters.HasDisaster)
+                {
+                    // Просто убираем все бедствия
+                    var activeDisasters = _disasterService.GetActiveDisasters(building);
+
+                    foreach (var disaster in activeDisasters.Keys)
+                    {
+                        _disasterService.FixDisaster(building, disaster);
+                    }
+
+                    tile.UpdateBlinkingState();
+                    _messageService.ShowMessage("Бедствие устранено!");
+                    return;
+                }
+            }
+
+            // Остальная логика одинарного клика остается как была
             if (_roadService.IsBuilding)
             {
                 _roadService.FinishConstruction(tile, (road, placement) => _simulation.TryPlace(road, placement));
@@ -235,6 +295,9 @@ namespace CitySimulatorWPF.ViewModels
                     ShowRepairDialog(residentialBuilding, tile);
             }
 
+            // Убрали логику показа диалога бедствия для одинарного клика
+            // (остается только показ диалога в старом методе, который не вызывается)
+
             if (CurrentMode == MapInteractionMode.Remove)
                 _simulation.TryRemove(tile.MapObject);
         }
@@ -267,6 +330,65 @@ namespace CitySimulatorWPF.ViewModels
                 tile.UpdateBlinkingState();
                 _messageService.ShowMessage($"{utilityToFix} отремонтирован!");
             }
+        }
+
+        // Убрали второй метод OnTileClicked, так как он был дублирован
+
+        private void ShowDisasterDialog(Building building, TileVM tile)
+        {
+            var activeDisasters = _disasterService.GetActiveDisasters(building);
+
+            if (!activeDisasters.Any())
+            {
+                _messageService.ShowMessage("Нет активных бедствий");
+                return;
+            }
+
+            string message = "⚠️ АКТИВНЫЕ БЕДСТВИЯ:\n\n";
+
+            foreach (var disaster in activeDisasters)
+            {
+                string disasterName = GetDisasterName(disaster.Key);
+                string timeLeft = FormatTicks(disaster.Value);
+                string effect = GetDisasterEffect(disaster.Key);
+
+                message += $"{disasterName}\n";
+                message += $"⏱️ Осталось: {timeLeft}\n";
+                message += $"📝 {effect}\n\n";
+            }
+
+            // Просто показываем MessageBox
+            System.Windows.MessageBox.Show(message, "Информация о бедствиях",
+                            System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+        }
+
+        private string GetDisasterName(DisasterType type)
+        {
+            return type switch
+            {
+                DisasterType.Fire => "🔥 ПОЖАР",
+                DisasterType.Flood => "🌊 НАВОДНЕНИЕ",
+                DisasterType.Blizzard => "❄️ МЕТЕЛЬ",
+                _ => "БЕДСТВИЕ"
+            };
+        }
+
+        private string GetDisasterEffect(DisasterType type)
+        {
+            return type switch
+            {
+                DisasterType.Fire => "Жители в панике, возможны жертвы",
+                DisasterType.Flood => "Дороги затоплены, транспорт стоит",
+                DisasterType.Blizzard => "Дороги занесены, видимость нулевая",
+                _ => "Наносит ущерб зданию"
+            };
+        }
+
+        private string FormatTicks(int ticks)
+        {
+            if (ticks <= 0) return "завершается...";
+
+            return $"{ticks} тиков";
         }
     }
 }
