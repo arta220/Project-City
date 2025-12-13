@@ -119,6 +119,18 @@ namespace CitySimulatorWPF.Models
                 "Завод упаковки",
                 "Assets/Icons/FactoryPacking.png"
             ));
+            industrial.Objects.Add(new ObjectVM(
+                new CosmeticsFactory(),
+                "Косметический завод",
+                "/Icons/Factory.png"
+            ));
+            // Алкогольный завод
+            industrial.Objects.Add(new ObjectVM(
+                new AlcoholFactory(),
+                "Алкогольный завод",
+                "/Icons/Factory.png" 
+            ));
+
             #endregion
 
             // Инфраструктура

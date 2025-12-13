@@ -32,11 +32,13 @@ namespace Services.Graphing
         private void RegisterDefaultProviders()
         {
             RegisterProvider(new UtilitiesGraphProvider(_utilityService));
-            
+
             if (_productionService != null)
             {
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));
                 RegisterProvider(new PackagingProductionGraphProvider(_productionService));
+                RegisterProvider(new CosmeticsProductionGraphProvider(_productionService));
+                RegisterProvider(new AlcoholProductionGraphProvider(_productionService));
             }
 
             if (_disasterService != null)

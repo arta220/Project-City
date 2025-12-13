@@ -35,7 +35,32 @@ namespace Domain.Common.Enums
         ShippingBox,        // Транспортная коробка
         CosmeticBottle,     // Косметический флакон
         PharmaceuticalPack, // Фармацевтическая упаковка
-        GiftBox            // Подарочная упаковка
+        GiftBox,           // Подарочная упаковка
+                           // Продукты косметического завода
+        // Продукты завода косметики
+        SkinCream,          // Крем для кожи
+        Shampoo,            // Шампунь
+        Perfume,            // Духи
+        Makeup,             // Декоративная косметика
+        HairCareProduct,    // Средство для ухода за волосами
+        Sunscreen,          // Солнцезащитное средство
+        MakeupKit,          // Набор для макияжа
+        HygieneProduct,     // Гигиенический продукт
+        ScentedCandle,      // Ароматическая свеча
+        CosmeticSet,        // Косметический набор
+        // Продукты алкогольного завода
+        Beer,               // Пиво
+        Vodka,              // Водка
+        Wine,               // Вино
+        Whiskey,            // Виски
+        Rum,                // Ром
+        Tequila,            // Текила
+        Gin,                // Джин
+        Brandy,             // Бренди
+        Champagne,          // Шампанское
+        Liqueur             // Ликёр
+
+
     }
 }
 
