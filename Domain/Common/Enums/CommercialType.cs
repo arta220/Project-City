@@ -9,6 +9,8 @@ namespace Domain.Enums
         Cafe,
         Restaurant,
         GasStation,
-        Service
+        Service,
+        FireStation,    
+        Hospital
     }
 }

@@ -13,8 +13,20 @@ using Domain.Map;
 
 namespace Domain.Factories
 {
-
-
+    public class HospitalFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            return new Hospital(new Area(3, 3));
+        }
+    }
+    public class FireStationFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            return new FireStation(new Area(2, 2));
+        }
+    }
     public class SmallHouseFactory : IMapObjectFactory
     {
         public MapObject Create() =>
