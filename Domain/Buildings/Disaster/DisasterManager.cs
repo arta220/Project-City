@@ -1,7 +1,5 @@
-// Domain/Buildings/Disaster/DisasterManager.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using Domain.Common.Enums;
-using System.Linq;
 
 namespace Domain.Buildings.Disaster
 {
@@ -9,6 +7,7 @@ namespace Domain.Buildings.Disaster
     {
         private readonly Dictionary<DisasterType, bool> _states;
         private readonly Dictionary<DisasterType, int> _startTicks;
+        private bool _isBeingHandled; // ← ДОБАВИТЬ
 
         public DisasterManager()
         {
@@ -23,24 +22,19 @@ namespace Domain.Buildings.Disaster
         }
 
         public bool HasDisaster => _states.Values.Contains(true);
+        public bool IsBeingHandled => _isBeingHandled; // ← ДОБАВИТЬ
 
         public bool IsDisasterActive(DisasterType disasterType) => _states[disasterType];
 
         public void StartDisaster(DisasterType disasterType, int currentTick)
         {
-            // Останавливаем все предыдущие бедствия, если они есть
-            var existingDisasters = _states.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
-            foreach (var existingDisaster in existingDisasters)
-            {
-                StopDisaster(existingDisaster);
-            }
-
-            // Запускаем новое бедствие
             if (!_states[disasterType])
             {
                 _states[disasterType] = true;
                 _startTicks[disasterType] = currentTick;
+                _isBeingHandled = false; // ← ДОБАВИТЬ
                 OnPropertyChanged(nameof(HasDisaster));
+                OnPropertyChanged(nameof(IsBeingHandled)); // ← ДОБАВИТЬ
             }
         }
 
@@ -50,7 +44,9 @@ namespace Domain.Buildings.Disaster
             {
                 _states[disasterType] = false;
                 _startTicks.Remove(disasterType);
+                _isBeingHandled = false; // ← ДОБАВИТЬ
                 OnPropertyChanged(nameof(HasDisaster));
+                OnPropertyChanged(nameof(IsBeingHandled)); // ← ДОБАВИТЬ
             }
         }
 
@@ -62,4 +58,3 @@ namespace Domain.Buildings.Disaster
         }
     }
 }
-

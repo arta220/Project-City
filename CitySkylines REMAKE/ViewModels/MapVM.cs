@@ -45,6 +45,10 @@ namespace CitySimulatorWPF.ViewModels
 
         private bool _simulationStarted = false;
 
+        // Поля для отслеживания двойного клика
+        private TileVM _lastClickedTile;
+        private DateTime _lastTileClickTime = DateTime.MinValue;
+
         public ObservableCollection<TileVM> Tiles => _mapTileService.Tiles;
         public ObservableCollection<CitizenVM> Citizens => _citizenManager.Citizens;
         public ObservableCollection<PersonalCarVM> Cars => _carManager.Cars;
@@ -94,7 +98,7 @@ namespace CitySimulatorWPF.ViewModels
 
 
             // Подписка на событие размещения/удаления объектов, чтобы управлять крупными иконками зданий
-            _simulation.MapObjectPlaced  += OnMapObjectPlaced;
+            _simulation.MapObjectPlaced += OnMapObjectPlaced;
             _simulation.MapObjectRemoved += OnMapObjectRemoved;
 
             // CreateTestScenarioCardboard(); Тестирование фабрики картона и фабрики упаковки
@@ -213,9 +217,6 @@ namespace CitySimulatorWPF.ViewModels
             );
         }
 
-
-
-
         private void OnTileConstructionStart(TileVM tile)
         {
             if (SelectedObject?.Factory is IRoadFactory)
@@ -228,6 +229,33 @@ namespace CitySimulatorWPF.ViewModels
 
         private void OnTileClicked(TileVM tile)
         {
+            var now = DateTime.Now;
+            var isDoubleClick = (_lastClickedTile == tile &&
+                                (now - _lastTileClickTime).TotalMilliseconds < 500);
+
+            _lastTileClickTime = now;
+            _lastClickedTile = tile;
+
+            // ПРОСТО: Двойной клик = устранить бедствие
+            if (isDoubleClick && CurrentMode == MapInteractionMode.None)
+            {
+                if (tile.MapObject is Building building && building.Disasters.HasDisaster)
+                {
+                    // Просто убираем все бедствия
+                    var activeDisasters = _disasterService.GetActiveDisasters(building);
+
+                    foreach (var disaster in activeDisasters.Keys)
+                    {
+                        _disasterService.FixDisaster(building, disaster);
+                    }
+
+                    tile.UpdateBlinkingState();
+                    _messageService.ShowMessage("Бедствие устранено!");
+                    return;
+                }
+            }
+
+            // Остальная логика одинарного клика остается как была
             if (_roadService.IsBuilding)
             {
                 _roadService.FinishConstruction(tile, (road, placement) => _simulation.TryPlace(road, placement));
@@ -267,10 +295,8 @@ namespace CitySimulatorWPF.ViewModels
                     ShowRepairDialog(residentialBuilding, tile);
             }
 
-            if (CurrentMode == MapInteractionMode.None && tile.MapObject is Building building && building.Disasters.HasDisaster)
-            {
-                ShowDisasterDialog(building, tile);
-            }
+            // Убрали логику показа диалога бедствия для одинарного клика
+            // (остается только показ диалога в старом методе, который не вызывается)
 
             if (CurrentMode == MapInteractionMode.Remove)
                 _simulation.TryRemove(tile.MapObject);
@@ -305,6 +331,8 @@ namespace CitySimulatorWPF.ViewModels
                 _messageService.ShowMessage($"{utilityToFix} отремонтирован!");
             }
         }
+
+        // Убрали второй метод OnTileClicked, так как он был дублирован
 
         private void ShowDisasterDialog(Building building, TileVM tile)
         {

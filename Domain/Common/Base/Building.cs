@@ -30,7 +30,7 @@ namespace Domain.Common.Base
             get => _health;
             set
             {
-                _health = Math.Clamp(value, 0f, 100f);
+                _health = Math.Clamp(value, 0f, MaxHealth);
                 OnPropertyChanged();
             }
         }
@@ -38,7 +38,7 @@ namespace Domain.Common.Base
         /// <summary>
         /// Максимальное здоровье здания.
         /// </summary>
-        public const float MaxHealth = 100f;
+        public virtual float MaxHealth => 100f; // Виртуальное свойство, можно переопределить
 
         /// <summary>
         /// Проверяет, разрушено ли здание (здоровье <= 0).
@@ -64,12 +64,22 @@ namespace Domain.Common.Base
         }
 
         /// <summary>
-        /// Восстанавливает здание, возвращая здоровье на максимальное значение.
+        /// Восстанавливает здание на указанное количество здоровья.
+        /// </summary>
+        /// <param name="healAmount">Количество восстанавливаемого здоровья</param>
+        public void Heal(float healAmount)
+        {
+            Health += healAmount;
+        }
+
+        /// <summary>
+        /// Восстанавливает здание полностью.
         /// </summary>
         public void RepairBuilding()
         {
             Health = MaxHealth;
         }
+
 
         // Методы для работы с вакансиями и работниками
         public virtual bool HasVacancy(CitizenProfession profession)

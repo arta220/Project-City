@@ -178,6 +178,17 @@ namespace CitySimulatorWPF.Models
                 "Велосипедная дорожка",
                 ""
             ));
+           //Больница Пожарка
+            infrastructure.Objects.Add(new ObjectVM(
+            new HospitalFactory(),       
+                "Больница",
+                "Icons/Hospital.png"
+            ));
+            infrastructure.Objects.Add(new ObjectVM(
+            new FireStationFactory(),    
+                "Пожарная часть",
+                "Icons/FireStation.png"
+            ));
 
             // Офис ЖКХ
             infrastructure.Objects.Add(new ObjectVM(
