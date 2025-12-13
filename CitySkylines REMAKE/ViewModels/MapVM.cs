@@ -18,6 +18,7 @@ using Services.TransportSimulation;
 using Services.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace CitySimulatorWPF.ViewModels
@@ -150,7 +151,7 @@ namespace CitySimulatorWPF.ViewModels
             // 5. Ставим тестовый жилой дом в системе управления (ломаем коммуналку для теста)
             // Ломаем электричество для демонстрации через UtilityService
             _utilityService.BreakUtilityForTesting(residentialBuilding, UtilityType.Electricity, currentTick: 1);
-            
+
             var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
             Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
 
@@ -189,6 +190,55 @@ namespace CitySimulatorWPF.ViewModels
             }, DispatcherPriority.Background);
         }
 
+        private void ShowFactoryInfoSimple(IndustrialBuilding factory)
+        {
+            try
+            {
+                string info = "=== ИНФОРМАЦИЯ О ЗАВОДЕ ===\n\n";
+
+                // Основная информация
+                info += $"Этажи: {factory.Floors}\n";
+                info += $"Вместимость: {factory.MaxOccupancy} чел.\n";
+                info += $"Размер: {factory.Area.Width}×{factory.Area.Height}\n";
+
+                // Цеха
+                if (factory.Workshops.Count > 0)
+                {
+                    info += $"\n=== ЦЕХА ===\n";
+                    foreach (var workshop in factory.Workshops.Take(5)) // Покажем первые 5
+                    {
+                        info += $"• {workshop.InputMaterial} → {workshop.OutputProduct} (коэф: {workshop.ProductionCoefficient})\n";
+                    }
+                    if (factory.Workshops.Count > 5)
+                        info += $"... и еще {factory.Workshops.Count - 5} цехов\n";
+                }
+
+                // Ресурсы
+                int totalMaterials = factory.MaterialsBank.Sum(m => m.Value);
+                int totalProducts = factory.ProductsBank.Sum(p => p.Value);
+                info += $"\n=== РЕСУРСЫ ===\n";
+                info += $"Материалы на складе: {totalMaterials} ед.\n";
+                info += $"Готовая продукция: {totalProducts} ед.\n";
+
+                // Кнопки
+                var result = MessageBox.Show(info, "Информация о заводе",
+                    MessageBoxButton.OKCancel, MessageBoxImage.Information);
+
+                if (result == MessageBoxResult.OK)
+                {
+                    // Запуск производства
+                    factory.RunOnce();
+                    MessageBox.Show("Производственный цикл завершен!", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void OnTileConstructionStart(TileVM tile)
         {
             if (SelectedObject?.Factory is IRoadFactory)
@@ -201,6 +251,13 @@ namespace CitySimulatorWPF.ViewModels
 
         private void OnTileClicked(TileVM tile)
         {
+            // НОВОЕ: Клик по фабрике
+            if (CurrentMode == MapInteractionMode.None && tile.MapObject is IndustrialBuilding factory)
+            {
+                ShowFactoryInfoSimple(factory);
+                return;
+            }
+
             if (_roadService.IsBuilding)
             {
                 _roadService.FinishConstruction(tile, (road, placement) => _simulation.TryPlace(road, placement));
