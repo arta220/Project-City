@@ -14,8 +14,12 @@ namespace Services.IndustrialProduction
 
         private int _totalCardboardProduction = 0;
         private int _totalPackagingProduction = 0;
+        private int _totalCosmeticsProduction = 0;
+        private int _totalAlcoholProduction = 0;
         private int _totalCardboardMaterialsUsed = 0;
         private int _totalPackagingMaterialsUsed = 0;
+        private int _totalCosmeticsMaterialsUsed = 0;
+        private int _totalAlcoholMaterialsUsed = 0;
 
         // ПЕРЕМЕННЫЕ ДЛЯ СТАТИСТИКИ 
         private int _totalFireEquipmentProduction = 0;
@@ -34,12 +38,16 @@ namespace Services.IndustrialProduction
 
             int cardboardProduction = 0;
             int packagingProduction = 0;
+            int cosmeticsProduction = 0;
+            int alcoholProduction = 0;
             int cardboardMaterialsUsed = 0;
             int packagingMaterialsUsed = 0;
             int fireEquipmentProduction = 0;
             int roboticsProduction = 0;
             int fireEquipmentMaterialsUsed = 0;
             int roboticsMaterialsUsed = 0;
+            int cosmeticsMaterialsUsed = 0;
+            int alcoholMaterialsUsed = 0;
 
             foreach (var building in industrialBuildings)
             {
@@ -69,6 +77,19 @@ namespace Services.IndustrialProduction
                     .Where(kvp => IsRoboticsProduct(kvp.Key))
                     .Sum(kvp => kvp.Value);
                 roboticsProduction += roboticsProducts;
+                // Подсчёт производства косметики
+                var cosmeticsProducts = building.ProductsBank
+                    .Where(kvp => IsCosmeticsProduct(kvp.Key))
+                    .Sum(kvp => kvp.Value);
+
+                cosmeticsProduction += cosmeticsProducts;
+
+                // Подсчёт производства алкоголя
+                var alcoholProducts = building.ProductsBank
+                    .Where(kvp => IsAlcoholProduct(kvp.Key))
+                    .Sum(kvp => kvp.Value);
+
+                alcoholProduction += alcoholProducts;
 
                 // Подсчёт использованных материалов для картона
                 var cardboardMaterials = building.MaterialsBank
@@ -93,13 +114,30 @@ namespace Services.IndustrialProduction
                     .Where(kvp => IsRoboticsMaterial(kvp.Key))
                     .Sum(kvp => kvp.Value);
                 roboticsMaterialsUsed += roboticsMaterials;
+                // Подсчёт использованных материалов для косметики
+                var cosmeticsMaterials = building.MaterialsBank
+                    .Where(kvp => IsCosmeticsMaterial(kvp.Key))
+                    .Sum(kvp => kvp.Value);
+
+                cosmeticsMaterialsUsed += cosmeticsMaterials;
+
+                // Подсчёт использованных материалов для алкоголя
+                var alcoholMaterials = building.MaterialsBank
+                    .Where(kvp => IsAlcoholMaterial(kvp.Key))
+                    .Sum(kvp => kvp.Value);
+
+                alcoholMaterialsUsed += alcoholMaterials;
             }
 
             // Обновление общей статистики
             _totalCardboardProduction += cardboardProduction;
             _totalPackagingProduction += packagingProduction;
+            _totalCosmeticsProduction += cosmeticsProduction;
+            _totalAlcoholProduction += alcoholProduction;
             _totalCardboardMaterialsUsed += cardboardMaterialsUsed;
             _totalPackagingMaterialsUsed += packagingMaterialsUsed;
+            _totalCosmeticsMaterialsUsed += cosmeticsMaterialsUsed;
+            _totalAlcoholMaterialsUsed += alcoholMaterialsUsed;
 
             // ОБНОВЛЕНИЕ СТАТИСТИКИ ДЛЯ НОВЫХ ФАБРИК
             _totalFireEquipmentProduction += fireEquipmentProduction;
@@ -112,12 +150,16 @@ namespace Services.IndustrialProduction
                 time.TotalTicks,
                 cardboardProduction,
                 packagingProduction,
+                cosmeticsProduction,
+                alcoholProduction,
                 cardboardMaterialsUsed,
                 packagingMaterialsUsed,
                 fireEquipmentProduction,    // Новый параметр
                 fireEquipmentMaterialsUsed, // Новый параметр
                 roboticsProduction,         // Новый параметр
                 roboticsMaterialsUsed       // Новый параметр
+                cosmeticsMaterialsUsed,
+                alcoholMaterialsUsed
             );
 
             // Добавление в историю
@@ -125,6 +167,8 @@ namespace Services.IndustrialProduction
             _statistics.PackagingHistory.Add(dataPoint);
             _statistics.FireEquipmentHistory.Add(dataPoint);  // Новая история
             _statistics.RoboticsHistory.Add(dataPoint);       // Новая история
+            _statistics.CosmeticsHistory.Add(dataPoint);
+            _statistics.AlcoholHistory.Add(dataPoint);
         }
 
         public IndustrialProductionStatistics GetStatistics() => _statistics;
@@ -174,6 +218,21 @@ namespace Services.IndustrialProduction
                        productType == ProductType.FireHose ||
                        productType == ProductType.FireAlarmSystem ||
                        productType == ProductType.FireTruck;
+        private bool IsCosmeticsProduct(object product)
+        {
+            if (product is ProductType productType)
+            {
+                return productType == ProductType.SkinCream ||
+                       productType == ProductType.Shampoo ||
+                       productType == ProductType.Perfume ||
+                       productType == ProductType.Makeup ||
+                       productType == ProductType.CosmeticBottle ||
+                       productType == ProductType.HairCareProduct ||
+                       productType == ProductType.Sunscreen ||
+                       productType == ProductType.MakeupKit ||
+                       productType == ProductType.HygieneProduct ||
+                       productType == ProductType.ScentedCandle ||
+                       productType == ProductType.CosmeticSet;
             }
             return false;
         }
@@ -186,6 +245,20 @@ namespace Services.IndustrialProduction
                        productType == ProductType.RobotArm ||
                        productType == ProductType.RobotController ||
                        productType == ProductType.AutomationSystem;
+        private bool IsAlcoholProduct(object product)
+        {
+            if (product is ProductType productType)
+            {
+                return productType == ProductType.Beer ||
+                       productType == ProductType.Vodka ||
+                       productType == ProductType.Wine ||
+                       productType == ProductType.Whiskey ||
+                       productType == ProductType.Rum ||
+                       productType == ProductType.Tequila ||
+                       productType == ProductType.Gin ||
+                       productType == ProductType.Brandy ||
+                       productType == ProductType.Champagne ||
+                       productType == ProductType.Liqueur;
             }
             return false;
         }
@@ -233,6 +306,18 @@ namespace Services.IndustrialProduction
             if (material is ProductType productType)
             {
                 return productType == ProductType.Electronics;
+        private bool IsCosmeticsMaterial(object material)
+        {
+            if (material is NaturalResourceType resourceType)
+            {
+                return resourceType == NaturalResourceType.Chemicals ||
+                       resourceType == NaturalResourceType.Water ||
+                       resourceType == NaturalResourceType.Glass ||
+                       resourceType == NaturalResourceType.Energy;
+            }
+            if (material is ProductType productType)
+            {
+                return productType == ProductType.Plastic;
             }
             return false;
         }
@@ -248,6 +333,17 @@ namespace Services.IndustrialProduction
             if (material is ProductType productType)
             {
                 return productType == ProductType.Electronics;
+        private bool IsAlcoholMaterial(object material)
+        {
+            if (material is NaturalResourceType resourceType)
+            {
+                return resourceType == NaturalResourceType.Water ||
+                       resourceType == NaturalResourceType.Energy;
+            }
+            if (material is ProductType productType)
+            {
+                return productType == ProductType.Plastic ||
+                       productType == ProductType.GlassJar;
             }
             return false;
         }

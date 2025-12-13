@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Domain.Map;
 using System.Windows.Threading;
@@ -27,14 +27,25 @@ namespace CitySimulatorWPF.ViewModels
         [ObservableProperty] private int _x;
         [ObservableProperty] private int _y;
         [ObservableProperty] private bool _isBlinkingRed;
+        [ObservableProperty] private bool _isBlinkingBlue;
         [ObservableProperty] private bool _isPreviewTile = false;
         [ObservableProperty] private bool _isMouseOver = false;
+        [ObservableProperty] private bool _isMainObjectTile;
 
         private DispatcherTimer _blinkTimer;
+        private DispatcherTimer _disasterBlinkTimer;
+        
+        // Флаги для отслеживания состояния мигания
+        private bool _shouldBlinkRed = false;
+        private bool _shouldBlinkBlue = false;
+        private bool _blinkRedState = false;
+        private bool _blinkBlueState = false;
 
         public bool HasObject => TileModel.MapObject != null;
         public bool CanBuild => !HasObject;
         public TerrainType TerrainType => TileModel.Terrain;
+
+        public bool ShowBuildingIcon => HasObject && IsMainObjectTile;
 
         /// <summary>
         /// Тип природного ресурса на клетке.
@@ -70,17 +81,42 @@ namespace CitySimulatorWPF.ViewModels
             _blinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(300) };
             _blinkTimer.Tick += (s, e) =>
             {
-                if (IsBlinkingRed)
-                    OnPropertyChanged(nameof(IsBlinkingRed));
+                if (_shouldBlinkRed)
+                {
+                    _blinkRedState = !_blinkRedState;
+                    IsBlinkingRed = _blinkRedState;
+                }
             };
             _blinkTimer.Start();
+
+            _disasterBlinkTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+            _disasterBlinkTimer.Tick += (s, e) =>
+            {
+                if (_shouldBlinkBlue)
+                {
+                    _blinkBlueState = !_blinkBlueState;
+                    IsBlinkingBlue = _blinkBlueState;
+                }
+            };
+            _disasterBlinkTimer.Start();
 
             TileModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(TileModel.MapObject))
                 {
                     OnPropertyChanged(nameof(HasObject));
+                    OnPropertyChanged(nameof(MapObject));
+                    OnPropertyChanged(nameof(ShowBuildingIcon));
                     UpdateBlinkingState();
+
+                    if (TileModel.MapObject is Building building)
+                    {
+                        building.Disasters.PropertyChanged += (sender, args) =>
+                        {
+                            if (args.PropertyName == nameof(building.Disasters.HasDisaster))
+                                UpdateBlinkingState();
+                        };
+                    }
 
                     if (TileModel.MapObject is ResidentialBuilding residential)
                     {
@@ -96,14 +132,55 @@ namespace CitySimulatorWPF.ViewModels
             UpdateBlinkingState();
         }
 
+        partial void OnIsMainObjectTileChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ShowBuildingIcon));
+        }
+
         public void UpdateBlinkingState()
         {
+            bool hasBrokenUtilities = false;
+            bool hasDisaster = false;
+
             if (TileModel.MapObject is ResidentialBuilding residential)
-                IsBlinkingRed = residential.Utilities.HasBrokenUtilities;
-            else
+            {
+                hasBrokenUtilities = residential.Utilities.HasBrokenUtilities;
+            }
+
+            if (TileModel.MapObject is Building building)
+            {
+                hasDisaster = building.Disasters.HasDisaster;
+            }
+
+            // Приоритет: бедствия (синий) важнее чем ЖКХ (красный)
+            if (hasDisaster)
+            {
+                _shouldBlinkBlue = true;
+                _shouldBlinkRed = false;
+                // Сбрасываем состояние мигания, чтобы начать с нужной фазы
+                _blinkBlueState = true;
+                IsBlinkingBlue = true;
                 IsBlinkingRed = false;
+            }
+            else if (hasBrokenUtilities)
+            {
+                _shouldBlinkBlue = false;
+                _shouldBlinkRed = true;
+                // Сбрасываем состояние мигания, чтобы начать с нужной фазы
+                _blinkRedState = true;
+                IsBlinkingBlue = false;
+                IsBlinkingRed = true;
+            }
+            else
+            {
+                _shouldBlinkBlue = false;
+                _shouldBlinkRed = false;
+                IsBlinkingBlue = false;
+                IsBlinkingRed = false;
+            }
 
             OnPropertyChanged(nameof(IsBlinkingRed));
+            OnPropertyChanged(nameof(IsBlinkingBlue));
         }
 
         [RelayCommand]

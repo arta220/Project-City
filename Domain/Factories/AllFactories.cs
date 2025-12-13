@@ -1,8 +1,11 @@
-﻿using Domain.Base;
+using Domain.Base;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Buildings.Utility;
+using Domain.Citizens;
+using Domain.Citizens.States;
 using Domain.Common.Base;
+using Domain.Common.Base.MovingEntities;
 using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Infrastructure;
@@ -10,6 +13,20 @@ using Domain.Map;
 
 namespace Domain.Factories
 {
+    public class HospitalFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            return new Hospital(new Area(3, 3));
+        }
+    }
+    public class FireStationFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            return new FireStation(new Area(2, 2));
+        }
+    }
     public class SmallHouseFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -78,7 +95,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 50,
-                area: new Area(5, 5)
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
             );
 
             return building;
@@ -96,7 +114,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 1,
                 maxOccupancy: 10,
-                area: new Area(4, 6)
+                area: new Area(4, 6),
+                type: IndustrialBuildingType.Warehouse
             );
 
             // Цех по переработке дерева в бумагу
@@ -128,7 +147,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 2,
                 maxOccupancy: 12,
-                area: new Area(5, 5)
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
             );
 
             // Цех подготовки сырья - производство картонных листов
@@ -192,6 +212,102 @@ namespace Domain.Factories
     }
 
     /// <summary>
+    /// Косметический завод
+    /// Производит различные виды косметической продукции
+    /// </summary>
+    public class CosmeticsFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 3,
+                maxOccupancy: 120,
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.Factory
+            );
+
+            // 1. Цех производства кремов для кожи
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.SkinCream,
+                coeff: 4
+            );
+
+            // 2. Цех производства шампуней
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Shampoo,
+                coeff: 5
+            );
+
+            // 3. Цех производства парфюмерии
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Perfume,
+                coeff: 3
+            );
+
+            // 4. Цех производства декоративной косметики
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Makeup,
+                coeff: 6
+            );
+
+            // 5. Цех упаковки косметики в стеклянные флаконы
+            building.AddWorkshop(
+                NaturalResourceType.Glass,
+                ProductType.CosmeticBottle,
+                coeff: 4
+            );
+
+            // 6. Цех производства средств для ухода за волосами
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.HairCareProduct,
+                coeff: 4
+            );
+
+            // 7. Цех производства солнцезащитных средств
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.Sunscreen,
+                coeff: 3
+            );
+
+            // 8. Цех производства наборов для макияжа
+            building.AddWorkshop(
+                ProductType.Plastic,
+                ProductType.MakeupKit,
+                coeff: 5
+            );
+
+            // 9. Цех производства гигиенических продуктов
+            building.AddWorkshop(
+                NaturalResourceType.Chemicals,
+                ProductType.HygieneProduct,
+                coeff: 8
+            );
+
+            // 10. Цех производства ароматических свечей
+            building.AddWorkshop(
+                ProductType.Plastic,
+                ProductType.ScentedCandle,
+                coeff: 10
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Chemicals] = 500;
+            building.MaterialsBank[NaturalResourceType.Water] = 300;
+            building.MaterialsBank[NaturalResourceType.Glass] = 200;
+            building.MaterialsBank[ProductType.Plastic] = 250;
+            building.MaterialsBank[NaturalResourceType.Energy] = 150;
+
+            return building;
+        }
+    }
+
+    /// <summary>
     /// Завод по производству упаковки
     /// Производит различные виды упаковки из разных материалов
     /// </summary>
@@ -202,7 +318,8 @@ namespace Domain.Factories
             var building = new IndustrialBuilding(
                 floors: 2,
                 maxOccupancy: 15,
-                area: new Area(6, 6)
+                area: new Area(6, 6),
+                type: IndustrialBuildingType.Warehouse
             );
 
             // Цех картонной упаковки
@@ -286,7 +403,100 @@ namespace Domain.Factories
             return building;
         }
     }
+    /// <summary>
+    /// Алкогольный завод
+    /// Производит различные виды алкогольной продукции
+    /// </summary>
+    public class AlcoholFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 80,
+                area: new Area(5, 5),
+                type: IndustrialBuildingType.Factory
+            );
 
+            // 1. Цех производства пива
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Beer,
+                coeff: 6
+            );
+
+            // 2. Цех производства водки
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Vodka,
+                coeff: 4
+            );
+
+            // 3. Цех производства вина
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Wine,
+                coeff: 5
+            );
+
+            // 4. Цех производства виски
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Whiskey,
+                coeff: 3
+            );
+
+            // 5. Цех производства рома
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Rum,
+                coeff: 4
+            );
+
+            // 6. Цех производства текилы
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Tequila,
+                coeff: 5
+            );
+
+            // 7. Цех производства джина
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Gin,
+                coeff: 4
+            );
+
+            // 8. Цех производства бренди
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Brandy,
+                coeff: 3
+            );
+
+            // 9. Цех производства шампанского
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Champagne,
+                coeff: 5
+            );
+
+            // 10. Цех производства ликёров
+            building.AddWorkshop(
+                NaturalResourceType.Water,
+                ProductType.Liqueur,
+                coeff: 6
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Water] = 500;
+            building.MaterialsBank[NaturalResourceType.Energy] = 200;
+            building.MaterialsBank[ProductType.Plastic] = 150;
+            building.MaterialsBank[ProductType.GlassJar] = 100;
+
+            return building;
+        }
+    }
     /// <summary>
     /// Фармацевтический завод
     /// </summary>
@@ -294,18 +504,14 @@ namespace Domain.Factories
     {
         public MapObject Create()
         {
-            var factory = new IndustrialBuilding(2, 80, new Area(5, 5));
-
-            factory.AddWorkshop(
-                NaturalResourceType.Chemicals,
-                ProductType.PharmaceuticalPack,
-                coeff: 2
-            );
-
-            factory.MaterialsBank[NaturalResourceType.Chemicals] = 100;
-            factory.MaterialsBank[NaturalResourceType.Water] = 50;
-            factory.MaterialsBank[NaturalResourceType.Energy] = 80;
-
+            var factory = new IndustrialBuilding(
+                2,
+                80,
+                new Area(5, 5),
+                type: IndustrialBuildingType.Warehouse
+                );
+            factory.AddWorkshop(ResourceType.Chemicals, ResourceType.Medicine, 2);
+            factory.MaterialsBank[ResourceType.Chemicals] = 100;
             return factory;
         }
     }
@@ -317,22 +523,12 @@ namespace Domain.Factories
     {
         public MapObject Create()
         {
-            var factory = new IndustrialBuilding(
-                floors: 1,
+            var factory = new IndustrialBuilding(floors: 1,
                 maxOccupancy: 60,
-                area: new Area(4, 4)
-            );
-
-            factory.AddWorkshop(
-                input: ProductType.Plastic,
-                output: ProductType.PlasticBottle,
-                coeff: 3
-            );
-
-            factory.MaterialsBank[ProductType.Plastic] = 100;
-            factory.MaterialsBank[NaturalResourceType.Energy] = 50;
-            factory.MaterialsBank[NaturalResourceType.Water] = 30;
-
+                area: new Area(4, 4),
+                type: IndustrialBuildingType.Factory);
+            factory.AddWorkshop(input: ResourceType.PlasticWaste, output: ResourceType.Plastic, coeff: 3);
+            factory.MaterialsBank[ResourceType.PlasticWaste] = 100;
             return factory;
         }
     }

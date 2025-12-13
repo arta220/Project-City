@@ -2,7 +2,7 @@
 
 namespace Services.CitizensSimulation.CitizenSchedule
 {
-    public interface ICitizenScheduler 
+    public interface ICitizenScheduler
     {
         void UpdateSchedule(Citizen citizen);
     }
