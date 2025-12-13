@@ -517,7 +517,7 @@ namespace Domain.Factories
     }
 
     /// <summary>
-    /// Завод по переработке отходов и вторичной переработке
+    /// Завод по переработке отходов
     /// </summary>
     public class RecyclingPlantFactoryFactory : IMapObjectFactory
     {
@@ -542,6 +542,7 @@ namespace Domain.Factories
                 type: ParkType.UrbanPark
             );
     }
+
     public class SquareParkFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -595,11 +596,13 @@ namespace Domain.Factories
                 area: new Area(1, 1)
             );
     }
+
     public class UtilityOfficeFactory : IMapObjectFactory
     {
         public MapObject Create() =>
             new UtilityOffice(area: new Area(2, 1));
     }
+
     public class AirPortFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -607,5 +610,110 @@ namespace Domain.Factories
                 area: new Area(2, 6),
                 type: PortType.AirPort
             );
+    }
+
+    /// <summary>
+    /// Завод противопожарного оборудования
+    /// Производит: огнетушители, пожарные рукава, системы сигнализации, пожарные машины
+    /// </summary>
+    public class FireEquipmentFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 2,
+                maxOccupancy: 80,
+                area: new Area(6, 6)
+            );
+
+            // Цех производства огнетушителей (железо -> огнетушитель)
+            building.AddWorkshop(
+                NaturalResourceType.Iron,
+                ProductType.FireExtinguisher,
+                coeff: 3
+            );
+
+            // Цех производства пожарных рукавов
+            building.AddWorkshop(
+                NaturalResourceType.Wood,
+                ProductType.FireHose,
+                coeff: 2
+            );
+
+            // Цех систем пожарной сигнализации (электроника -> система сигнализации)
+            building.AddWorkshop(
+                ProductType.Electronics,
+                ProductType.FireAlarmSystem,
+                coeff: 5
+            );
+
+            // Цех сборки пожарных машин (железо -> пожарная машина)
+            building.AddWorkshop(
+                NaturalResourceType.Iron,
+                ProductType.FireTruck,
+                coeff: 15
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[NaturalResourceType.Iron] = 800;
+            building.MaterialsBank[NaturalResourceType.Wood] = 400;
+            building.MaterialsBank[ProductType.Electronics] = 200;
+            building.MaterialsBank[NaturalResourceType.Energy] = 600;
+            building.MaterialsBank[NaturalResourceType.Water] = 300;
+
+            return building;
+        }
+    }
+
+    /// <summary>
+    /// Завод промышленных роботов
+    /// Производит: промышленных роботов, роботизированные руки, контроллеры, системы автоматизации
+    /// </summary>
+    public class RoboticsFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var building = new IndustrialBuilding(
+                floors: 3,
+                maxOccupancy: 65,
+                area: new Area(7, 7)
+            );
+
+            // Цех контроллеров роботов (электроника -> контроллер)
+            building.AddWorkshop(
+                ProductType.Electronics,
+                ProductType.RobotController,
+                coeff: 8
+            );
+
+            // Цех роботизированных рук (железо -> роботизированная рука)
+            building.AddWorkshop(
+                NaturalResourceType.Iron,
+                ProductType.RobotArm,
+                coeff: 12
+            );
+
+            // Цех сборки промышленных роботов (контроллер -> промышленный робот)
+            building.AddWorkshop(
+                ProductType.RobotController,
+                ProductType.IndustrialRobot,
+                coeff: 2
+            );
+
+            // Цех систем автоматизации (контроллер -> система автоматизации)
+            building.AddWorkshop(
+                ProductType.RobotController,
+                ProductType.AutomationSystem,
+                coeff: 3
+            );
+
+            // Инициализация начальных материалов
+            building.MaterialsBank[ProductType.Electronics] = 400;
+            building.MaterialsBank[NaturalResourceType.Iron] = 600;
+            building.MaterialsBank[NaturalResourceType.Energy] = 800;
+            building.MaterialsBank[NaturalResourceType.Water] = 200;
+
+            return building;
+        }
     }
 }

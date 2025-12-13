@@ -35,6 +35,19 @@ namespace Domain.Common.Enums
         ShippingBox,        // Транспортная коробка
         CosmeticBottle,     // Косметический флакон
         PharmaceuticalPack, // Фармацевтическая упаковка
+        GiftBox,          // Подарочная упаковка
+
+        // Противопожарное оборудование
+        FireExtinguisher,      // Огнетушитель
+        FireHose,             // Пожарный рукав
+        FireAlarmSystem,      // Система пожарной сигнализации
+        FireTruck,           // Пожарная машина
+
+        // Промышленные роботы
+        IndustrialRobot,     // Промышленный робот
+        RobotArm,           // Роботизированная рука
+        RobotController,    // Контроллер робота
+        AutomationSystem    // Система автоматизации
         GiftBox,           // Подарочная упаковка
                            // Продукты косметического завода
         // Продукты завода косметики

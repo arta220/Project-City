@@ -106,8 +106,7 @@ namespace CitySimulatorWPF.Models
                 new RecyclingPlantFactoryFactory(),
                 "Завод по переработке отходов и вторичной переработке",
                 "Assets/Icons/RecyclingPlantFactory.png"
-                            ));
-
+            ));
             industrial.Objects.Add(new ObjectVM(
                 new CardboardFactory(),
                 "Завод картона",
@@ -119,6 +118,25 @@ namespace CitySimulatorWPF.Models
                 "Завод упаковки",
                 "Assets/Icons/FactoryPacking.png"
             ));
+
+            
+            /// Завод противопожарного оборудования
+            industrial.Objects.Add(new ObjectVM(
+                new FireEquipmentFactory(),
+                "Завод противоп. оборудования",
+                "C:\\Users\\Admin\\Source\\Repos\\Project-City32\\Domain\\Icons\\FireDep.png"
+            ));
+
+            // Завод промышленных роботов
+            industrial.Objects.Add(new ObjectVM(
+                new RoboticsFactory(),
+                "Завод пром. роботов",
+                "C:\\Users\\Admin\\Source\\Repos\\Project-City32\\Domain\\Icons\\robotDep.png"
+            ));
+
+
+
+
             industrial.Objects.Add(new ObjectVM(
                 new CosmeticsFactory(),
                 "Косметический завод",

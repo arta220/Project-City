@@ -8,12 +8,20 @@ namespace Services.IndustrialProduction
     public class ProductionDataPoint
     {
         public int Tick { get; set; }
+
         public int CardboardProduction { get; set; }
         public int PackagingProduction { get; set; }
         public int CosmeticsProduction { get; set; }
         public int AlcoholProduction { get; set; }
         public int CardboardMaterialsUsed { get; set; }
         public int PackagingMaterialsUsed { get; set; }
+        public int FireEquipmentProduction { get; set; }      // Производство противопожарного оборудования
+        public int FireEquipmentMaterialsUsed { get; set; }   // Использовано материалов для противопожарки
+        public int RoboticsProduction { get; set; }          // Производство роботов
+        public int RoboticsMaterialsUsed { get; set; }       // Использовано материалов для роботов
+
+        public ProductionDataPoint(int tick, int cardboardProduction, int packagingProduction,
+            int cardboardMaterialsUsed, int packagingMaterialsUsed)
         public int CosmeticsMaterialsUsed { get; set; }
         public int AlcoholMaterialsUsed { get; set; }
 
@@ -32,6 +40,24 @@ namespace Services.IndustrialProduction
             CosmeticsMaterialsUsed = cosmeticsMaterialsUsed;
             AlcoholMaterialsUsed = alcoholMaterialsUsed;
         }
+
+        public ProductionDataPoint(
+            int tick,
+            int cardboardProduction, int packagingProduction,
+            int cardboardMaterialsUsed, int packagingMaterialsUsed,
+            int fireEquipmentProduction, int fireEquipmentMaterialsUsed,
+            int roboticsProduction, int roboticsMaterialsUsed)
+        {
+            Tick = tick;
+            CardboardProduction = cardboardProduction;
+            PackagingProduction = packagingProduction;
+            CardboardMaterialsUsed = cardboardMaterialsUsed;
+            PackagingMaterialsUsed = packagingMaterialsUsed;
+            FireEquipmentProduction = fireEquipmentProduction;
+            FireEquipmentMaterialsUsed = fireEquipmentMaterialsUsed;
+            RoboticsProduction = roboticsProduction;
+            RoboticsMaterialsUsed = roboticsMaterialsUsed;
+        }
     }
 
     /// <summary>
@@ -41,8 +67,9 @@ namespace Services.IndustrialProduction
     {
         public List<ProductionDataPoint> CardboardHistory { get; set; } = new();
         public List<ProductionDataPoint> PackagingHistory { get; set; } = new();
+        public List<ProductionDataPoint> FireEquipmentHistory { get; set; } = new();
+        public List<ProductionDataPoint> RoboticsHistory { get; set; } = new();
         public List<ProductionDataPoint> CosmeticsHistory { get; set; } = new();
         public List<ProductionDataPoint> AlcoholHistory { get; set; } = new();
     }
 }
-
