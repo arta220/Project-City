@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Services.Utilities;
 using Services.IndustrialProduction;
 
@@ -28,12 +26,20 @@ namespace Services.Graphing
 
         private void RegisterDefaultProviders()
         {
+            // Регистрируем графики для коммунальных услуг
             RegisterProvider(new UtilitiesGraphProvider(_utilityService));
-            
+
             if (_productionService != null)
             {
-                RegisterProvider(new CardboardProductionGraphProvider(_productionService));
-                RegisterProvider(new PackagingProductionGraphProvider(_productionService));
+                // Регистрируем новые графики для химического производства и логистики
+                RegisterProvider(new ChemicalProductionGraphProvider(_productionService));
+                RegisterProvider(new LogisticsGraphProvider(_productionService));
+                RegisterProvider(new CombinedChemicalLogisticsGraphProvider(_productionService));
+                RegisterProvider(new ProductionComparisonGraphProvider(_productionService));
+
+                // Старые графики картона и упаковки (если нужны для обратной совместимости)
+                // RegisterProvider(new CardboardProductionGraphProvider(_productionService));
+                // RegisterProvider(new PackagingProductionGraphProvider(_productionService));
             }
         }
 
