@@ -39,4 +39,4 @@ namespace Tests.Domain
             Assert.IsTrue(values.Contains(ParkType.RecreationArea));
         }
     }
-}//
+}
