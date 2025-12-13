@@ -107,8 +107,6 @@ namespace CitySimulatorWPF.ViewModels
 
             //CreateTestScenario();
 
-            CreateTestScenario();
-
             StartSimulationAfterUIReady();
 
         }
