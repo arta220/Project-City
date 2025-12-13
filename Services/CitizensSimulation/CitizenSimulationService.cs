@@ -1,12 +1,11 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
-using Services.Citizens.Movement;
 using Services.Citizens.Population;
+using Services.CitizensSimulatiom;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.Common;
-using System;
+using Services.EntityMovement.Service;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace Services.CitizensSimulation
 {
@@ -19,7 +18,6 @@ namespace Services.CitizensSimulation
         private readonly CitizenController _controller;
         private readonly ICitizenScheduler _scheduler;
         private readonly IPopulationService _populationService;
-        private readonly ICitizenMovementService _movementService;
 
         private bool _isPaused = true; // по умолчанию при старте приостановлен
 
@@ -32,10 +30,8 @@ namespace Services.CitizensSimulation
         public CitizenSimulationService(
             CitizenController controller,
             IPopulationService populationService,
-            ICitizenScheduler scheduler,
-            ICitizenMovementService movementService)
+            ICitizenScheduler scheduler)
         {
-            _movementService = movementService;
             _scheduler = scheduler;
             _controller = controller;
             _populationService = populationService;

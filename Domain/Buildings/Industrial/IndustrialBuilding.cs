@@ -1,9 +1,6 @@
 using Domain.Common.Base;
 using Domain.Common.Enums;
 using Domain.Map;
-using System.Security.AccessControl;
-using static Domain.Buildings.IndustrialBuilding;
-
 namespace Domain.Buildings
 {
     /// <summary>

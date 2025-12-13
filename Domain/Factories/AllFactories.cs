@@ -2,7 +2,10 @@ using Domain.Base;
 using Domain.Buildings;
 using Domain.Buildings.Residential;
 using Domain.Buildings.Utility;
+using Domain.Citizens;
+using Domain.Citizens.States;
 using Domain.Common.Base;
+using Domain.Common.Base.MovingEntities;
 using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Infrastructure;
@@ -10,7 +13,20 @@ using Domain.Map;
 
 namespace Domain.Factories
 {
-
+    public class HospitalFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            return new Hospital(new Area(3, 3));
+        }
+    }
+    public class FireStationFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            return new FireStation(new Area(2, 2));
+        }
+    }
     public class SmallHouseFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -132,7 +148,7 @@ namespace Domain.Factories
                 floors: 2,
                 maxOccupancy: 12,
                 area: new Area(5, 5),
-                IndustrialBuildingType.CardboardFactory
+                type: IndustrialBuildingType.Factory
             );
 
             // Цех подготовки сырья - производство картонных листов
@@ -207,7 +223,7 @@ namespace Domain.Factories
                 floors: 2,
                 maxOccupancy: 15,
                 area: new Area(6, 6),
-                type: IndustrialBuildingType.PackagingFactory
+                type: IndustrialBuildingType.Warehouse
             );
 
             // Цех картонной упаковки
@@ -299,7 +315,12 @@ namespace Domain.Factories
     {
         public MapObject Create()
         {
-            var factory = new IndustrialBuilding(2, 80, new Area(5, 5), IndustrialBuildingType.PharmaceuticalFactory);
+            var factory = new IndustrialBuilding(
+                2, 
+                80, 
+                new Area(5, 5),
+                type: IndustrialBuildingType.Warehouse
+                );
             factory.AddWorkshop(ResourceType.Chemicals, ResourceType.Medicine, 2);
             factory.MaterialsBank[ResourceType.Chemicals] = 100;
             return factory;
@@ -313,7 +334,10 @@ namespace Domain.Factories
     {
         public MapObject Create()
         {
-            var factory = new IndustrialBuilding(floors: 1, maxOccupancy: 60, area: new Area(4, 4), IndustrialBuildingType.RecyclingPlantFactory);           
+            var factory = new IndustrialBuilding(floors: 1,
+                maxOccupancy: 60,
+                area: new Area(4, 4),
+                type: IndustrialBuildingType.Factory);           
             factory.AddWorkshop(input: ResourceType.PlasticWaste,output: ResourceType.Plastic,coeff: 3);
             factory.MaterialsBank[ResourceType.PlasticWaste] = 100;
             return factory;

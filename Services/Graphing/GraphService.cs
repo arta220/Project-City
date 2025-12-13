@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Services.JewelryProduction;
 using Services.IndustrialProduction;
-using Services.GlassProduction;
+using Services.Disasters;
 
 namespace Services.Graphing
 {
@@ -18,15 +18,15 @@ namespace Services.Graphing
         private readonly List<IGraphDataProvider> _providers = new();
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService? _productionService;
-        private readonly Simulation? _simulation;
+        private readonly IDisasterService? _disasterService;
 
-        public GraphService(IUtilityService utilityService, IJewelryProductionService jewelryProductionService, IGlassProductionService glassProductionService, IIndustrialProductionService? productionService = null, Simulation? simulation = null)
+        public GraphService(IUtilityService utilityService, IIndustrialProductionService? productionService = null, IDisasterService? disasterService = null)
         {
             _utilityService = utilityService;
             _jewelryProductionService = jewelryProductionService;
             _glassProductionService = glassProductionService;
             _productionService = productionService;
-            _simulation = simulation;
+            _disasterService = disasterService;
             RegisterDefaultProviders();
         }
 
@@ -45,7 +45,11 @@ namespace Services.Graphing
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));
                 RegisterProvider(new PackagingProductionGraphProvider(_productionService));
             }
- 
+
+            if (_disasterService != null)
+            {
+                RegisterProvider(new DisasterGraphProvider(_disasterService));
+            }
         }
 
         public IEnumerable<IGraphDataProvider> GetAvailableGraphs()

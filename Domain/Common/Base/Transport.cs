@@ -1,4 +1,5 @@
 using Domain.Citizens;
+using Domain.Common.Base.MovingEntities;
 using Domain.Map;
 using Domain.Transports;
 using Domain.Transports.States;
