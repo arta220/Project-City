@@ -5,6 +5,7 @@ using Services.CitizensSimulatiom;
 using Services.CitizensSimulation.CitizenSchedule;
 using Services.Common;
 using Services.EntityMovement.Service;
+using Services.Citizens.Education;
 using System.Collections.ObjectModel;
 
 namespace Services.CitizensSimulation
@@ -18,6 +19,7 @@ namespace Services.CitizensSimulation
         private readonly CitizenController _controller;
         private readonly ICitizenScheduler _scheduler;
         private readonly IPopulationService _populationService;
+        private readonly IEducationService _educationService;
 
         private bool _isPaused = true; // по умолчанию при старте приостановлен
 
@@ -30,11 +32,13 @@ namespace Services.CitizensSimulation
         public CitizenSimulationService(
             CitizenController controller,
             IPopulationService populationService,
-            ICitizenScheduler scheduler)
+            ICitizenScheduler scheduler,
+            IEducationService educationService)
         {
             _scheduler = scheduler;
             _controller = controller;
             _populationService = populationService;
+            _educationService = educationService;
         }
 
         /// <summary>
@@ -49,6 +53,10 @@ namespace Services.CitizensSimulation
                 _scheduler.UpdateSchedule(citizen);
                 _controller.UpdateCitizen(citizen, time);
                 CitizenUpdated?.Invoke(citizen);
+
+
+                // Обновляем образование гражданина (если он прикреплён к учебному месту)
+                _educationService?.UpdateEducation(citizen, time);
 
                 if (time.Year != _lastProcessedYear)
                 {

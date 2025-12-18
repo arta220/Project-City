@@ -167,6 +167,25 @@ namespace CitySimulatorWPF.Models
                 "/Icons/Road.png"
             ));
 
+            // Образование
+            infrastructure.Objects.Add(new ObjectVM(
+                new SchoolFactory(),
+                "Школа",
+                "/Icons/School.png"
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new CollegeFactory(),
+                "Колледж",
+                "/Icons/College.png"
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new UniversityFactory(),
+                "Университет",
+                "/Icons/University.png"
+            ));
+
             infrastructure.Objects.Add(new ObjectVM(
                 new PedestrianPathFactory(),
                 "Пешеходная дорожка",
@@ -191,14 +210,28 @@ namespace CitySimulatorWPF.Models
                     "Аэрпорт",
                     "Assets/Icons/AirPort.png"
                 )
-            ); 
+            );
 
+            var transport = new BuildingCategory { Name = "Транспорт" };
+
+            transport.Objects.Add(new ObjectVM(
+                new TaxiFactory(),
+                "Такси",
+                "/Icons/Taxi.png"
+            ));
+
+            transport.Objects.Add(new ObjectVM(
+                new TaxiFactory(),
+                "Автобус",
+                "/Icons/Bus.png"
+            ));
 
             // Добавление категорий в реестр
             Categories.Add(infrastructure);
             Categories.Add(residential);
             Categories.Add(commercial);
             Categories.Add(industrial);
+            Categories.Add(transport);
         }
     }
 }

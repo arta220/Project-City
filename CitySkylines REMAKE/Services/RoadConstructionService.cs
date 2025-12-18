@@ -156,30 +156,27 @@ namespace CitySimulatorWPF.Services
             int x1 = end.X;
             int y1 = end.Y;
 
-            int dx = Math.Abs(x1 - x0);
-            int dy = Math.Abs(y1 - y0);
-            int sx = x0 < x1 ? 1 : -1;
-            int sy = y0 < y1 ? 1 : -1;
-            int err = dx - dy;
-
-            while (true)
+            int dx = x1 - x0;
+            int dy = y1 - y0;
+            int steps = Math.Max(Math.Abs(dx), Math.Abs(dy));
+            if (steps == 0)
             {
-                TileVM currentTile = _allTiles.FirstOrDefault(t => t.X == x0 && t.Y == y0);
+                var only = _allTiles.FirstOrDefault(t => t.X == x0 && t.Y == y0);
+                if (only != null) lineTiles.Add(only);
+                return lineTiles;
+            }
+
+            for (int i = 0; i <= steps; i++)
+            {
+                double fx = x0 + dx * (i / (double)steps);
+                double fy = y0 + dy * (i / (double)steps);
+                int rx = (int)Math.Round(fx);
+                int ry = (int)Math.Round(fy);
+                TileVM currentTile = _allTiles.FirstOrDefault(t => t.X == rx && t.Y == ry);
                 if (currentTile != null)
-                    lineTiles.Add(currentTile);
-
-                if (x0 == x1 && y0 == y1) break;
-
-                int e2 = 2 * err;
-                if (e2 > -dy)
                 {
-                    err -= dy;
-                    x0 += sx;
-                }
-                if (e2 < dx)
-                {
-                    err += dx;
-                    y0 += sy;
+                    if (lineTiles.Count == 0 || lineTiles.Last() != currentTile)
+                        lineTiles.Add(currentTile);
                 }
             }
 

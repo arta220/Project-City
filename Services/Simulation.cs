@@ -87,6 +87,13 @@ namespace Services
             if (_placementService.TryPlace(MapModel, mapObject, placement))
             {
                 _placementRepository.Register(mapObject, placement);
+
+                // If placed object is a transport, add to transport simulation
+                if (mapObject is Domain.Common.Base.Transport transport)
+                {
+                    _transportSimulationService.AddTransport(transport);
+                }
+
                 MapObjectPlaced?.Invoke(mapObject);
                 return true;
             }

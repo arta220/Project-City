@@ -215,6 +215,27 @@ namespace CitySimulatorWPF.ViewModels
                 var obj = SelectedObject.Factory.Create();
                 var placement = new Placement(new Position(tile.X, tile.Y), obj.Area);
 
+                // If creating a transport, place it as an entity on top of the road instead of replacing the tile object
+                if (obj is Domain.Common.Base.Transport transport)
+                {
+                    Debug.WriteLine($"Attempting to place transport. Clicked tile: ({tile.X},{tile.Y}). Tile.MapObject: {tile.MapObject?.GetType().Name}");
+                    // require underlying tile to be road
+                    if (!(tile.MapObject is Domain.Base.Road))
+                    {
+                        _messageService.ShowMessage("Транспорт можно ставить только на дорогу");
+                    }
+                    else
+                    {
+                        transport.Position = new Position(tile.X, tile.Y);
+                        Debug.WriteLine($"Assigning transport.Position = ({transport.Position.X},{transport.Position.Y})");
+                        _simulation.AddTransport(transport);
+                        Debug.WriteLine($"Transport added. Registered position: {transport.Position.X},{transport.Position.Y}");
+                    }
+
+                    CurrentMode = MapInteractionMode.None;
+                    return;
+                }
+
                 if (!_simulation.TryPlace(obj, placement))
                 {
                     _messageService.ShowMessage("Невозможно поставить объект");

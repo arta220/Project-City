@@ -1,5 +1,6 @@
 using Domain.Base;
 using Domain.Buildings;
+using Domain.Buildings.EducationBuildings;
 using Domain.Buildings.Residential;
 using Domain.Buildings.Utility;
 using Domain.Citizens;
@@ -86,10 +87,10 @@ namespace Domain.Factories
                 area: new Area(5, 5),
                 type: IndustrialBuildingType.Factory
             );
-            
+
             return building;
         }
-}
+    }
 
     /// <summary>
     /// Складское здание
@@ -304,8 +305,8 @@ namespace Domain.Factories
         public MapObject Create()
         {
             var factory = new IndustrialBuilding(
-                2, 
-                80, 
+                2,
+                80,
                 new Area(5, 5),
                 type: IndustrialBuildingType.Warehouse
                 );
@@ -325,8 +326,8 @@ namespace Domain.Factories
             var factory = new IndustrialBuilding(floors: 1,
                 maxOccupancy: 60,
                 area: new Area(4, 4),
-                type: IndustrialBuildingType.Factory);           
-            factory.AddWorkshop(input: ResourceType.PlasticWaste,output: ResourceType.Plastic,coeff: 3);
+                type: IndustrialBuildingType.Factory);
+            factory.AddWorkshop(input: ResourceType.PlasticWaste, output: ResourceType.Plastic, coeff: 3);
             factory.MaterialsBank[ResourceType.PlasticWaste] = 100;
             return factory;
         }
@@ -350,7 +351,6 @@ namespace Domain.Factories
             );
     }
 
-    }
     public class BotanicalGardenParkFactory : IMapObjectFactory
     {
         public MapObject Create() =>
@@ -389,11 +389,28 @@ namespace Domain.Factories
     }
 
     public class RoadFactory : IRoadFactory
+    {
+        public MapObject Create() =>
+            new Road(
+                area: new Area(1, 1)
+            );
+    }
+    public class TaxiFactory : IMapObjectFactory
+    {
+        public MapObject Create()
         {
-            public MapObject Create() =>
-                new Road(
-                    area: new Area(1, 1)
-                );
+            // Создаём такси как MapObject (Transport наследует MapObject)
+            var taxi = new Domain.Transports.Ground.Taxi(new Area(1, 1), speed: 1.0f);
+            return taxi;
+        }
+    }
+    public class BusFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var bus = new Domain.Transports.Ground.Bus(new Area(1, 1), speed: 1.0f);
+            return bus;
+        }
     }
     public class UtilityOfficeFactory : IMapObjectFactory
     {
@@ -408,4 +425,39 @@ namespace Domain.Factories
                 type: PortType.AirPort
             );
     }
+
+    public class SchoolFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var b = new EducationBuilding(floors: 1, maxOccupancy: 200, area: new Area(3, 3));
+            b.Type = Domain.Common.Enums.EducationType.School;
+            b.Capacity = 200;
+            return b;
+        }
+    }
+
+    public class CollegeFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var b = new EducationBuilding(floors: 2, maxOccupancy: 150, area: new Area(3, 3));
+            b.Type = Domain.Common.Enums.EducationType.College;
+            b.Capacity = 120;
+            return b;
+        }
+    }
+
+    public class UniversityFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            var b = new EducationBuilding(floors: 4, maxOccupancy: 800, area: new Area(4, 4));
+            b.Type = Domain.Common.Enums.EducationType.University;
+            b.Capacity = 600;
+            return b;
+        }
+    }
+
+}
 

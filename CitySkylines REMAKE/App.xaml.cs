@@ -81,7 +81,8 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<INavigationProfile, CitizenProfile>();
             services.AddSingleton<IPathFinder, AStarPathFinder>();
             services.AddSingleton<IEntityMovementService, EntityMovementService>();
-            services.AddSingleton<INavigationProfile, CitizenProfile>();
+            // Transport navigation profile for vehicles (registered as concrete type)
+            services.AddSingleton<TransportProfile>();
             services.AddSingleton<CitizenFactory>();
 
 
@@ -97,6 +98,7 @@ namespace CitySkylines_REMAKE
             // Сервисы граждан
             services.AddSingleton<IFindEducationService, FindEducationService>();
             services.AddSingleton<IEducationService, EducationService>();
+            // Education factories not required in DI; factories are used via BuildingRegistry
             services.AddSingleton<IFindJobService, FindJobService>();
             services.AddSingleton<ICitizenScheduler, CitizenScheduler>();
             services.AddSingleton<IEntityMovementService, EntityMovementService>();
@@ -124,12 +126,12 @@ namespace CitySkylines_REMAKE
                 var handlers = sp.GetRequiredService<IEnumerable<ITransportStateHandler>>();
                 return new PersonalTransportController(handlers);
             });
-
+            services.AddSingleton<TransportMovementService>();
             services.AddSingleton<TransportSimulationService>(sp =>
             {
                 var controller = sp.GetRequiredService<PersonalTransportController>();
-                var clock = sp.GetRequiredService<ISimulationClock>();
-                return new TransportSimulationService(controller);
+                var movement = sp.GetRequiredService<TransportMovementService>();
+                return new TransportSimulationService(controller, movement);
             });
 
             // Менеджер машин

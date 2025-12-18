@@ -46,6 +46,17 @@ namespace Services.PlaceBuilding
             foreach (var position in area.GetAllPositions())
             {
                 TileModel tile = map[position];
+
+                // Специальный случай: размещение транспорта -> должно быть размещено на дорогах
+                if (mapObject is Domain.Common.Base.Transport)
+                {
+                    if (!(tile.MapObject is Domain.Base.Road))
+                        return false;
+
+                    // не проверять соседей для транспорта
+                    continue;
+                }
+
                 if (!_validator.CanBuildOnTile(tile, mapObject))
                     return false;
 
@@ -54,8 +65,20 @@ namespace Services.PlaceBuilding
                     if (!map.IsPositionInBounds(neighbor))
                         continue;
 
-                    if (map[neighbor].MapObject != null)
+                    var neighborObj = map[neighbor].MapObject;
+                    if (neighborObj != null)
+                    {
+                        // Разрешить дорогам соседствовать с дорогами (непрерывная дорога)
+                        if (mapObject is Domain.Base.Road && neighborObj is Domain.Base.Road)
+                            continue;
+
+                        // Разрешить тропам соседствовать с тропами
+                        if (mapObject is Domain.Infrastructure.Path && neighborObj is Domain.Infrastructure.Path)
+                            continue;
+
+                        // В противном случае заблокировать размещение рядом с любым существующим объектом
                         return false;
+                    }
                 }
             }
 

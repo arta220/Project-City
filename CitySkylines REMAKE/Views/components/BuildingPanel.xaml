@@ -80,6 +80,11 @@
                     Command="{Binding SelectCategoryCommand}"
                     CommandParameter="Инфраструктура"
                     Style="{StaticResource CategoryButtonStyle}" />
+
+            <Button Content="Транспорт"
+                    Command="{Binding SelectCategoryCommand}"
+                    CommandParameter="Транспорт"
+                    Style="{StaticResource CategoryButtonStyle}" />
         </StackPanel>
 
         <ItemsControl Grid.Row="1"

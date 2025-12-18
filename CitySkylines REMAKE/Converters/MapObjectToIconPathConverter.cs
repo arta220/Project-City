@@ -6,6 +6,7 @@ using Domain.Buildings.Residential;
 using Domain.Common.Base;
 using Domain.Base;
 using Domain.Common.Enums;
+using Domain.Buildings.EducationBuildings;
 
 namespace CitySimulatorWPF.Converters
 {
@@ -15,7 +16,7 @@ namespace CitySimulatorWPF.Converters
         {
             // debug
             System.Diagnostics.Debug.WriteLine($"[MapObjectToIconPath] value={value?.GetType().FullName ?? "null"}");
-            
+
             if (value is not MapObject mapObject)
                 return null;
 
@@ -48,7 +49,7 @@ namespace CitySimulatorWPF.Converters
             {
                 return industrial.Type switch
                 {
-                    IndustrialBuildingType.Factory   => "/Icons/Factory.png",
+                    IndustrialBuildingType.Factory => "/Icons/Factory.png",
                     IndustrialBuildingType.Warehouse => "/Icons/Warehouse.png",
                     _ => null
                 };
@@ -59,11 +60,22 @@ namespace CitySimulatorWPF.Converters
             {
                 return park.Type switch
                 {
-                    ParkType.UrbanPark        => "/Icons/UrbanPark.png",
-                    ParkType.BotanicalGarden  => "/Icons/BotanGarden.png",
-                    ParkType.Playground       => "/Icons/ChildPlayground.png",
-                    ParkType.Square           => "/Icons/Square.png",
-                    ParkType.RecreationArea   => "/Icons/RestArea.png",
+                    ParkType.UrbanPark => "/Icons/UrbanPark.png",
+                    ParkType.BotanicalGarden => "/Icons/BotanGarden.png",
+                    ParkType.Playground => "/Icons/ChildPlayground.png",
+                    ParkType.Square => "/Icons/Square.png",
+                    ParkType.RecreationArea => "/Icons/RestArea.png",
+                    _ => null
+                };
+            }
+
+            if (mapObject is EducationBuilding educationBuilding)
+            {
+                return educationBuilding.Type switch
+                {
+                    EducationType.School => "/Icons/School.png",
+                    EducationType.College => "/Icons/College.png",
+                    EducationType.University => "/Icons/University.png",
                     _ => null
                 };
             }

@@ -1,21 +1,22 @@
 using Domain.Common.Base;
 using Domain.Common.Time;
-using Domain.Transports.Ground;
 using Services.Common;
-using Services.Time.Clock;
 using System;
 using System.Collections.ObjectModel;
+using Services.TransportSimulation;
 
 namespace Services.TransportSimulation
 {
     public class TransportSimulationService : IUpdatable
     {
         private readonly PersonalTransportController _controller;
+        private readonly TransportMovementService _movementService;
         private bool _isPaused = true;
 
-        public TransportSimulationService(PersonalTransportController controller)
+        public TransportSimulationService(PersonalTransportController controller, TransportMovementService movementService)
         {
-            _controller = controller;
+            _controller = controller ?? throw new ArgumentNullException(nameof(controller));
+            _movementService = movementService ?? throw new ArgumentNullException(nameof(movementService));
         }
 
         public ObservableCollection<Transport> Transports { get; } = new();
@@ -36,34 +37,26 @@ namespace Services.TransportSimulation
             TransportRemoved?.Invoke(transport);
         }
 
-        public void Update(SimulationTime time)
+        public void Update(Domain.Common.Time.SimulationTime time)
         {
             if (_isPaused) return;
 
             foreach (var transport in Transports)
             {
-                if (transport is PersonalCar car) // временна€ проверка
+                // If personal car specific controller exists - use it
+                if (transport is Domain.Transports.Ground.PersonalCar personal)
                 {
-                    _controller.UpdateTransport(car, time);
-                    TransportUpdated?.Invoke(transport);
+                    _controller.UpdateTransport(personal, time);
                 }
+
+                // Movement logic for any transport
+                _movementService.UpdateTransport(transport, time);
+
+                TransportUpdated?.Invoke(transport);
             }
         }
 
-        /// <summary>
-        /// ¬озобновл€ет симул€цию транспорта.
-        /// </summary>
-        public void Resume()
-        {
-            _isPaused = false;
-        }
-
-        /// <summary>
-        /// —тавит симул€цию транспорта на паузу.
-        /// </summary>
-        public void Pause()
-        {
-            _isPaused = true;
-        }
+        public void Resume() => _isPaused = false;
+        public void Pause() => _isPaused = true;
     }
 }

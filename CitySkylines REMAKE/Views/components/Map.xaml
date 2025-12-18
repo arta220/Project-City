@@ -10,11 +10,11 @@
              d:DesignWidth="800">
 
     <UserControl.Resources>
-        <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter"/>
+        <conv:TerrainTypeToBrushConverter x:Key="TerrainTypeToBrushConverter" />
         <conv:ResourceTypeToBrushConverter x:Key="ResourceTypeToBrushConverter" />
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <conv:MapObjectToIconPathConverter x:Key="MapObjectToIconPathConverter" />
-        
+
         <!-- Простой стиль для гражданина -->
         <Style x:Key="CitizenStyle"
                TargetType="Ellipse">
@@ -34,13 +34,13 @@
         <Style x:Key="CarStyle"
                TargetType="Rectangle">
             <Setter Property="Width"
-                    Value="8" />
+                    Value="12" />
             <Setter Property="Height"
-                    Value="4" />
+                    Value="8" />
             <Setter Property="Fill"
-                    Value="Blue" />
+                    Value="Yellow" />
             <Setter Property="Stroke"
-                    Value="DarkBlue" />
+                    Value="DarkGoldenrod" />
             <Setter Property="StrokeThickness"
                     Value="1" />
         </Style>
@@ -72,7 +72,8 @@
                 <ItemsControl ItemsSource="{Binding Tiles}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Rows="{Binding Height}" Columns="{Binding Width}" />
+                            <UniformGrid Rows="{Binding Height}"
+                                         Columns="{Binding Width}" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
 
@@ -94,7 +95,7 @@
                                     <Rectangle Fill="Gray" />
                                     <!-- Иконку теперь рисуем отдельным слоем BuildingIcons -->
                                 </Grid>
-                                
+
                                 <!-- НОВОЕ: иконка ресурса в центре клетки -->
                                 <Ellipse Width="8"
                                          Height="8"
@@ -134,7 +135,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                
+
                 <!-- Слой крупных иконок зданий поверх тайлов -->
                 <ItemsControl ItemsSource="{Binding BuildingIcons}"
                               IsHitTestVisible="False">
@@ -146,8 +147,10 @@
 
                     <ItemsControl.ItemContainerStyle>
                         <Style>
-                            <Setter Property="Canvas.Left" Value="{Binding CanvasLeft}" />
-                            <Setter Property="Canvas.Top"  Value="{Binding CanvasTop}" />
+                            <Setter Property="Canvas.Left"
+                                    Value="{Binding CanvasLeft}" />
+                            <Setter Property="Canvas.Top"
+                                    Value="{Binding CanvasTop}" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
 
@@ -165,20 +168,24 @@
                 <ItemsControl ItemsSource="{Binding Citizens}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <Canvas/>
+                            <Canvas />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
 
                     <ItemsControl.ItemContainerStyle>
                         <Style>
-                            <Setter Property="Canvas.Left" Value="{Binding PixelX}"/>
-                            <Setter Property="Canvas.Top" Value="{Binding PixelY}"/>
+                            <Setter Property="Canvas.Left"
+                                    Value="{Binding PixelX}" />
+                            <Setter Property="Canvas.Top"
+                                    Value="{Binding PixelY}" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse Style="{StaticResource CitizenStyle}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Ellipse Style="{StaticResource CitizenStyle}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -186,7 +193,8 @@
             </Grid>
 
             <!-- Слой личного транспорта (машины) поверх тайлов, вместе с гражданами -->
-            <ItemsControl ItemsSource="{Binding Cars}">
+            <ItemsControl ItemsSource="{Binding Cars}"
+                          Panel.ZIndex="100">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas />
