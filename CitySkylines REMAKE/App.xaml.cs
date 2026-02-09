@@ -18,6 +18,7 @@ using Services.EntityMovement.Service;
 using Services.Factories;
 using Services.Graphing;
 using Services.IndustrialProduction;
+using Services.CommercialVisits;
 using Services.Interfaces;
 using Services.MapGenerator;
 using Services.PathFind;
@@ -57,11 +58,13 @@ namespace CitySkylines_REMAKE
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
             services.AddSingleton<IIndustrialProductionService, IndustrialProductionService>();
+            services.AddSingleton<ICommercialVisitService, CommercialVisitService>();
             services.AddSingleton<GraphService>(sp =>
             {
                 var utilityService = sp.GetRequiredService<IUtilityService>();
                 var productionService = sp.GetRequiredService<IIndustrialProductionService>();
-                return new GraphService(utilityService, productionService);
+                var commercialService = sp.GetRequiredService<ICommercialVisitService>();
+                return new GraphService(utilityService, productionService, commercialService);
             });
             services.AddTransient<ChartsWindowViewModel>();
 
@@ -100,8 +103,7 @@ namespace CitySkylines_REMAKE
             // Сценарии поведения жителей
             services.AddScoped<ICitizenScenario, HomeScenario>();
             services.AddScoped<ICitizenScenario, UtilityWorkerScenario>();
-            services.AddScoped<ICitizenScenario, EducationScenario>();
-            services.AddScoped<ICitizenScenario, ReproductionScenario>();
+            services.AddScoped<ICitizenScenario, CommercialVisitScenario>();
 
             // Контроллер граждан
             services.AddSingleton<CitizenController>();

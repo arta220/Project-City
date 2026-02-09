@@ -67,10 +67,10 @@ namespace CitySimulatorWPF.Services
         {
             Tiles.Clear();
 
-            for (int x = 0; x < mapModel.Width; x++)
+            for (int y = 0; y < mapModel.Height; y++)
             {
-                for (int y = 0; y < mapModel.Height; y++)
-                {
+                    for (int x = 0; x < mapModel.Width; x++)
+                    {
                     var tileVM = new TileVM(mapModel[x, y]);
 
                     tileVM.TileClicked += (t) => onTileClicked?.Invoke(t);

@@ -1,6 +1,7 @@
 ﻿using Domain.Citizens;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Tasks;
+using Services.Citizens.Tasks.Demography;
 using Services.Time;
 
 namespace Services.Citizens.Population

@@ -1,35 +1,67 @@
-﻿using Domain.Citizens;
+﻿using Domain.Buildings;
+using Domain.Citizens;
 using Domain.Citizens.Tasks;
-using Domain.Common.Time;
+using Domain.Common.Base;
 using Services.BuildingRegistry;
 using Services.Citizens.Scenaries;
-using Services.Citizens.Tasks;
 using Services.Citizens.Tasks.Move;
 using Services.EntityMovement.Service;
 using Services.Time;
 
-public abstract class MoveAndPerformTaskScenario : ICitizenScenario // Задача "придти куда-то и что-то сделать". Наследуются конкретные действия
+namespace Services.Citizens.Scenarios.Base
 {
-    protected readonly IEntityMovementService _movement;
-    protected readonly IBuildingRegistry _registry;
-
-    protected MoveAndPerformTaskScenario(IEntityMovementService movement, IBuildingRegistry registry)
+    /// <summary>
+    /// Базовый сценарий "придти куда-то, выполнить задачу и (опционально) вернуться".
+    /// Конкретные сценарии задают:
+    /// 1) куда идти (GetTargetBuilding)
+    /// 2) какую задачу выполнить (CreateMainTask)
+    /// 3) куда возвращаться (GetReturnTarget, необязательно)
+    /// </summary>
+    public abstract class MoveAndPerformTaskScenario : ICitizenScenario
     {
-        _movement = movement;
-        _registry = registry;
-    }
+        protected readonly IEntityMovementService _movement;
+        protected readonly IBuildingRegistry _registry;
 
-    public abstract bool CanRun(Citizen citizen, ISimulationTimeService time);
+        protected MoveAndPerformTaskScenario(IEntityMovementService movement, IBuildingRegistry registry)
+        {
+            _movement = movement;
+            _registry = registry;
+        }
 
-    protected abstract ICitizenTask CreateMainTask(Citizen citizen);
+        public abstract bool CanRun(Citizen citizen, ISimulationTimeService time);
 
-    public virtual void BuildTasks(Citizen citizen)
-    {
-        if (citizen.WorkPlace == null) return;
+        /// <summary>
+        /// Здание, куда нужно прийти.
+        /// </summary>
+        protected abstract Building GetTargetBuilding(Citizen citizen);
 
-        // Сначала идем к зданию
-        citizen.Tasks.Enqueue(new MoveToBuildingTask(citizen.WorkPlace, _movement, _registry));
-        // Потом выполняем специфическую задачу
-        citizen.Tasks.Enqueue(CreateMainTask(citizen));
+        /// <summary>
+        /// Основная задача, которую нужно выполнить, когда гражданин прибыл.
+        /// </summary>
+        protected abstract ICitizenTask CreateMainTask(Citizen citizen, Building target);
+
+        /// <summary>
+        /// Куда возвращаться после выполнения задачи.
+        /// По умолчанию — никуда.
+        /// </summary>
+        protected virtual Building? GetReturnTarget(Citizen citizen) => null;
+
+        public virtual void BuildTasks(Citizen citizen)
+        {
+            var target = GetTargetBuilding(citizen);
+
+            // 1. Идём к месту выполнения задачи
+            citizen.Tasks.Enqueue(new MoveToBuildingTask(target, _movement, _registry));
+
+            // 2. Выполняем основную задачу
+            citizen.Tasks.Enqueue(CreateMainTask(citizen, target));
+
+            // 3. (опционально) возвращаемся
+            var returnTarget = GetReturnTarget(citizen);
+            if (returnTarget != null)
+            {
+                citizen.Tasks.Enqueue(new MoveToBuildingTask(returnTarget, _movement, _registry));
+            }
+        }
     }
 }

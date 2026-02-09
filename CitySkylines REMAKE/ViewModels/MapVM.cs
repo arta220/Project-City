@@ -128,53 +128,51 @@ namespace CitySimulatorWPF.ViewModels
             }, DispatcherPriority.Background);
         }
 
+        /// <summary>
+        /// Демонстрационный сценарий: один житель идёт из дома в случайное коммерческое здание,
+        /// обслуживается там и возвращается домой. Размещаем 6 коммерческих типов для графика.
+        /// </summary>
         private void CreateTestScenario()
         {
-            // 1. Создаём жителя (работника ЖКХ)
+            // 1. Жилой дом и житель
+            var houseFactory = new SmallHouseFactory();
+            var house = (ResidentialBuilding)houseFactory.Create();
+            var housePlacement = new Placement(new Position(8, 8), house.Area);
+            if (!_simulation.TryPlace(house, housePlacement))
+            {
+                _messageService.ShowMessage("Не удалось разместить тестовый дом");
+                return;
+            }
+
             var citizen = _citizenFactory.CreateCitizen(
-                pos: new Position(15, 15),
+                pos: housePlacement.Entrance,
                 speed: 1.0f,
-                profession: CitizenProfession.UtilityWorker
-            );
+                profession: CitizenProfession.Seller);
+            citizen.Home = house;
+            citizen.State = CitizenState.Idle;
             _simulation.AddCitizen(citizen);
-            Debug.WriteLine($"Создан работник ЖКХ ID: {citizen.Id} на позиции ({citizen.Position.X}, {citizen.Position.Y})");
 
-            // 2. Создаём офис ЖКХ
-            var utilityOfficeFactory = new UtilityOfficeFactory();
-            var utilityOffice = utilityOfficeFactory.Create();
-            var officePlacement = new Placement(new Position(25, 25), utilityOffice.Area);
-            if (!_simulation.TryPlace(utilityOffice, officePlacement))
+            // 2. Шесть коммерческих зданий (для GoingToCommertial и графика посещений)
+            var placements = new (IMapObjectFactory factory, Position pos)[]
             {
-                _messageService.ShowMessage("Не удалось разместить офис ЖКХ");
-                return;
-            }
-            citizen.WorkPlace = (Building)utilityOffice;
-            Debug.WriteLine($"Создан офис ЖКХ на позиции (25,25). Назначен как WorkPlace работнику {citizen.Id}");
+                (new ShopFactory(),         new Position(14, 8)),
+                (new SupermarketFactory(),  new Position(19, 8)),
+                (new CafeFactory(),         new Position(24, 8)),
+                (new PharmacyFactory(),     new Position(14, 13)),
+                (new RestaurantFactory(),   new Position(19, 13)),
+                (new GasStationFactory(),   new Position(24, 13)),
+            };
 
-            // 3. Создаём тестовый жилой дом
-            var residentialFactory = new SmallHouseFactory();
-            var residentialBuilding = (ResidentialBuilding)residentialFactory.Create();
-            var housePlacement = new Placement(new Position(35, 35), residentialBuilding.Area);
-            if (!_simulation.TryPlace(residentialBuilding, housePlacement))
+            foreach (var item in placements)
             {
-                _messageService.ShowMessage("Не удалось разместить жилой дом");
-                return;
+                var obj = item.factory.Create();
+                var placement = new Placement(item.pos, obj.Area);
+                if (!_simulation.TryPlace(obj, placement))
+                {
+                    _messageService.ShowMessage($"Не удалось разместить {obj.GetType().Name} в {item.pos.X},{item.pos.Y}");
+                    return;
+                }
             }
-            Debug.WriteLine($"Создан жилой дом на позиции (35,35)");
-
-            // 4. Ломаем коммуналку для теста
-            _utilityService.BreakUtilityForTesting(residentialBuilding, UtilityType.Electricity, currentTick: 1);
-            var brokenUtilities = _utilityService.GetBrokenUtilities(residentialBuilding);
-            Debug.WriteLine($"Сломанные коммуналки в тестовом доме: {brokenUtilities.Count}");
-
-            // 7. Информация о тесте
-            _messageService.ShowMessage(
-                "Тестовый сценарий создан!\n" +
-                "1. Работник ЖКХ: (15,15)\n" +
-                "2. Офис ЖКХ: (25,25)\n" +
-                "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
-                "Работник должен побежать чинить сломанное ЖКХ."
-            );
         }
 
 

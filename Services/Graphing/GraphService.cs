@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.CommercialVisits;
 using Services.Utilities;
 using Services.IndustrialProduction;
 
@@ -13,11 +12,16 @@ namespace Services.Graphing
         private readonly List<IGraphDataProvider> _providers = new();
         private readonly IUtilityService _utilityService;
         private readonly IIndustrialProductionService? _productionService;
+        private readonly ICommercialVisitService? _commercialVisitService;
 
-        public GraphService(IUtilityService utilityService, IIndustrialProductionService? productionService = null)
+        public GraphService(
+            IUtilityService utilityService,
+            IIndustrialProductionService? productionService = null,
+            ICommercialVisitService? commercialVisitService = null)
         {
             _utilityService = utilityService;
             _productionService = productionService;
+            _commercialVisitService = commercialVisitService;
             RegisterDefaultProviders();
         }
 
@@ -34,6 +38,11 @@ namespace Services.Graphing
             {
                 RegisterProvider(new CardboardProductionGraphProvider(_productionService));
                 RegisterProvider(new PackagingProductionGraphProvider(_productionService));
+            }
+
+            if (_commercialVisitService != null)
+            {
+                RegisterProvider(new CommercialVisitsGraphProvider(_commercialVisitService));
             }
         }
 

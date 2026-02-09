@@ -4,6 +4,8 @@ using Domain.Map;
 using Services.BuildingRegistry;
 using Services.Citizens.Scenaries;
 using Services.Citizens.Tasks;
+using Services.Citizens.Tasks.Education;
+using Services.Citizens.Tasks.Find;
 using Services.EntityMovement.Service;
 using Services.Time;
 using System.Linq;
