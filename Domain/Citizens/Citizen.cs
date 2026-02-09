@@ -3,6 +3,7 @@ using Domain.Buildings.Residential;
 using Domain.Citizens.States;
 using Domain.Citizens.Tasks;
 using Domain.Common.Base;
+using Domain.Common.Base.MovingEntities;
 using Domain.Common.Enums;
 using Domain.Map;
 using Domain.Transports.Ground;

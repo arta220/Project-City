@@ -7,6 +7,6 @@ namespace Services.Interfaces
 {
     public interface IFindJobService
     {
-        IEnumerable<CommercialBuilding> FindJob(CitizenProfession profession);
+        IEnumerable<Building> FindJob(CitizenProfession profession);
     }
 }

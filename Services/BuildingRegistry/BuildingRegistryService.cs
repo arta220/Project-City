@@ -1,6 +1,7 @@
 ﻿using Domain.Common.Base;
 using Domain.Map;
 using Services.PlaceBuilding;
+using System.ComponentModel.DataAnnotations;
 
 namespace Services.BuildingRegistry
 {
@@ -28,5 +29,29 @@ namespace Services.BuildingRegistry
         public IEnumerable<T> GetBuildings<T>() => _placementRepository.GetAll().OfType<T>();
 
         public (Placement? placement, bool found) TryGetPlacement(MapObject building) => _placementRepository.TryGetPlacement(building);
+
+        public IEnumerable<Position> GetAccessibleNeighborTiles(MapObject obj, MapModel map)
+        {
+            var (placement, found) = _placementRepository.TryGetPlacement(obj);
+            if (!found) yield break;
+
+            var area = placement!.Value.Area;
+            var origin = placement.Value.Position;
+
+            for (int x = origin.X - 1; x <= origin.X + area.Width; x++)
+            {
+                for (int y = origin.Y - 1; y <= origin.Y + area.Height; y++)
+                {
+                    // тайлы вокруг здания
+                    if (x == origin.X - 1 || x == origin.X + area.Width ||
+                        y == origin.Y - 1 || y == origin.Y + area.Height)
+                    {
+                        var pos = new Position(x, y);
+                        if (map.IsPositionInBounds(pos) && map[pos].MapObject == null)
+                            yield return pos;
+                    }
+                }
+            }
+        } 
     }
 }

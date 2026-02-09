@@ -1,6 +1,7 @@
 ﻿using Domain.Citizens;
 using Domain.Common.Time;
 
+namespace Services.CitizensSimulatiom;
 public class CitizenController
 {
     public void UpdateCitizen(Citizen citizen, SimulationTime time)

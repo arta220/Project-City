@@ -4,27 +4,27 @@ using Domain.Transports.States;
 
 namespace Services.TransportSimulation.StateHandlers
 {
-    public class DrivingHomeStateHandler : ITransportStateHandler
+    public class DrivingHomeStateHandler : ITransportStateHandler // Я удалил этот сервис. Просто оставляю чтобы перенести на новую систему.
     {
-        private readonly TransportMovementService _movementService;
+       // private readonly TransportMovementService _movementService;
 
-        public DrivingHomeStateHandler(TransportMovementService movementService)
-        {
-            _movementService = movementService;
-        }
+        //public DrivingHomeStateHandler(TransportMovementService movementService)
+        //{
+        //    _movementService = movementService;
+        //}
 
-        public bool CanHandle(TransportState state) => state == TransportState.DrivingHome;
+        public bool CanHandle(TransportState state) => true;
 
         public void Update(Transport transport, SimulationTime time)
         {
-            if (transport.TargetPosition == null) return;
+            //if (transport.TargetPosition == null) return;
 
-            _movementService.Move(transport, transport.TargetPosition);
+            //_movementService.Move(transport, transport.TargetPosition);
 
-            if (transport.Position.Equals(transport.TargetPosition))
-            {
-                transport.State = TransportState.IdleAtHome;
-            }
+            //if (transport.Position.Equals(transport.TargetPosition))
+            //{
+            //    transport.State = TransportState.IdleAtHome;
+            //}
         }
     }
 }

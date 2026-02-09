@@ -48,9 +48,20 @@ namespace Services.PlaceBuilding
                 TileModel tile = map[position];
                 if (!_validator.CanBuildOnTile(tile, mapObject))
                     return false;
+
+                foreach (var neighbor in position.GetNeighbors())
+                {
+                    if (!map.IsPositionInBounds(neighbor))
+                        continue;
+
+                    if (map[neighbor].MapObject != null)
+                        return false;
+                }
             }
+
             return true;
         }
+
 
         /// <summary>
         /// Пытается разместить объект на карте.
@@ -83,5 +94,6 @@ namespace Services.PlaceBuilding
 
             return false;
         }
+
     }
 }
