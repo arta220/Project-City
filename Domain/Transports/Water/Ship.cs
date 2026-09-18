@@ -1,6 +1,15 @@
-﻿namespace Domain.Transports.Water;
+﻿using Domain.Common.Base;
+using Domain.Map;
 
-public class Ship
+namespace Domain.Transports
 {
-    
+    public class Ship : MovingEntity
+    {
+        public Ship(float speed)
+            : base(
+                area: new Area(1, 1),
+                speed: speed)
+        {
+        }
+    }
 }

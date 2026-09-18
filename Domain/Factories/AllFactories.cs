@@ -153,13 +153,34 @@ namespace Domain.Factories
     {
         public MapObject Create() =>
             new UtilityOffice(area: new Area(2, 1));
-    }
-    public class AirPortFactory : IMapObjectFactory
+       }
+    //public class AirPortFactory : IMapObjectFactory
+    //{
+    //    public MapObject Create() =>
+    //        new Port(
+    //            area: new Area(2, 6),
+    //            type: PortType.AirPort
+    //        );
+    //}
+
+    public class AirportFactory : IMapObjectFactory
     {
-        public MapObject Create() =>
-            new Port(
-                area: new Area(2, 6),
-                type: PortType.AirPort
+        public MapObject Create()
+        {
+            return new Airport(
+                new Area(2, 6)
             );
+        }
     }
+
+    public class SeaportFactory : IMapObjectFactory
+    {
+        public MapObject Create()
+        {
+            return new Seaport(
+                new Area(2, 6)
+            );
+        }
+    }
+
 

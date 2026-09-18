@@ -51,13 +51,14 @@ namespace CitySkylines_REMAKE
 
         private void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IPathFinder, AStarPathFinder>();
             // Map и генератор
             services.AddSingleton<IMapGenerator, MapGenerator>();
             services.AddSingleton<PlacementRepository>();
             services.AddSingleton<IUtilityService, UtilityService>();
             services.AddSingleton<GraphService>();
             services.AddTransient<ChartsWindowViewModel>();
-
+            services.AddSingleton<MovingEntityAnimationService>();
             services.AddSingleton<MapModel>(sp =>
             {
                 var generator = sp.GetRequiredService<IMapGenerator>();

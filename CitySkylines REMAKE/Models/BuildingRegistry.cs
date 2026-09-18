@@ -158,12 +158,24 @@ namespace CitySimulatorWPF.Models
                 "Assets/Icons/UtilityOffice.png" // Нужно будет добавить иконку
             ));
 
+            //infrastructure.Objects.Add(new ObjectVM(
+            //    new AirPortFactory(),
+            //        "Аэрпорт",
+            //        "Assets/Icons/AirPort.png"
+            //    )
+            //);
+
             infrastructure.Objects.Add(new ObjectVM(
-                new AirPortFactory(),
-                    "Аэрпорт",
-                    "Assets/Icons/AirPort.png"
-                )
-            ); 
+                new AirportFactory(),
+                "Аэропорт",
+                ""
+            ));
+
+            infrastructure.Objects.Add(new ObjectVM(
+                new SeaportFactory(),
+                "Морской порт",
+                ""
+            ));
 
 
             // Добавление категорий в реестр

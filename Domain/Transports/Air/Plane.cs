@@ -1,6 +1,15 @@
-﻿namespace Domain.Transports.Air;
+﻿using Domain.Common.Base;
+using Domain.Map;
 
-public class Plane
+namespace Domain.Transports
 {
-    
+    public class Plane : MovingEntity
+    {
+        public Plane(float speed)
+            : base(
+                area: new Area(1, 1),
+                speed: speed)
+        {
+        }
+    }
 }

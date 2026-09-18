@@ -179,6 +179,32 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+			<!-- Слой временных самолетов и кораблей -->
+			<ItemsControl ItemsSource="{Binding MovingEntities}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<Canvas />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+
+				<ItemsControl.ItemContainerStyle>
+					<Style>
+						<Setter Property="Canvas.Left"
+								Value="{Binding PixelX}" />
+
+						<Setter Property="Canvas.Top"
+								Value="{Binding PixelY}" />
+					</Style>
+				</ItemsControl.ItemContainerStyle>
+
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Ellipse Width="6"
+								 Height="6"
+								 Fill="Black" />
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
 
         </Grid>
     </ScrollViewer>
