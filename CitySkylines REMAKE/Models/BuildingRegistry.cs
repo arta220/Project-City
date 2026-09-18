@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Factories;
 using Domain.Map;
 using System.Collections.ObjectModel;
+using Domain.Buildings.Infrastructure;
 
 namespace CitySimulatorWPF.Models
 {
@@ -226,14 +227,17 @@ namespace CitySimulatorWPF.Models
                 "Офис ЖКХ",
                 "Assets/Icons/UtilityOffice.png" // Нужно будет добавить иконку
             ));
+            infrastructure.Objects.Add(new ObjectVM(
+                new AirportFactory(),
+                "Аэропорт",
+                "/Icons/AirPort.png"
+            ));
 
             infrastructure.Objects.Add(new ObjectVM(
-                new AirPortFactory(),
-                    "Аэрпорт",
-                    "Assets/Icons/AirPort.png"
-                )
-            ); 
-
+                new SeaportFactory(),
+                "Морской порт",
+                "/Icons/SeaPort.png"
+            ));
 
             // Добавление категорий в реестр
             Categories.Add(infrastructure);

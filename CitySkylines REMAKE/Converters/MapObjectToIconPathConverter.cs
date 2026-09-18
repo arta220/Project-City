@@ -6,6 +6,7 @@ using Domain.Buildings.Residential;
 using Domain.Common.Base;
 using Domain.Base;
 using Domain.Common.Enums;
+using Domain.Buildings.Infrastructure;
 
 namespace CitySimulatorWPF.Converters
 {
@@ -67,7 +68,11 @@ namespace CitySimulatorWPF.Converters
                     _ => null
                 };
             }
+            if (mapObject is Airport)
+                return "/Icons/AirPort.png";
 
+            if (mapObject is Seaport)
+                return "/Icons/SeaPort.png";
             // Дорога
             // if (mapObject is Road)
             //     return "/Icons/Road.png";

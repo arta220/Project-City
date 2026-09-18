@@ -1,0 +1,35 @@
+using Domain.Buildings.Infrastructure;
+using Domain.Common.Base.MovingEntities;
+using Domain.Common.Enums;
+using Domain.Map;
+
+namespace Services.EntityMovement.Profile
+{
+    public class ShipNavigationProfile : INavigationProfile
+    {
+        private readonly MapModel _mapModel;
+
+        public ShipNavigationProfile(MapModel mapModel)
+        {
+            _mapModel = mapModel;
+        }
+
+        public bool CanEnter(Position pos)
+        {
+            if (!_mapModel.IsPositionInBounds(pos))
+                return false;
+
+            var tile = _mapModel[pos];
+
+            if (tile.MapObject is Seaport)
+                return true;
+
+            return tile.Terrain == TerrainType.Water;
+        }
+
+        public int GetTileCost(Position pos)
+        {
+            return 10;
+        }
+    }
+}

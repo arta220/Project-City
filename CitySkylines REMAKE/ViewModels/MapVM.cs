@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using Domain.Buildings.Infrastructure;
 
 namespace CitySimulatorWPF.ViewModels
 {
@@ -70,7 +71,9 @@ namespace CitySimulatorWPF.ViewModels
                      IUtilityService utilityService,
                      IPathConstructionService pathService,
                      IDisasterService disasterService,
-                     CitizenFactory citizenFactory)
+                     CitizenFactory citizenFactory,
+                     IMovingEntityAnimationService movingEntityAnimationService,
+                     )
         {
             _simulation = simulation;
             _roadService = roadService;
@@ -82,6 +85,7 @@ namespace CitySimulatorWPF.ViewModels
             _pathService = pathService;
             _disasterService = disasterService;
             _citizenFactory = citizenFactory;
+            _movingEntityAnimationService = movingEntityAnimationService;
             _citizenManager.StartSimulation(citizenSimulation);
             _carManager.StartSimulation(transportSimulation);
 
@@ -110,7 +114,9 @@ namespace CitySimulatorWPF.ViewModels
             StartSimulationAfterUIReady();
 
         }
-
+        private readonly IMovingEntityAnimationService _movingEntityAnimationService;
+        public ObservableCollection<MovingEntityVM> MovingEntities =>
+    _movingEntityAnimationService.Entities;
         private void OnMapObjectPlaced(MapObject mapObject)
         {
             var (placement, found) = _simulation.GetMapObjectPlacement(mapObject);
@@ -122,6 +128,16 @@ namespace CitySimulatorWPF.ViewModels
             var iconVm = new BuildingIconVM(mapObject, (Placement)placement, tileSize);
             BuildingIcons.Add(iconVm);
         }
+
+        public void SendPlaneTo(Position position)
+{
+    _movingEntityAnimationService.SendPlane(position);
+}
+
+public void SendShipTo(Position position)
+{
+    _movingEntityAnimationService.SendShip(position);
+}
 
         private void OnMapObjectRemoved(MapObject mapObject)
         {
@@ -215,6 +231,37 @@ namespace CitySimulatorWPF.ViewModels
                 "3. Жилой дом: (35,35) - СЛОМАНО ЭЛЕКТРИЧЕСТВО\n\n" +
                 "Работник должен побежать чинить сломанное ЖКХ."
             );
+        }
+        public void SendPlaneToAirport(Airport airport)
+{
+    var result = _simulation.GetMapObjectPlacement(airport);
+
+    if (!result.found || result.placement is null)
+        return;
+
+    var placement = result.placement.Value;
+
+    var target = new Position(
+        placement.Position.X + placement.Area.Width / 2,
+        placement.Position.Y + placement.Area.Height / 2);
+
+    _movingEntityAnimationService.SendPlane(target);
+}
+
+        public void SendShipToSeaport(Seaport seaport)
+        {
+            var result = _simulation.GetMapObjectPlacement(seaport);
+
+            if (!result.found || result.placement is null)
+                return;
+
+            var placement = result.placement.Value;
+
+            var target = new Position(
+                placement.Position.X + placement.Area.Width / 2,
+                placement.Position.Y + placement.Area.Height / 2);
+
+            _movingEntityAnimationService.SendShip(target);
         }
 
         private void ShowFactoryInfoSimple(IndustrialBuilding factory)
@@ -380,7 +427,7 @@ namespace CitySimulatorWPF.ViewModels
                 _messageService.ShowMessage($"{utilityToFix} отремонтирован!");
             }
         }
-
+        public ObservableCollection<MovingEntityVM> MovingEntities { get; } = new();
         // Убрали второй метод OnTileClicked, так как он был дублирован
 
         private void ShowDisasterDialog(Building building, TileVM tile)

@@ -1,6 +1,16 @@
-﻿namespace Domain.Transports.Air;
+﻿using Domain.Common.Base.MovingEntities;
+using Domain.Map;
 
-public class Plane
+namespace Domain.Transports.Air
 {
-    
+    public class Plane : MovingEntity
+    {
+        public Plane(
+            float speed,
+            INavigationProfile navigationProfile)
+            : base(new Area(1, 1), speed)
+        {
+            NavigationProfile = navigationProfile;
+        }
+    }
 }

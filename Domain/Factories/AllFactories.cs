@@ -10,9 +10,27 @@ using Domain.Common.Enums;
 using Domain.Factories;
 using Domain.Infrastructure;
 using Domain.Map;
+using Domain.Buildings.Infrastructure;
 
 namespace Domain.Factories
 {
+    public class AirportFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Airport(
+                area: new Area(2, 6)
+            );
+    }
+
+    public class SeaportFactory : IMapObjectFactory
+    {
+        public MapObject Create() =>
+            new Seaport(
+                area: new Area(2, 6)
+            );
+    }   
+
+
     public class HospitalFactory : IMapObjectFactory
     {
         public MapObject Create()

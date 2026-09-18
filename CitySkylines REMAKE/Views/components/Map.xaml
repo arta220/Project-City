@@ -14,7 +14,15 @@
         <conv:ResourceTypeToBrushConverter x:Key="ResourceTypeToBrushConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <conv:MapObjectToIconPathConverter x:Key="MapObjectToIconPathConverter" />
-        
+        <Style x:Key="MovingEntityStyle"
+            TargetType="Ellipse">
+            <Setter Property="Width"
+                    Value="6" />
+            <Setter Property="Height"
+                    Value="6" />
+            <Setter Property="Fill"
+                    Value="Black" />
+        </Style>
         <!-- Простой стиль для гражданина -->
         <Style x:Key="CitizenStyle"
                TargetType="Ellipse">
@@ -185,6 +193,31 @@
 
             </Grid>
 
+            <!-- Слой временных движущихся сущностей -->
+        <ItemsControl ItemsSource="{Binding MovingEntities}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemContainerStyle>
+                <Style>
+                    <Setter Property="Canvas.Left"
+                            Value="{Binding PixelX}" />
+
+                    <Setter Property="Canvas.Top"
+                            Value="{Binding PixelY}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Ellipse Style="{StaticResource MovingEntityStyle}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
             <!-- Слой личного транспорта (машины) поверх тайлов, вместе с гражданами -->
             <ItemsControl ItemsSource="{Binding Cars}">
                 <ItemsControl.ItemsPanel>
